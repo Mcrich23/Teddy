@@ -10,7 +10,7 @@ import AppleProductTypes
 let package = Package(
     name: "Project Ravo",
     platforms: [
-        .iOS("16.0")
+        .iOS("26.0")
     ],
     products: [
         .iOSApplication(
@@ -31,6 +31,10 @@ let package = Package(
                 .landscapeRight,
                 .landscapeLeft,
                 .portraitUpsideDown(.when(deviceFamilies: [.pad]))
+            ],
+            capabilities: [
+                .microphone(purposeString: "Project Ravo would like to use your microphone."),
+                .speechRecognition(purposeString: "Project Ravo would like to use speech recognition software.")
             ]
         )
     ],
@@ -40,5 +44,5 @@ let package = Package(
             path: "."
         )
     ],
-    swiftLanguageVersions: [.v6]
+    swiftLanguageVersions: [.version("6")]
 )
