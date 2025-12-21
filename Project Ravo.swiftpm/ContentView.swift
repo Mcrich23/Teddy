@@ -20,11 +20,17 @@ struct ContentView: View {
                 .fixedSize(horizontal: false, vertical: true)
             if let modelResponse = modelController.modelResponse, !NSAttributedString(modelResponse).string.isEmpty {
                 GroupBox {
-                    DynamicScrollView(maxHeight: 200) {
-                        Text(modelResponse)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .multilineTextAlignment(.leading)
+                    ScrollViewReader { proxy in
+                        DynamicScrollView(maxHeight: 200) {
+                            Text(modelResponse)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .multilineTextAlignment(.leading)
+                                .id("model_response")
+                        }
+                        .onChange(of: modelResponse) {
+                            proxy.scrollTo("model_response", anchor: .bottom)
+                        }
                     }
                 }
             }
