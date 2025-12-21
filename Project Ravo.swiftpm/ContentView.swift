@@ -20,12 +20,12 @@ struct ContentView: View {
                 .fixedSize(horizontal: false, vertical: true)
             if let modelResponse = modelController.modelResponse, !NSAttributedString(modelResponse).string.isEmpty {
                 GroupBox {
-                    ScrollView {
+                    DynamicScrollView(maxHeight: 200) {
                         Text(modelResponse)
                             .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .multilineTextAlignment(.leading)
                     }
-                    .scrollBounceBehavior(.basedOnSize)
-                    .frame(maxHeight: 200)
                 }
             }
             Button {
