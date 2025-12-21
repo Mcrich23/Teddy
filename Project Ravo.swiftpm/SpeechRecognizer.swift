@@ -28,7 +28,7 @@ actor SpeechRecognizer: ObservableObject {
         }
     }
     
-    @MainActor @Published var transcript: String = ""
+    @MainActor @Published private(set) var transcript: String = ""
     @MainActor @Published var inputNoiseLevel: CGFloat = 0.0
     
     private var recorderTap: AVAudioEngine?

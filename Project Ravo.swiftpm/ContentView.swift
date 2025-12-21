@@ -4,8 +4,7 @@ import FoundationModels
 struct ContentView: View {
     @StateObject var speechRecognizer = SpeechRecognizer()
     @State private var isRecording = false
-    @State private var modelResponse: AttributedString?
-    private let session = LanguageModelSession()
+    @State var modelController = VoiceActivatedFMController()
     
     var body: some View {
         VStack {
@@ -19,7 +18,7 @@ struct ContentView: View {
             Spacer()
             Text(speechRecognizer.transcript)
                 .fixedSize(horizontal: false, vertical: true)
-            if let modelResponse, !NSAttributedString(modelResponse).string.isEmpty {
+            if let modelResponse = modelController.modelResponse, !NSAttributedString(modelResponse).string.isEmpty {
                 GroupBox {
                     ScrollView {
                         Text(modelResponse)
@@ -27,20 +26,40 @@ struct ContentView: View {
                     }
                     .scrollBounceBehavior(.basedOnSize)
                     .frame(maxHeight: 200)
-                    .layoutPriority(-1)
                 }
             }
-            Button(isRecording ? "Stop" : "Record", systemImage: isRecording ? "pause" : "record.circle") {
+            Button {
                 switch isRecording {
                 case true:
                     endTranscription()
+                    modelController.respondTask?.cancel()
                 case false:
                     startTranscription()
                 }
+            } label: {
+                switch isRecording {
+                case true:
+                    Label("Recording...", systemImage: "record.circle")
+                        .foregroundStyle(.red)
+                case false:
+                    Label("Paused", systemImage: "pause")
+                }
             }
-            .disabled(session.isResponding)
+            .labelStyle(.titleAndIcon)
+            .font(.title3)
         }
         .padding()
+        .onAppear {
+            startTranscription()
+        }
+        .onChange(of: speechRecognizer.transcript) {
+            Task {
+                let didRespond = await modelController.pendModelResponse(from: Binding(get: { speechRecognizer.transcript }, set: {_ in}))
+                if didRespond {
+                    startTranscription()
+                }
+            }
+        }
     }
     
     private func startTranscription() {
@@ -52,22 +71,6 @@ struct ContentView: View {
     private func endTranscription() {
         speechRecognizer.stopTranscribing()
         isRecording = false
-        Task {
-            do {
-                try await getModelResponse()
-            } catch {
-                print(error)
-            }
-        }
-    }
-    
-    private func getModelResponse() async throws {
-        guard !session.isResponding else { return }
-        let stream = session.streamResponse(to: speechRecognizer.transcript)
-        
-        for try await chunk in stream {
-            modelResponse = try? AttributedString(styledMarkdown: chunk.content)
-        }
     }
 }
 
