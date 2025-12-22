@@ -9,7 +9,7 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Group {
-                Image(systemName: "globe")
+                Image(systemName: "music.microphone")
                     .imageScale(.large)
                     .foregroundColor(.accentColor)
                 Text("Project Ravo")
