@@ -16,7 +16,8 @@ struct ContentView: View {
             }
                 .font(.largeTitle)
             Spacer()
-            Text(speechRecognizer.transcript)
+            Text(speechRecognizer.transcript.components(separatedBy: " ").suffix(9).joined(separator: " "))
+                .lineLimit(1)
                 .fixedSize(horizontal: false, vertical: true)
             if let modelResponse = modelController.modelResponse, !NSAttributedString(modelResponse).string.isEmpty {
                 GroupBox {

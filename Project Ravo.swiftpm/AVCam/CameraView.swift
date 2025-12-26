@@ -11,6 +11,9 @@ import AVKit
 
 @MainActor
 struct CameraView<CameraModel: Camera>: PlatformView {
+    @StateObject var speechRecognizer = SpeechRecognizer()
+    @State private var isRecording = false
+    @State var modelController = VoiceActivatedFMController()
     
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -56,6 +59,19 @@ struct CameraView<CameraModel: Camera>: PlatformView {
             // The main camera user interface.
             CameraUI(camera: camera, swipeDirection: $swipeDirection)
         }
+        .onAppear {
+            startTranscription()
+        }
+        .onChange(of: speechRecognizer.transcript) {
+            Task {
+                let didRespond = await modelController.pendModelResponse(from: Binding(get: { speechRecognizer.transcript }, set: {_ in}))
+                if didRespond {
+                    startTranscription()
+                }
+            }
+        }
+        .environment(modelController)
+        .environmentObject(speechRecognizer)
     }
 
     var swipeGesture: some Gesture {
@@ -64,6 +80,17 @@ struct CameraView<CameraModel: Camera>: PlatformView {
                 // Capture swipe direction.
                 swipeDirection = $0.translation.width < 0 ? .left : .right
             }
+    }
+    
+    private func startTranscription() {
+        speechRecognizer.resetTranscript()
+        speechRecognizer.startTranscribing()
+        isRecording = true
+    }
+    
+    private func endTranscription() {
+        speechRecognizer.stopTranscribing()
+        isRecording = false
     }
 }
 
