@@ -6,6 +6,7 @@ Supporting data types for the app.
 */
 
 import AVFoundation
+import FoundationModels
 
 // MARK: - Supporting types
 
@@ -158,6 +159,7 @@ enum CaptureActivity {
 }
 
 /// An enumeration of the capture modes that the camera supports.
+@Generable
 enum CaptureMode: String, Identifiable, CaseIterable, Codable {
     var id: Self { self }
     /// A mode that enables photo capture.
