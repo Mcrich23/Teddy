@@ -178,27 +178,25 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
     
     @ViewBuilder
     var flashMenu: some View {
-        GlassEffectContainer {
-            ZStack {
-                ForEach(unpickedFlashModes, id: \.self) { mode in
-                    if let index = FlashMode.allCases.filter({ $0 != camera.flashMode }).firstIndex(of: mode) {
-                        flashMenuButton(mode)
-                            .offset(y: CGFloat(isShowingFlashMenuDict[mode] == true ? (50 + (50*index)) : 0))
-                    }
+        ZStack {
+            ForEach(unpickedFlashModes, id: \.self) { mode in
+                if let index = FlashMode.allCases.filter({ $0 != camera.flashMode }).firstIndex(of: mode) {
+                    flashMenuButton(mode)
+                        .offset(y: CGFloat(isShowingFlashMenuDict[mode] == true ? (60 + (60*index)) : 0))
                 }
-                Button {
-                    withAnimation(.smooth) {
-                        isShowingFlashMenu.toggle()
-                    }
-                } label: {
-                    Image(systemName: flashSymbol(camera.flashMode))
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 30, height: 30)
-                }
-                .foregroundStyle(Color.white)
-                .opacity(isShowingFlashMenu ? 0.5 : 1)
             }
+            Button {
+                withAnimation(.smooth) {
+                    isShowingFlashMenu.toggle()
+                }
+            } label: {
+                Image(systemName: flashSymbol(camera.flashMode))
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 30, height: 30)
+            }
+            .foregroundStyle(Color.white)
+            .opacity(isShowingFlashMenu ? 0.5 : 1)
         }
         .onChange(of: isShowingFlashMenu) { _, newValue in
             if newValue {

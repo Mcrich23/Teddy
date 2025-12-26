@@ -37,100 +37,98 @@ struct ZoomModeView<CameraModel: Camera>: PlatformView {
     var body: some View {
         
 //        GeometryReader { geo in
-        GlassEffectContainer {
-            VStack {
-                if camera.isPrecisionZooming {
-                    ScrollView(.horizontal) {
-                        HStack(spacing: 5) {
-                            Color.clear
-                                .frame(width: width/2)
-                                .id(zoomRange.first)
-                            ForEach(zoomRange, id: \.self) { zoomFactor in
-                                if zoomFactor == zoomRange.last, let stringForValue = stringForValue(zoomFactor) {
+        VStack {
+            if camera.isPrecisionZooming {
+                ScrollView(.horizontal) {
+                    HStack(spacing: 5) {
+                        Color.clear
+                            .frame(width: width/2)
+                            .id(zoomRange.first)
+                        ForEach(zoomRange, id: \.self) { zoomFactor in
+                            if zoomFactor == zoomRange.last, let stringForValue = stringForValue(zoomFactor) {
+                                VStack(spacing: 0) {
+                                    Rectangle()
+                                        .fill(id(for: zoomFactor, adding: 0) == zoom ? Color.accentColor : .white)
+                                        .frame(width: 2, height: 15)
+                                        .padding(.bottom, 3)
+                                    Spacer()
+                                        .frame(width: 2, height: 15)
+                                        .overlay {
+                                            Text(stringForValue)
+                                                .minimumScaleFactor(0.6)
+                                                .frame(height: 15)
+                                                .fixedSize()
+                                        }
+                                }
+                                .foregroundStyle(id(for: zoomFactor, adding: 0) == zoom ? Color.accentColor : .white)
+                                .id(id(for: zoomFactor, adding: 0))
+                            } else {
+                                ForEach(0..<5) { i in
                                     VStack(spacing: 0) {
                                         Rectangle()
-                                            .fill(id(for: zoomFactor, adding: 0) == zoom ? Color.accentColor : .white)
-                                            .frame(width: 2, height: 15)
+                                            .fill(id(for: zoomFactor, adding: i) == zoom ? Color.accentColor : .white)
+                                            .frame(width: 2, height: i == 0 ? 15 : 7)
                                             .padding(.bottom, 3)
                                         Spacer()
                                             .frame(width: 2, height: 15)
                                             .overlay {
-                                                Text(stringForValue)
-                                                    .minimumScaleFactor(0.6)
-                                                    .frame(height: 15)
-                                                    .fixedSize()
+                                                if i == 0, let stringForValue = stringForValue(zoomFactor) {
+                                                    Text(stringForValue)
+                                                        .minimumScaleFactor(0.6)
+                                                        .frame(height: 15)
+                                                        .fixedSize()
+                                                }
                                             }
                                     }
-                                    .foregroundStyle(id(for: zoomFactor, adding: 0) == zoom ? Color.accentColor : .white)
-                                    .id(id(for: zoomFactor, adding: 0))
-                                } else {
-                                    ForEach(0..<5) { i in
-                                        VStack(spacing: 0) {
-                                            Rectangle()
-                                                .fill(id(for: zoomFactor, adding: i) == zoom ? Color.accentColor : .white)
-                                                .frame(width: 2, height: i == 0 ? 15 : 7)
-                                                .padding(.bottom, 3)
-                                            Spacer()
-                                                .frame(width: 2, height: 15)
-                                                .overlay {
-                                                    if i == 0, let stringForValue = stringForValue(zoomFactor) {
-                                                        Text(stringForValue)
-                                                            .minimumScaleFactor(0.6)
-                                                            .frame(height: 15)
-                                                            .fixedSize()
-                                                    }
-                                                }
-                                        }
-                                        .foregroundStyle(id(for: zoomFactor, adding: i) == zoom ? Color.accentColor : .white)
-                                        .id(id(for: zoomFactor, adding: i))
-                                    }
+                                    .foregroundStyle(id(for: zoomFactor, adding: i) == zoom ? Color.accentColor : .white)
+                                    .id(id(for: zoomFactor, adding: i))
                                 }
                             }
-                            Color.clear
-                                .frame(width: width/2)
-                                .id(zoomRange.last)
                         }
-                        .scrollTargetLayout()
+                        Color.clear
+                            .frame(width: width/2)
+                            .id(zoomRange.last)
                     }
-                    .scrollIndicators(.hidden)
-                    //        .scrollTargetBehavior(.viewAligned)
-                    .scrollPosition(id: $zoom, anchor: .center)
-                } else {
-                    HStack(spacing: 30) {
-                        ForEach(camera.zoomFactors, id: \.self) { factor in
-                            zoomButton(factor)
-                        }
+                    .scrollTargetLayout()
+                }
+                .scrollIndicators(.hidden)
+                //        .scrollTargetBehavior(.viewAligned)
+                .scrollPosition(id: $zoom, anchor: .center)
+            } else {
+                HStack(spacing: 30) {
+                    ForEach(camera.zoomFactors, id: \.self) { factor in
+                        zoomButton(factor)
                     }
                 }
             }
-            .frame(height: 30)
-            .onGeometryChange(for: CGSize.self, of: { proxy in
-                proxy.size
-            }, action: { newValue in
-                self.width = newValue.width
-            })
-            .buttonStyle(DefaultButtonStyle(size: .large))
-            .materialOpacity(0.8)
-            .padding()
-            .background(
-                Capsule()
-                    .fill(.black.opacity(0.3))
-            )
-            .onChange(of: camera.currentZoom, { _, newValue in
-                guard newValue != camera.currentZoom else { return }
-                self.zoom = newValue
-            })
-            .onChange(of: camera.isPrecisionZooming) { _, newValue in
-                self.zoom = !newValue ? nil : camera.currentZoom
-            }
-            .onChange(of: zoom) { _, newValue in
-                guard let newValue else { return }
-                self.camera.currentZoom = newValue
-            }
-            .padding([.leading, .trailing])
-            // Hide the toolbar items when a person interacts with capture controls.
-            .opacity(camera.prefersMinimizedUI ? 0 : 1)
         }
+        .frame(height: 30)
+        .onGeometryChange(for: CGSize.self, of: { proxy in
+            proxy.size
+        }, action: { newValue in
+            self.width = newValue.width
+        })
+        .buttonStyle(DefaultButtonStyle(size: .large))
+        .materialOpacity(0.8)
+        .padding()
+        .background(
+            Capsule()
+                .fill(.black.opacity(0.3))
+        )
+        .onChange(of: camera.currentZoom, { _, newValue in
+            guard newValue != camera.currentZoom else { return }
+            self.zoom = newValue
+        })
+        .onChange(of: camera.isPrecisionZooming) { _, newValue in
+            self.zoom = !newValue ? nil : camera.currentZoom
+        }
+        .onChange(of: zoom) { _, newValue in
+            guard let newValue else { return }
+            self.camera.currentZoom = newValue
+        }
+        .padding([.leading, .trailing])
+        // Hide the toolbar items when a person interacts with capture controls.
+        .opacity(camera.prefersMinimizedUI ? 0 : 1)
     }
     
     @ViewBuilder
