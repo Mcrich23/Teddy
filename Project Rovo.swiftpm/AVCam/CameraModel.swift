@@ -249,7 +249,7 @@ final class CameraModel: Camera {
     
     /// Toggles the state of recording.
     func toggleRecording() async {
-        switch await captureService.captureActivity {
+        switch captureService.captureActivity {
         case .movieCapture:
             do {
                 // If currently recording, stop the recording and write the movie to the library.
@@ -261,7 +261,7 @@ final class CameraModel: Camera {
         default:
             // In any other case, start recording.
             do {
-                try await captureService.startRecording()
+                try captureService.startRecording()
             } catch {
                 self.error = error
             }

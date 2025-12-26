@@ -13,12 +13,17 @@ import AVKit
 struct CameraView<CameraModel: Camera>: PlatformView {
     @StateObject var speechRecognizer = SpeechRecognizer()
     @State private var isRecording = false
-    @State var modelController = VoiceActivatedFMController()
+    @State var modelController: VoiceActivatedFMController<CameraModel>
     
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     @State var camera: CameraModel
+    
+    init(camera: CameraModel) {
+        self.camera = camera
+        self.modelController = VoiceActivatedFMController(camera: camera)
+    }
     
     // The direction a person swipes on the camera preview or mode selector.
     @State var swipeDirection = SwipeDirection.left

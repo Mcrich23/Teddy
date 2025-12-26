@@ -19,7 +19,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.orientation) var orientation
     
-    @Environment(VoiceActivatedFMController.self) var modelController
+    @Environment(VoiceActivatedFMController<CameraModel>.self) var modelController
     @EnvironmentObject var speechRecognizer: SpeechRecognizer
     
     /// The `CGRect` for the UI.

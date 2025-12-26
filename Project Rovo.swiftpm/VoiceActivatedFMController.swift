@@ -11,9 +11,13 @@ import SwiftUI
 
 @Observable
 @MainActor
-final class VoiceActivatedFMController {
+final class VoiceActivatedFMController<CameraModel: Camera> {
     var modelResponse: AttributedString?
-    private let session = LanguageModelSession()
+    private let session: LanguageModelSession
+    
+    init(camera: CameraModel) {
+        self.session = LanguageModelSession(tools: Self.getTools(camera: camera), instructions: "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text.")
+    }
     
     var isResponding: Bool { session.isResponding }
     
@@ -47,6 +51,13 @@ final class VoiceActivatedFMController {
         for try await chunk in stream {
             modelResponse = try? AttributedString(styledMarkdown: chunk.content)
         }
+    }
+    
+    // MARK: – Tool Stuff
+    private static func getTools(camera: CameraModel) -> [any Tool] {
+        [
+            CaptureTool(camera: camera)
+        ]
     }
 }
 

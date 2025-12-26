@@ -4,7 +4,7 @@ import FoundationModels
 struct ContentView: View {
     @StateObject var speechRecognizer = SpeechRecognizer()
     @State private var isRecording = false
-    @State var modelController = VoiceActivatedFMController()
+    @State var modelController = VoiceActivatedFMController(camera: PreviewCameraModel())
     
     var body: some View {
         VStack {
