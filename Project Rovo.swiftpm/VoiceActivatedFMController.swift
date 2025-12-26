@@ -15,8 +15,8 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     var modelResponse: AttributedString?
     private let session: LanguageModelSession
     
-    init(camera: CameraModel) {
-        self.session = LanguageModelSession(tools: Self.getTools(camera: camera), instructions: "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text.")
+    init(camera: CameraModel, toolUIManager: ToolEnabledUIManager) {
+        self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text.")
     }
     
     var isResponding: Bool { session.isResponding }
@@ -54,10 +54,25 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     }
     
     // MARK: – Tool Stuff
-    private static func getTools(camera: CameraModel) -> [any Tool] {
+    /// Generates an array of tools to use.
+    private static func getTools(camera: CameraModel, toolUIManager: ToolEnabledUIManager) -> [any Tool] {
         [
-            CaptureTool(camera: camera)
+            CaptureTool(camera: camera),
+            SwitchCameraTool(camera: camera, uiManager: toolUIManager),
+            GetAvailableCamerasTool(camera: camera)
         ]
+    }
+}
+
+@Observable
+@MainActor
+final class ToolEnabledUIManager {
+    /// The rotation of the ``SwitchCameraButton`` label.
+    private(set) var cameraFlipRotation: CGFloat = 0
+    
+    /// Updates ``cameraFlipRotation``
+    func flipCamera() {
+        cameraFlipRotation += 180
     }
 }
 

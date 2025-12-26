@@ -6,6 +6,7 @@ A protocol that represents the model for the camera view.
 */
 
 import SwiftUI
+import AVFoundation
 
 /// A protocol that represents the model for the camera view.
 ///
@@ -36,7 +37,15 @@ protocol Camera: AnyObject, Sendable {
     var prefersMinimizedUI: Bool { get }
 
     /// Switches between video devices available on the host system.
-    func switchVideoDevices() async
+    @discardableResult
+    func switchVideoDevices() async throws -> AVCaptureDevice.DeviceType
+    
+    /// Switches between video devices available on the host system.
+    @discardableResult
+    func switchVideoDevices(to device: AVCaptureDevice?) async throws -> AVCaptureDevice.DeviceType
+    
+    /// A dictionary of all of the available cameras
+    var availableCameras: [CameraPosition : AVCaptureDevice] { get }
     
     /// A Boolean value that indicates whether the camera is currently switching video devices.
     var isSwitchingVideoDevices: Bool { get }

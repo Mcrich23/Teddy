@@ -9,21 +9,20 @@ import SwiftUI
 
 /// A view that displays a button to switch between available cameras.
 struct SwitchCameraButton<CameraModel: Camera>: View {
-    
+    @Environment(ToolEnabledUIManager.self) var toolUIManager
     @State var camera: CameraModel
-    @State var cameraFlipRotation: CGFloat = 0
     
     var body: some View {
         Button {
             Task {
-                await camera.switchVideoDevices()
+                try await camera.switchVideoDevices()
             }
             withAnimation(.bouncy) {
-                cameraFlipRotation += 180
+                toolUIManager.flipCamera()
             }
         } label: {
             Image(systemName: "arrow.triangle.2.circlepath")
-                .rotationEffect(.degrees(cameraFlipRotation))
+                .rotationEffect(.degrees(toolUIManager.cameraFlipRotation))
         }
         .frame(width: largeButtonSize.width, height: largeButtonSize.height)
         .disabled(camera.captureActivity.isRecording)

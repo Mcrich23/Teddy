@@ -186,10 +186,24 @@ final class CameraModel: Camera {
     }
     
     /// Selects the next available video device for capture.
-    func switchVideoDevices() async {
+    func switchVideoDevices() async throws -> AVCaptureDevice.DeviceType {
+        try await switchVideoDevices(to: nil)
+    }
+    
+    /// Selects the next available video device for capture.
+    func switchVideoDevices(to device: AVCaptureDevice? = nil) async throws -> AVCaptureDevice.DeviceType {
+        if let device {
+            try captureService.changeCaptureDevice(to: device)
+            return device.deviceType
+        }
+        
         isSwitchingVideoDevices = true
         defer { isSwitchingVideoDevices = false }
-        await captureService.selectNextVideoDevice()
+        return try captureService.selectNextVideoDevice().deviceType
+    }
+    
+    var availableCameras: [CameraPosition : AVCaptureDevice] {
+        captureService.deviceLookup.cameras
     }
     
     // MARK: - Photo capture

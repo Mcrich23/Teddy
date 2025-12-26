@@ -19,10 +19,13 @@ struct CameraView<CameraModel: Camera>: PlatformView {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     @State var camera: CameraModel
+    @State var toolUIManager: ToolEnabledUIManager
     
     init(camera: CameraModel) {
         self.camera = camera
-        self.modelController = VoiceActivatedFMController(camera: camera)
+        let toolUIManager = ToolEnabledUIManager()
+        self.toolUIManager = toolUIManager
+        self.modelController = VoiceActivatedFMController(camera: camera, toolUIManager: toolUIManager)
     }
     
     // The direction a person swipes on the camera preview or mode selector.
@@ -77,6 +80,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
             }
         }
         .environment(modelController)
+        .environment(toolUIManager)
         .environmentObject(speechRecognizer)
     }
 

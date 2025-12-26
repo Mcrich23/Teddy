@@ -7,6 +7,7 @@ A Camera implementation to use when working with SwiftUI previews.
 
 import Foundation
 import SwiftUI
+import AVFoundation
 
 @Observable
 class PreviewCameraModel: Camera {
@@ -65,8 +66,17 @@ class PreviewCameraModel: Camera {
         }
     }
     
-    func switchVideoDevices() {
+    func switchVideoDevices(to device: AVCaptureDevice?) async throws -> AVCaptureDevice.DeviceType {
         logger.debug("Device switching isn't implemented in PreviewCamera.")
+        return .external
+    }
+    
+    func switchVideoDevices() async throws -> AVCaptureDevice.DeviceType {
+        try await switchVideoDevices(to: nil)
+    }
+    
+    var availableCameras: [CameraPosition : AVCaptureDevice] {
+        [:]
     }
     
     func capturePhoto() {

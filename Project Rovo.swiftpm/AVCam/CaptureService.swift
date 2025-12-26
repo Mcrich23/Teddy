@@ -56,7 +56,7 @@ final class CaptureService {
     private(set) var captureMode = CaptureMode.photo
     
     // An object the service uses to retrieve capture devices.
-    private let deviceLookup = DeviceLookup()
+    let deviceLookup = DeviceLookup()
     
     // An object that monitors the state of the system-preferred camera.
     private let systemPreferredCamera = SystemPreferredCameraObserver()
@@ -373,7 +373,7 @@ final class CaptureService {
     /// The app calls this method in response to the user tapping the button in the UI to change cameras.
     /// The implementation switches between the front and back cameras and, in iPadOS,
     /// connected external cameras.
-    func selectNextVideoDevice() {
+    func selectNextVideoDevice() throws -> AVCaptureDevice {
         // The array of available video capture devices.
         let videoDevices = Array(deviceLookup.cameras.values)
 
@@ -388,17 +388,20 @@ final class CaptureService {
         
         let nextDevice = videoDevices[nextIndex]
         // Change the session's active capture device.
-        changeCaptureDevice(to: nextDevice)
+        try changeCaptureDevice(to: nextDevice)
         
-        // The app only calls this method in response to the user requesting to switch cameras.
-        // Set the new selection as the user's preferred camera.
-        AVCaptureDevice.userPreferredCamera = nextDevice
+        return nextDevice
     }
     
     // Changes the device the service uses for video capture.
-    private func changeCaptureDevice(to device: AVCaptureDevice) {
+    func changeCaptureDevice(to device: AVCaptureDevice) throws {
         // The service must have a valid video input prior to calling this method.
         guard let currentInput = activeVideoInput else { fatalError() }
+        
+        let videoDevices = Array(deviceLookup.cameras.values)
+        guard videoDevices.contains(device) else {
+            throw AVError(.deviceNotConnected)
+        }
         setZoomControls(for: device)
         
         // Bracket the following configuration in a begin/commit configuration pair.
@@ -422,6 +425,10 @@ final class CaptureService {
             // Reconnect the existing camera on failure.
             captureSession.addInput(currentInput)
         }
+        
+        // The app only calls this method in response to the user requesting to switch cameras.
+        // Set the new selection as the user's preferred camera.
+        AVCaptureDevice.userPreferredCamera = device
     }
     
     /// Monitors changes to the system's preferred camera selection.
@@ -437,7 +444,7 @@ final class CaptureService {
                 // If the SPC isn't the currently selected camera, attempt to change to that device.
                 if let camera, !currentDevice.constituentDevices.contains(where: { $0.deviceType == camera.deviceType }) {
                     logger.debug("Switching camera selection to the system-preferred camera.")
-                    changeCaptureDevice(to: camera)
+                    try? changeCaptureDevice(to: camera)
                 }
             }
         }
