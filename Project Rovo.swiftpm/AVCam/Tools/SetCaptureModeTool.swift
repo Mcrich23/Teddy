@@ -9,8 +9,8 @@ import Foundation
 import FoundationModels
 
 struct SetCaptureModeTool<CameraModel: Camera>: Tool {
-    let name: String = "setVideo"
-    let description: String = "Switches the capture mode to video."
+    let name: String = "setCaptureMode"
+    let description: String = "Switches the capture mode."
     
     let camera: CameraModel
     
