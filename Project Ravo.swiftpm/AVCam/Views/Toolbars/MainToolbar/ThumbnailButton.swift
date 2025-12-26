@@ -18,9 +18,9 @@ struct ThumbnailButton<CameraModel: Camera>: View {
     @State private var selectedItems: [PhotosPickerItem] = []
 	
     var body: some View {
-        PhotosPicker( selection: $selectedItems, matching: .images, photoLibrary: .shared()) {
+        Link(destination: URL(string: "photos-redirect://")!, label: {
             thumbnail
-        }
+        })
 		.frame(width: 64.0, height: 64.0)
 		.cornerRadius(8)
         .disabled(camera.captureActivity.isRecording)

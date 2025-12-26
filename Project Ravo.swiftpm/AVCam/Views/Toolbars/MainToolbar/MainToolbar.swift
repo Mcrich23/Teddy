@@ -35,9 +35,9 @@ struct MainToolbar<CameraModel: Camera>: PlatformView {
             ThumbnailButton(camera: camera)
                 // Hide the thumbnail button when a person interacts with capture controls.
                 .opacity(camera.prefersMinimizedUI ? 0 : 1)
-//            Spacer()
+            Spacer()
             CaptureButton(camera: camera)
-//            Spacer()
+            Spacer()
             SwitchCameraButton(camera: camera)
                 // Hide the camera selection when a person interacts with capture controls.
                 .opacity(camera.prefersMinimizedUI ? 0 : 1)
@@ -49,14 +49,12 @@ struct MainToolbar<CameraModel: Camera>: PlatformView {
     }
     
     var regularUI: some View {
-        VStack {
-            ThumbnailButton(camera: camera)
+        VStack(spacing: 30) {
+            SwitchCameraButton(camera: camera)
                 // Hide the thumbnail button when a person interacts with capture controls.
                 .opacity(camera.prefersMinimizedUI ? 0 : 1)
-//            Spacer()
             CaptureButton(camera: camera)
-//            Spacer()
-            SwitchCameraButton(camera: camera)
+            ThumbnailButton(camera: camera)
                 // Hide the camera selection when a person interacts with capture controls.
                 .opacity(camera.prefersMinimizedUI ? 0 : 1)
         }

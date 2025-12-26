@@ -23,8 +23,8 @@ struct SwitchCameraButton<CameraModel: Camera>: View {
             }
         } label: {
             Image(systemName: "arrow.triangle.2.circlepath")
+                .rotationEffect(.degrees(cameraFlipRotation))
         }
-        .rotationEffect(.degrees(cameraFlipRotation))
         .frame(width: largeButtonSize.width, height: largeButtonSize.height)
         .disabled(camera.captureActivity.isRecording)
         .allowsHitTesting(!camera.isSwitchingVideoDevices)

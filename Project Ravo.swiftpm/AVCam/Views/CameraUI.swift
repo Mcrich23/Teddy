@@ -145,7 +145,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
     var regularUI: some View {
         HStack {
             Spacer()
-            VStack {
+            VStack(spacing: 30) {
                 FeaturesToolbar(camera: camera, isShowingFlashMenu: $isShowingFlashMenu, dismissFlashMenuRectangle: dismissFlashMenuRectangle)
                 Group {
                     MainToolbar(camera: camera)
@@ -157,6 +157,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
                 }
             }
         }
+        .frame(maxHeight: .infinity)
         .overlay(alignment: .top) {
             CameraUIBadgeOverlay(camera: camera)
         }

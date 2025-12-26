@@ -35,7 +35,8 @@ let package = Package(
             capabilities: [
                 .microphone(purposeString: "Project Ravo would like to use your microphone."),
                 .speechRecognition(purposeString: "Project Ravo would like to use speech recognition software."),
-                .camera(purposeString: "Project Ravo would like to use your camera.")
+                .camera(purposeString: "Project Ravo would like to use your camera."),
+                .photoLibraryAdd(purposeString: "Project Ravo would like to add to your photo library.")
             ]
         )
     ],
