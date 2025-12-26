@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "EB9B57D6-1907-434E-991F-54F5C553D4B6"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7579C2B0-30A7-44A7-BF1A-0E3A6E3C471E"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../../../../../var/folders/_8/4y_d7rv566s4tpd8q3h_w4y80000gq/T/swift-generated-sources/@__swiftmacro_12Project_Ravo16SpeechRecognizerC4task33_F052F3F1F40AAF9CB5DB4C0F87140436LL10ObservablefMr6_.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1"
+            endingLineNumber = "1">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
