@@ -196,7 +196,7 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
                             .offset(y: CGFloat(isShowingFlashMenuDict[mode] == true ? (60 + (60*index)) : 0))
                     } else {
                         flashMenuButton(mode)
-                            .offset(x: CGFloat(isShowingFlashMenuDict[mode] == true ? -(60 + (60*index)) : 0))
+                            .offset(x: CGFloat(isShowingFlashMenuDict[mode] == true ? -(70 + (70*index)) : 0))
                     }
                 }
             }

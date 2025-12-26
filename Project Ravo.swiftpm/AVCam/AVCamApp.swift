@@ -55,18 +55,18 @@ struct AVCamApp: App {
 /// A global logger for the app.
 let logger = Logger()
 class AppDelegate: NSObject, UIApplicationDelegate {
-    
-    static let orientationLockDefault = {
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            return UIInterfaceOrientationMask.portrait
-        } else {
-            return UIInterfaceOrientationMask.all
-        }
-    }()
-    static var orientationLock = orientationLockDefault //By default you want all your views to rotate freely
+    static var orientationLock: UIInterfaceOrientationMask? //By default you want all your views to rotate freely
 
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
-        return AppDelegate.orientationLock
+        if let orientationLock = AppDelegate.orientationLock {
+            return orientationLock
+        }
+        
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            return .portrait
+        } else {
+            return .all
+        }
     }
 }
 
@@ -97,7 +97,7 @@ struct ForceRotationViewModifier: ViewModifier {
             AppDelegate.orientationLock = orientation
         }
         .onDisappear() {
-            AppDelegate.orientationLock = AppDelegate.orientationLockDefault
+            AppDelegate.orientationLock = nil
         }
     }
 }

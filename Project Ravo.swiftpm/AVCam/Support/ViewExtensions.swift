@@ -84,7 +84,7 @@ struct DefaultButtonStyle: PrimitiveButtonStyle {
     //                    .fill(.ultraThinMaterial.opacity(materialOpacity))
     //                    .shadow(radius: 2)
     //            )
-                .rotationEffect(.degrees(iconRotationAngle))
+                .rotationEffect(.degrees(UIDevice.current.userInterfaceIdiom == .phone ? iconRotationAngle : 0))
                 .animation(.default, value: iconRotationAngle)
         }
         .buttonStyle(.glass)
