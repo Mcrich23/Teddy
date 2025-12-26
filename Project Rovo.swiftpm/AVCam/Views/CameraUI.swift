@@ -121,7 +121,10 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
     var regularUI: some View {
         HStack {
             ZoomModeView(camera: camera)
-            Spacer()
+            ZStack {
+                Spacer()
+                dismissFlashMenuRectangle
+            }
             VStack(spacing: 30) {
                 FeaturesToolbar(camera: camera, isShowingFlashMenu: $isShowingFlashMenu, dismissFlashMenuRectangle: dismissFlashMenuRectangle)
                 Group {

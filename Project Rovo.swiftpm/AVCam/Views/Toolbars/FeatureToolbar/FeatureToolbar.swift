@@ -74,6 +74,11 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
         .opacity(camera.prefersMinimizedUI ? 0 : 1)
         .buttonStyle(DefaultButtonStyle(size: isRegularSize ? .large : .small))
         .background(dismissFlashMenuRectangle)
+        .overlay {
+            if camera.isPrecisionZooming {
+                dismissFlashMenuRectangle
+            }
+        }
     }
     
     //  A button to toggle the enabled state of Live Photo capture.
