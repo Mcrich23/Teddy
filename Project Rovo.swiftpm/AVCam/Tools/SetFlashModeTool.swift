@@ -5,7 +5,7 @@
 //  Created by Morris Richman on 12/26/25.
 //
 
-import Foundation
+import SwiftUI
 import FoundationModels
 
 struct SetFlashModeTool<CameraModel: Camera>: Tool {
@@ -21,7 +21,9 @@ struct SetFlashModeTool<CameraModel: Camera>: Tool {
     
     func call(arguments: Arguments) async throws -> String {
         Task { @MainActor in
-            camera.flashMode = arguments.mode
+            withAnimation {
+                camera.flashMode = arguments.mode
+            }
         }
         return "Switched to \(arguments.mode) flash mode."
     }
