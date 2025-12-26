@@ -25,6 +25,7 @@ enum CameraStatus {
 }
 
 /// An enumeration that describes the current status of Flash
+@Generable
 enum FlashMode: CaseIterable, Codable {
     case off
     case on
