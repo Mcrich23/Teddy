@@ -13,6 +13,7 @@ struct CaptureModeView<CameraModel: Camera>: View {
     @State var camera: CameraModel
     @Binding private var direction: SwipeDirection
     @Environment(\.materialOpacity) var materialOpacity
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     init(camera: CameraModel, direction: Binding<SwipeDirection>) {
         self.camera = camera
@@ -21,8 +22,12 @@ struct CaptureModeView<CameraModel: Camera>: View {
     
     var body: some View {
         DeviceVHStack(spacing: 30) {
-            Button("Photo") {
+            Button {
                 camera.captureMode = .photo
+            } label: {
+                Text("Photo")
+                    .padding(.top, horizontalSizeClass == .compact ? 0 : nil)
+                    .padding(.bottom, horizontalSizeClass == .compact ? 0 : 3)
             }
             .foregroundStyle(camera.captureMode == .photo ? Color.accentColor : .white)
             
@@ -41,18 +46,17 @@ struct CaptureModeView<CameraModel: Camera>: View {
 //            }
 //            .foregroundStyle(.white)
             
-            Button("Video") {
+            Button {
                 camera.captureMode = .video
+            } label: {
+                Text("Video")
+                    .padding(.bottom, horizontalSizeClass == .compact ? 0 : nil)
+                    .padding(.top, horizontalSizeClass == .compact ? 0 : 3)
             }
             .foregroundStyle(camera.captureMode == .video ? Color.accentColor : .white)
         }
         .padding()
-        .background(
-            Capsule()
-                .strokeBorder(.white, lineWidth: 0.5)
-                .fill(.ultraThinMaterial.opacity(materialOpacity))
-                .shadow(radius: 2)
-        )
+        .glassEffect(.regular.interactive(), in: .capsule)
         .disabled(camera.captureActivity.isRecording)
         .onChange(of: direction) { _, _ in
             let modes = CaptureMode.allCases
