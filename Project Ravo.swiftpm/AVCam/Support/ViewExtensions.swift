@@ -88,6 +88,7 @@ struct DefaultButtonStyle: PrimitiveButtonStyle {
                 .animation(.default, value: iconRotationAngle)
         }
         .buttonStyle(.glass)
+        .environment(\.colorScheme, .dark)
         .buttonBorderShape(.circle)
     }
     
