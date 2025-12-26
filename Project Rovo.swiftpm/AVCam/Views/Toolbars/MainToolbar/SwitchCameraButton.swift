@@ -17,12 +17,11 @@ struct SwitchCameraButton<CameraModel: Camera>: View {
             Task {
                 try await camera.switchVideoDevices()
             }
-            withAnimation(.bouncy) {
-                toolUIManager.flipCamera()
-            }
+            toolUIManager.flipCamera()
         } label: {
             Image(systemName: "arrow.triangle.2.circlepath")
                 .rotationEffect(.degrees(toolUIManager.cameraFlipRotation))
+                .animation(.bouncy, value: toolUIManager.cameraFlipRotation)
         }
         .frame(width: largeButtonSize.width, height: largeButtonSize.height)
         .disabled(camera.captureActivity.isRecording)

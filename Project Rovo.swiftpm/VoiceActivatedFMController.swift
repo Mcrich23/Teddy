@@ -16,7 +16,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     private let session: LanguageModelSession
     
     init(camera: CameraModel, toolUIManager: ToolEnabledUIManager) {
-        self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text.")
+        self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text. DO NOT CAPTURE UNLESS DIRECTED BY THE USER.")
     }
     
     var isResponding: Bool { session.isResponding }
