@@ -21,7 +21,7 @@ class PreviewCameraModel: Camera {
     var isFlashAvailable = true
     var isLivePhotoAvailable: Bool = true
     var currentZoom: ZoomFactor = 1.0
-    var zoomFactors: [ZoomFactor] = []
+    var zoomFactors: [ZoomFactor] = [1.0, 4.0]
     var isPrecisionZooming: Bool = false
     
     func animateZoom(to targetZoom: ZoomFactor) {

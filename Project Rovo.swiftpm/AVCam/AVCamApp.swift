@@ -14,7 +14,11 @@ struct AVCamApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     // Simulator doesn't support the AVFoundation capture APIs. Use the preview camera when running in Simulator.
+    #if targetEnvironment(simulator)
+    @State private var camera = PreviewCameraModel()
+    #else
     @State private var camera = CameraModel()
+    #endif
     
     // An indication of the scene's operational state.
     @Environment(\.scenePhase) var scenePhase
