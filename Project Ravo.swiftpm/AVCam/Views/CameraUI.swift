@@ -70,23 +70,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
                 ZStack {
                     Spacer()
                         .overlay {
-                            if let modelResponse = modelController.modelResponse, !NSAttributedString(modelResponse).string.isEmpty {
-                                GroupBox {
-                                    ScrollViewReader { proxy in
-                                        DynamicScrollView(maxHeight: 200) {
-                                            Text(modelResponse)
-                                                .fixedSize(horizontal: false, vertical: true)
-                                                .frame(maxWidth: .infinity, alignment: .leading)
-                                                .multilineTextAlignment(.leading)
-                                                .id("model_response")
-                                        }
-                                        .onChange(of: modelResponse) {
-                                            proxy.scrollTo("model_response", anchor: .bottom)
-                                        }
-                                    }
-                                }
-                                .padding(.horizontal)
-                            }
+                            llmResponseUI
                         }
                     
                     dismissFlashMenuRectangle
@@ -117,15 +101,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
                     .materialOpacity(0.6)
                     .padding(.bottom, bottomPadding)
                 
-                Group {
-                    if speechRecognizer.transcript.isEmpty {
-                        Text(" ")
-                    } else {
-                        Text(speechRecognizer.transcript.components(separatedBy: " ").suffix(6).joined(separator: " "))
-                    }
-                }
-                .lineLimit(1)
-                .fixedSize(horizontal: false, vertical: true)
+                speechTranscript
             }
             .background(Color.black.opacity(0.3).padding(.top, bottomPadding/2).padding(.bottom, -bottomPadding))
             .overlay {
@@ -161,7 +137,46 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
         .overlay(alignment: .top) {
             CameraUIBadgeOverlay(camera: camera)
         }
+        .overlay(alignment: .bottom, content: {
+            speechTranscript
+        })
+        .overlay {
+            llmResponseUI
+        }
         .padding(.trailing)
+    }
+    
+    @ViewBuilder
+    var llmResponseUI: some View {
+        if let modelResponse = modelController.modelResponse, !NSAttributedString(modelResponse).string.isEmpty {
+            GroupBox {
+                ScrollViewReader { proxy in
+                    DynamicScrollView(maxHeight: 200) {
+                        Text(modelResponse)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .multilineTextAlignment(.leading)
+                            .id("model_response")
+                    }
+                    .onChange(of: modelResponse) {
+                        proxy.scrollTo("model_response", anchor: .bottom)
+                    }
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+    
+    var speechTranscript: some View {
+        Group {
+            if speechRecognizer.transcript.isEmpty {
+                Text(" ")
+            } else {
+                Text(speechRecognizer.transcript.components(separatedBy: " ").suffix(6).joined(separator: " "))
+            }
+        }
+        .lineLimit(1)
+        .fixedSize(horizontal: false, vertical: true)
     }
     
     var swipeGesture: some Gesture {
