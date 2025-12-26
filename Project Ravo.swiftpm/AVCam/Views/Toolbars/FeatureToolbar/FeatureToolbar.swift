@@ -33,11 +33,30 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
     }
     
     var body: some View {
-        HStack(spacing: 30) {
+        if isCompactSize {
+            internalBody
+                .frame(height: 30)
+                .padding(.horizontal)
+            // Hide the toolbar items when a person interacts with capture controls.
+                .overlay(alignment: .center) {
+                    if orientation.isPortrait {
+                        CameraUIBadgeOverlay(camera: camera)
+                            .animation(.default, value: orientation)
+                    }
+                }
+        } else {
+            internalBody
+        }
+    }
+    
+    var internalBody: some View {
+        DeviceVHStack(spacing: 30) {
             if camera.isFlashAvailable {
                 flashMenu
             }
-            Spacer()
+            if horizontalSizeClass == .compact {
+                Spacer()
+            }
             Group {
                 if camera.isLivePhotoAvailable {
                     livePhotoButton
@@ -52,18 +71,9 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
                 isShowingFlashMenu = false
             }
         }
-        .frame(height: 30)
-        .buttonStyle(DefaultButtonStyle(size: isRegularSize ? .large : .small))
-        .padding([.leading, .trailing])
-        // Hide the toolbar items when a person interacts with capture controls.
         .opacity(camera.prefersMinimizedUI ? 0 : 1)
+        .buttonStyle(DefaultButtonStyle(size: isRegularSize ? .large : .small))
         .background(dismissFlashMenuRectangle)
-        .overlay(alignment: .center) {
-            if orientation.isPortrait {
-                CameraUIBadgeOverlay(camera: camera)
-                    .animation(.default, value: orientation)
-            }
-        }
     }
     
     //  A button to toggle the enabled state of Live Photo capture.
@@ -181,8 +191,13 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
         ZStack {
             ForEach(unpickedFlashModes, id: \.self) { mode in
                 if let index = FlashMode.allCases.filter({ $0 != camera.flashMode }).firstIndex(of: mode) {
-                    flashMenuButton(mode)
-                        .offset(y: CGFloat(isShowingFlashMenuDict[mode] == true ? (60 + (60*index)) : 0))
+                    if horizontalSizeClass == .compact {
+                        flashMenuButton(mode)
+                            .offset(y: CGFloat(isShowingFlashMenuDict[mode] == true ? (60 + (60*index)) : 0))
+                    } else {
+                        flashMenuButton(mode)
+                            .offset(x: CGFloat(isShowingFlashMenuDict[mode] == true ? -(60 + (60*index)) : 0))
+                    }
                 }
             }
             Button {

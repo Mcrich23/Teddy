@@ -17,13 +17,27 @@ struct MainToolbar<CameraModel: Camera>: PlatformView {
     @State var camera: CameraModel
     
     var body: some View {
+        Group {
+            if horizontalSizeClass == .compact {
+                compactUI
+            } else {
+                regularUI
+            }
+        }
+        .buttonStyle(DefaultButtonStyle(size: .large))
+    }
+    
+    var width: CGFloat? { isRegularSize ? 250 : nil }
+    var height: CGFloat? { 80 }
+    
+    var compactUI: some View {
         HStack {
-			ThumbnailButton(camera: camera)
+            ThumbnailButton(camera: camera)
                 // Hide the thumbnail button when a person interacts with capture controls.
                 .opacity(camera.prefersMinimizedUI ? 0 : 1)
-            Spacer()
+//            Spacer()
             CaptureButton(camera: camera)
-            Spacer()
+//            Spacer()
             SwitchCameraButton(camera: camera)
                 // Hide the camera selection when a person interacts with capture controls.
                 .opacity(camera.prefersMinimizedUI ? 0 : 1)
@@ -32,11 +46,23 @@ struct MainToolbar<CameraModel: Camera>: PlatformView {
         .font(.system(size: 24))
         .frame(width: width, height: height)
         .padding([.leading, .trailing])
-        .buttonStyle(DefaultButtonStyle(size: .large))
     }
     
-    var width: CGFloat? { isRegularSize ? 250 : nil }
-    var height: CGFloat? { 80 }
+    var regularUI: some View {
+        VStack {
+            ThumbnailButton(camera: camera)
+                // Hide the thumbnail button when a person interacts with capture controls.
+                .opacity(camera.prefersMinimizedUI ? 0 : 1)
+//            Spacer()
+            CaptureButton(camera: camera)
+//            Spacer()
+            SwitchCameraButton(camera: camera)
+                // Hide the camera selection when a person interacts with capture controls.
+                .opacity(camera.prefersMinimizedUI ? 0 : 1)
+        }
+        .foregroundColor(.white)
+        .font(.system(size: 24))
+    }
 }
 
 #Preview {

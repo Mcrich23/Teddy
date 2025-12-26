@@ -20,7 +20,7 @@ struct CaptureModeView<CameraModel: Camera>: View {
     }
     
     var body: some View {
-        HStack(spacing: 30) {
+        DeviceVHStack(spacing: 30) {
             Button("Photo") {
                 camera.captureMode = .photo
             }

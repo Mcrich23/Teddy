@@ -143,29 +143,24 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
     /// This view arranges UI elements in a layered stack.
     @ViewBuilder
     var regularUI: some View {
-        VStack {
+        HStack {
             Spacer()
-            ZStack {
+            VStack {
+                FeaturesToolbar(camera: camera, isShowingFlashMenu: $isShowingFlashMenu, dismissFlashMenuRectangle: dismissFlashMenuRectangle)
                 Group {
-                    CaptureModeView(camera: camera, direction: $swipeDirection)
-                        .offset(x: -250) // The vertical offset from center.
                     MainToolbar(camera: camera)
+                    
+                    CaptureModeView(camera: camera, direction: $swipeDirection)
                 }
                 .overlay {
                     dismissFlashMenuRectangle
                 }
-                FeaturesToolbar(camera: camera, isShowingFlashMenu: $isShowingFlashMenu, dismissFlashMenuRectangle: dismissFlashMenuRectangle)
-                        .frame(width: 250)
-                        .offset(x: 250) // The vertical offset from center.
             }
-            .frame(width: 740)
-            .background(.ultraThinMaterial.opacity(0.8))
-            .cornerRadius(12)
-            .padding(.bottom, 32)
         }
         .overlay(alignment: .top) {
             CameraUIBadgeOverlay(camera: camera)
         }
+        .padding(.trailing)
     }
     
     var swipeGesture: some Gesture {
