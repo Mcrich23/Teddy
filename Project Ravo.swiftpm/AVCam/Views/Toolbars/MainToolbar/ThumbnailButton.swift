@@ -22,7 +22,7 @@ struct ThumbnailButton<CameraModel: Camera>: View {
             thumbnail
         })
 		.frame(width: 64.0, height: 64.0)
-		.cornerRadius(8)
+        .clipShape(.circle)
         .disabled(camera.captureActivity.isRecording)
         .buttonStyle(.automatic)
     }
@@ -35,7 +35,7 @@ struct ThumbnailButton<CameraModel: Camera>: View {
                 .aspectRatio(contentMode: .fill)
                 .animation(.easeInOut(duration: 0.3), value: thumbnail)
         } else {
-            Image(systemName: "photo.on.rectangle")
+            Color.black
         }
     }
 }

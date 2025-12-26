@@ -60,6 +60,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
             CameraUI(camera: camera, swipeDirection: $swipeDirection)
         }
         .onAppear {
+            camera.fetchLastPhoto()
             startTranscription()
         }
         .onChange(of: speechRecognizer.transcript) {

@@ -7,6 +7,7 @@ An object that provides the interface to the features of the camera.
 
 import SwiftUI
 import Combine
+import Photos
 
 /// An object that provides the interface to the features of the camera.
 ///
@@ -265,6 +266,25 @@ final class CameraModel: Camera {
                 self.error = error
             }
         }
+    }
+    
+    // MARK: - Get Photos
+    /// Fetches the last photo and sets ``thumbnail`` to said image.
+    func fetchLastPhoto() {
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        
+        let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+        guard let asset = fetchResult.firstObject else { return }
+        let manager = PHImageManager.default()
+        let targetSize = CGSize(width: asset.pixelWidth, height: asset.pixelHeight)
+        manager.requestImage(for: asset,
+                             targetSize: targetSize,
+                             contentMode: .aspectFit,
+                             options: nil,
+                             resultHandler: { image, info in
+            self.thumbnail = image?.cgImage
+        })
     }
     
     // MARK: - Internal state observations

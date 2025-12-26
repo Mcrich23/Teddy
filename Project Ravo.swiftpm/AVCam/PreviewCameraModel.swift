@@ -96,4 +96,8 @@ class PreviewCameraModel: Camera {
     func syncState() async {
         logger.debug("Syncing state isn't implemented in PreviewCamera.")
     }
+    
+    func fetchLastPhoto() {
+        logger.debug("Photo library fetching isn't implemented in PreviewCamera.")
+    }
 }
