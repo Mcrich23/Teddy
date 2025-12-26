@@ -7,6 +7,8 @@ A view that presents controls to enable capture features.
 
 import SwiftUI
 
+// MARK: – ZoomModeModel
+
 @Observable
 @MainActor
 private final class ZoomModeModel<CameraModel: Camera> {
@@ -73,6 +75,8 @@ private final class ZoomModeModel<CameraModel: Camera> {
     }
 }
 
+// MARK: – ZoomModeView
+
 /// A view that presents controls to enable capture features.
 struct ZoomModeView<CameraModel: Camera>: PlatformView {
     
@@ -121,6 +125,8 @@ struct ZoomModeView<CameraModel: Camera>: PlatformView {
     }
 }
 
+// MARK: – ZoomButton
+
 private struct ZoomButton<CameraModel: Camera>: View {
     let value: ZoomFactor
     init(_ value: ZoomFactor) {
@@ -152,6 +158,8 @@ private struct ZoomButton<CameraModel: Camera>: View {
         }
     }
 }
+
+// MARK: – CompactUI
 
 private struct CompactUI<CameraModel: Camera>: View {
     @Environment(ZoomModeModel<CameraModel>.self) var model
@@ -233,6 +241,8 @@ private struct CompactUI<CameraModel: Camera>: View {
         })
     }
 }
+
+// MARK: – RegularUI
 
 private struct RegularUI<CameraModel: Camera>: View {
     @Environment(ZoomModeModel<CameraModel>.self) var model
