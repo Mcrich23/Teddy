@@ -89,7 +89,13 @@ struct ZoomModeView<CameraModel: Camera>: PlatformView {
     var body: some View {
         
 //        GeometryReader { geo in
-        CompactUI<CameraModel>()
+        Group {
+            if horizontalSizeClass == .compact {
+                CompactUI<CameraModel>()
+            } else {
+                RegularUI<CameraModel>()
+            }
+        }
         .buttonStyle(DefaultButtonStyle(size: .large))
         .materialOpacity(0.8)
         .padding()
@@ -226,4 +232,93 @@ private struct CompactUI<CameraModel: Camera>: View {
             self.width = newValue.width
         })
     }
+}
+
+private struct RegularUI<CameraModel: Camera>: View {
+    @Environment(ZoomModeModel<CameraModel>.self) var model
+    @State var height: CGFloat = 0
+    
+    var body: some View {
+        @Bindable var model = model
+        
+        VStack {
+            if model.camera.isPrecisionZooming {
+                ScrollView(.vertical) {
+                    VStack(spacing: 5) {
+                        Color.clear
+                            .frame(height: height/2)
+                            .id(model.zoomRange.first)
+                        ForEach(model.zoomRange, id: \.self) { zoomFactor in
+                            if zoomFactor == model.zoomRange.last, let stringForValue = model.stringForValue(zoomFactor) {
+                                VStack(spacing: 0) {
+                                    Rectangle()
+                                        .fill(model.id(for: zoomFactor, adding: 0) == model.zoom ? Color.accentColor : .white)
+                                        .frame(width: 15, height: 2)
+                                        .padding(.bottom, 3)
+                                        .overlay(alignment: .trailing) {
+                                            Text(stringForValue)
+                                                .minimumScaleFactor(0.6)
+                                                .frame(height: 15)
+                                                .fixedSize()
+                                                .offset(x: 10, y: -3)
+                                        }
+                                    Spacer()
+                                        .frame(width: 15, height: 2)
+                                }
+                                .foregroundStyle(model.id(for: zoomFactor, adding: 0) == model.zoom ? Color.accentColor : .white)
+                                .id(model.id(for: zoomFactor, adding: 0))
+                            } else {
+                                ForEach(0..<5) { i in
+                                    VStack(spacing: 0) {
+                                        Rectangle()
+                                            .fill(model.id(for: zoomFactor, adding: i) == model.zoom ? Color.accentColor : .white)
+                                            .frame(width: i == 0 ? 15 : 7, height: 2)
+                                            .padding(.bottom, 3)
+                                            .overlay(alignment: .trailing) {
+                                                if i == 0, let stringForValue = model.stringForValue(zoomFactor) {
+                                                    Text(stringForValue)
+                                                        .minimumScaleFactor(0.6)
+                                                        .frame(height: 15)
+                                                        .fixedSize()
+                                                        .offset(x: 10, y: -3)
+                                                }
+                                            }
+                                        Spacer()
+                                            .frame(width: 15, height: 2)
+                                    }
+                                    .foregroundStyle(model.id(for: zoomFactor, adding: i) == model.zoom ? Color.accentColor : .white)
+                                    .id(model.id(for: zoomFactor, adding: i))
+                                }
+                            }
+                        }
+                        Color.clear
+                            .frame(height: height/2)
+                            .id(model.zoomRange.last)
+                    }
+                    .scrollTargetLayout()
+                }
+                .scrollIndicators(.hidden)
+                //        .scrollTargetBehavior(.viewAligned)
+                .scrollPosition(id: $model.zoom, anchor: .center)
+                .frame(maxHeight: 300)
+            } else {
+                VStack(spacing: 30) {
+                    ForEach(model.camera.zoomFactors, id: \.self) { factor in
+                        ZoomButton<CameraModel>(factor)
+                    }
+                }
+            }
+        }
+        .frame(width: 40)
+        .onGeometryChange(for: CGSize.self, of: { proxy in
+            proxy.size
+        }, action: { newValue in
+            self.height = newValue.height
+        })
+    }
+}
+
+#Preview {
+    @Previewable @State var swipeDirection = SwipeDirection.left
+    CameraUI(camera: PreviewCameraModel(), swipeDirection: $swipeDirection)
 }
