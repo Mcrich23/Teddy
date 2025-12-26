@@ -179,6 +179,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
                 Text(speechRecognizer.transcript.components(separatedBy: " ").suffix(6).joined(separator: " "))
             }
         }
+        .foregroundStyle(.white)
         .lineLimit(1)
         .fixedSize(horizontal: false, vertical: true)
     }
