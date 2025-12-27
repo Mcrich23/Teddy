@@ -111,24 +111,25 @@ final class CameraModel: Camera {
     // MARK: - Zooming
     
     /// A Floating value that indicates the zoom factor
-    var currentZoom: ZoomFactor = 1.0 {
-        didSet {
-            guard status == .running else { return }
-            Task {
-                do {
-                    try await captureService.setZoomFactor(currentZoom, animatedRate: nil)
-                } catch {
-                    self.error = error
-                }
+    private(set) var currentZoom: ZoomFactor = 1.0
+    
+    func setZoom(to targetZoom: ZoomFactor) {
+        guard status == .running else { return }
+        Task {
+            do {
+                try captureService.setZoomFactor(currentZoom, animatedRate: nil)
+            } catch {
+                self.error = error
             }
         }
+        currentZoom = targetZoom
     }
     
     func animateZoom(to targetZoom: ZoomFactor) {
         guard status == .running else { return }
         Task {
             do {
-                try await captureService.setZoomFactor(targetZoom, animatedRate: 300)
+                try captureService.setZoomFactor(targetZoom, animatedRate: 300)
             } catch {
                 self.error = error
             }
@@ -306,7 +307,7 @@ final class CameraModel: Camera {
         
         Task {
             // Await new capture activity values from the capture service.
-            for await activity in await captureService.$captureActivity.values {
+            for await activity in captureService.$captureActivity.values {
                 if activity.willCapture {
                     // Flash the screen to indicate capture is starting.
                     flashScreen()
@@ -319,7 +320,7 @@ final class CameraModel: Camera {
         
         Task {
             // Await updates to the capabilities that the capture service advertises.
-            for await capabilities in await captureService.$captureCapabilities.values {
+            for await capabilities in captureService.$captureCapabilities.values {
                 // HDR Video
                 isHDRVideoSupported = capabilities.isHDRSupported
                 cameraState.isVideoHDRSupported = capabilities.isHDRSupported
@@ -336,7 +337,7 @@ final class CameraModel: Camera {
         
         Task {
             // Await updates to a person's interaction with the Camera Control HUD.
-            for await isShowingFullscreenControls in await captureService.$isShowingFullscreenControls.values {
+            for await isShowingFullscreenControls in captureService.$isShowingFullscreenControls.values {
                 withAnimation {
                     // Prefer showing a minimized UI when capture controls enter a fullscreen appearance.
                     prefersMinimizedUI = isShowingFullscreenControls
@@ -346,17 +347,19 @@ final class CameraModel: Camera {
         
         Task {
             // Await updates to a camera zoom factor.
-            for await currentZoom in await captureService.$currentZoom.values {
+            while true {
+                try? await Task.sleep(for: .milliseconds(100))
+                guard currentZoom != captureService.currentZoom else { continue }
                 withAnimation {
                     // Prefer showing a minimized UI when capture controls enter a fullscreen appearance.
-                    self.currentZoom = currentZoom
+                    self.currentZoom = captureService.currentZoom
                 }
             }
         }
         
         Task {
             // Await updates to a camera max zoom factor.
-            for await zoomFactors in await captureService.$zoomFactors.values {
+            for await zoomFactors in captureService.$zoomFactors.values {
                 withAnimation {
                     // Prefer showing a minimized UI when capture controls enter a fullscreen appearance.
                     self.zoomFactors = zoomFactors
@@ -366,7 +369,7 @@ final class CameraModel: Camera {
         
         Task {
             // Await updates to a person's interaction with the Camera Control HUD.
-            for await flashMode in await captureService.$flashMode.values {
+            for await flashMode in captureService.$flashMode.values {
                 withAnimation {
                     // Prefer showing a minimized UI when capture controls enter a fullscreen appearance.
                     self.flashMode = flashMode

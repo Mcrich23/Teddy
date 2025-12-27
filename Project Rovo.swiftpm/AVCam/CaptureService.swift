@@ -19,7 +19,9 @@ final class CaptureService {
     /// A value that indicates whether the flash mode is on, off, or auto.
     @Published private(set) var flashMode: FlashMode = .auto
     /// A value that indicates the current zoom.
-    @Published private(set) var currentZoom: ZoomFactor = 1.0
+    var currentZoom: ZoomFactor {
+        ZoomFactor(floatLiteral: currentDevice.videoZoomFactor/2)
+    }
     /// A value that indicates the zoom factors available.
     @Published private(set) var zoomFactors: [ZoomFactor] = [1.0]
     /// A value that indicates the current capture capabilities of the service.
@@ -303,21 +305,10 @@ final class CaptureService {
             try device.lockForConfiguration()
         }
         
-        self.currentZoom = zoom
-        
-        var newZoom = zoom
-        if device.constituentDevices.contains(where: { $0.deviceType == .builtInUltraWideCamera }) {
-            if let factor = device.virtualDeviceSwitchOverVideoZoomFactors.first, zoom.value+1 < Float(truncating: factor) {
-                newZoom += 0.5
-            } else {
-                newZoom += 1
-            }
-        }
-        
         if let animatedRate {
-            device.ramp(toVideoZoomFactor: CGFloat(newZoom.value), withRate: animatedRate)
+            device.ramp(toVideoZoomFactor: CGFloat(zoom.value*2), withRate: animatedRate)
         } else {
-            device.videoZoomFactor = CGFloat(newZoom.value)
+            device.videoZoomFactor = CGFloat(zoom.value*2)
         }
         
         if !isConfigurationLocked {

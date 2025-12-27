@@ -81,7 +81,10 @@ protocol Camera: AnyObject, Sendable {
     var isLivePhotoAvailable: Bool { get }
     
     /// A Floating value that indicates the current zoom.
-    var currentZoom: ZoomFactor { get set }
+    var currentZoom: ZoomFactor { get }
+    
+    /// Set the zooming to a factor
+    func setZoom(to targetZoom: ZoomFactor)
     
     /// Animate the zooming to a factor
     func animateZoom(to targetZoom: ZoomFactor)

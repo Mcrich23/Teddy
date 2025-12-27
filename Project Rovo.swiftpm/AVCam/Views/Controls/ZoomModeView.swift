@@ -32,7 +32,11 @@ private final class ZoomModeModel<CameraModel: Camera> {
     }
     
     func id(for value: ZoomFactor, adding i: Int) -> ZoomFactor {
-        value+ZoomFactor((Float(i)*0.2))
+        if value < 1 {
+            return value+ZoomFactor((Float(i)*0.1))
+        } else {
+            return value+ZoomFactor((Float(i)*0.2))
+        }
     }
     
     func isActive(value: ZoomFactor) -> Bool {
@@ -116,7 +120,7 @@ struct ZoomModeView<CameraModel: Camera>: PlatformView {
         }
         .onChange(of: model.zoom) { _, newValue in
             guard let newValue else { return }
-            self.model.camera.currentZoom = newValue
+            self.model.camera.setZoom(to: newValue)
         }
         .padding(.horizontal)
         // Hide the toolbar items when a person interacts with capture controls.

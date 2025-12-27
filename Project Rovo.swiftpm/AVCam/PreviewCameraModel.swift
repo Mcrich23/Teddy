@@ -25,8 +25,12 @@ class PreviewCameraModel: Camera {
     var zoomFactors: [ZoomFactor] = [1.0, 4.0]
     var isPrecisionZooming: Bool = false
     
+    func setZoom(to targetZoom: ZoomFactor) {
+        logger.debug("Device zooming isn't implemented in PreviewCamera.")
+    }
+    
     func animateZoom(to targetZoom: ZoomFactor) {
-        
+        logger.debug("Device zooming isn't implemented in PreviewCamera.")
     }
     
     struct PreviewSourceStub: PreviewSource {
