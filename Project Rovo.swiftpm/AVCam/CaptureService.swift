@@ -573,7 +573,11 @@ final class CaptureService {
     /// which calls the following `stopRecording()` method.
     func startRecording() throws {
         try currentDevice.lockForConfiguration()
-        currentDevice.torchMode = flashMode.avTorchMode
+        
+        if currentDevice.isTorchActive {
+            currentDevice.torchMode = flashMode.avTorchMode
+        }
+        
         currentDevice.unlockForConfiguration()
         
         movieCapture.startRecording()
@@ -582,7 +586,11 @@ final class CaptureService {
     /// Stops the recording and returns the captured movie.
     func stopRecording() async throws -> Movie {
         try currentDevice.lockForConfiguration()
-        currentDevice.torchMode = .off
+        
+        if currentDevice.isTorchActive {
+            currentDevice.torchMode = .off
+        }
+        
         currentDevice.unlockForConfiguration()
         
         return try await movieCapture.stopRecording()
