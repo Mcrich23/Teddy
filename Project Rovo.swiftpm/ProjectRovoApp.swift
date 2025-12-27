@@ -1,8 +1,5 @@
 /*
 See the LICENSE.txt file for this sample’s licensing information.
-
-Abstract:
-A sample app that shows how to a use the AVFoundation capture APIs to perform media capture.
 */
 
 import os
@@ -10,7 +7,7 @@ import SwiftUI
 
 @main
 /// The AVCam app's main entry point.
-struct AVCamApp: App {
+struct ProjectRovoApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     // Simulator doesn't support the AVFoundation capture APIs. Use the preview camera when running in Simulator.
