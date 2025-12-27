@@ -23,6 +23,10 @@ struct SetLiveTool<CameraModel: Camera>: CameraTool {
     }
     
     func toolName(arguments: Arguments) async -> String {
+        guard await camera.captureMode == .photo else {
+            return "Checking Live Mode"
+        }
+        
         switch arguments.isOn {
         case true:
             return "Turning Live Mode On"
@@ -32,6 +36,10 @@ struct SetLiveTool<CameraModel: Camera>: CameraTool {
     }
     
     func use(arguments: Arguments) async throws -> String {
+        guard await camera.captureMode == .photo else {
+            return "The current camera device is not in photo capture mode and therefore does not support live mode."
+        }
+        
         Task { @MainActor in
             camera.isLivePhotoEnabled = arguments.isOn
         }

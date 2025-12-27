@@ -23,6 +23,10 @@ struct SetHDRTool<CameraModel: Camera>: CameraTool {
     }
     
     func toolName(arguments: Arguments) async -> String {
+        guard await camera.captureMode == .video else {
+            return "Checking HDR Mode"
+        }
+        
         switch arguments.isOn {
         case true:
             return "Turning HDR On"
@@ -32,6 +36,10 @@ struct SetHDRTool<CameraModel: Camera>: CameraTool {
     }
     
     func use(arguments: Arguments) async throws -> String {
+        guard await camera.captureMode == .video else {
+            return "The current camera device is not in video capture mode and therefore does not support HDR."
+        }
+        
         guard await camera.isHDRVideoSupported else {
             return "The current camera device does not support HDR."
         }
