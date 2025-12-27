@@ -16,7 +16,7 @@ let package = Package(
         .iOSApplication(
             name: "Project Rovo",
             targets: ["AppModule"],
-            bundleIdentifier: "com.mcrich.Project-Ravo",
+            bundleIdentifier: "com.mcrich.Project-Rovo",
             teamIdentifier: "L7JQRVXU2V",
             displayVersion: "1.0",
             bundleVersion: "1",
