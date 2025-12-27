@@ -363,9 +363,7 @@ final class CaptureService {
         case .video:
             captureSession.sessionPreset = .high
             try addOutput(movieCapture.output)
-            if isHDRVideoEnabled {
-                setHDRVideoEnabled(true)
-            }
+            setHDRVideoEnabled(isHDRVideoEnabled)
         }
         
         try setZoomFactor(zoom, animatedRate: nil)
@@ -603,6 +601,8 @@ final class CaptureService {
     /// Sets whether the app captures HDR video.
     func setHDRVideoEnabled(_ isEnabled: Bool) {
         // Bracket the following configuration in a begin/commit configuration pair.
+        let zoom = currentZoom
+        
         captureSession.beginConfiguration()
         defer { captureSession.commitConfiguration() }
         do {
@@ -616,6 +616,8 @@ final class CaptureService {
                 captureSession.sessionPreset = .high
                 isHDRVideoEnabled = false
             }
+            
+            try setZoomFactor(zoom, animatedRate: nil)
         } catch {
             logger.error("Unable to obtain lock on device and can't enable HDR video capture.")
         }

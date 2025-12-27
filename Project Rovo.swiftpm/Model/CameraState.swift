@@ -24,7 +24,7 @@ struct CameraState: Codable {
     
     var isVideoHDRSupported = true
     
-    var isVideoHDREnabled = true
+    var isVideoHDREnabled = false
     
     var captureMode = CaptureMode.photo
 }
