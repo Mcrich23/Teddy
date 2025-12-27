@@ -7,6 +7,7 @@ A view that presents the main camera user interface.
 
 import SwiftUI
 import AVFoundation
+import FoundationModels
 
 /// A view that presents the main camera user interface.
 struct CameraUI<CameraModel: Camera>: PlatformView {
@@ -55,6 +56,11 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
         }
         .overlay {
             StatusOverlayView(status: camera.status)
+        }
+        .overlay {
+            if !SystemLanguageModel.default.isAvailable {
+                FoundationModelsAvailabilityView()
+            }
         }
     }
     
