@@ -352,6 +352,8 @@ final class CaptureService {
         captureSession.beginConfiguration()
         defer { captureSession.commitConfiguration() }
         
+        let zoom = currentZoom
+        
         // Configure the capture session for the selected capture mode.
         switch captureMode {
         case .photo:
@@ -365,6 +367,8 @@ final class CaptureService {
                 setHDRVideoEnabled(true)
             }
         }
+        
+        try setZoomFactor(zoom, animatedRate: nil)
 
         // Update the advertised capabilities after reconfiguration.
         updateCaptureCapabilities()
