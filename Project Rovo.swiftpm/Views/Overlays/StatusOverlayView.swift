@@ -45,7 +45,7 @@ struct StatusOverlayView: View {
 	var message: String {
 		switch status {
 		case .unauthorized:
-			return "You haven't authorized AVCam to use the camera or microphone. Change these settings in Settings -> Privacy & Security"
+			return "You haven't authorized Project Rovo to use the camera or microphone. Change these settings in Settings -> Privacy & Security"
 		case .interrupted:
 			return "The camera was interrupted by higher-priority media processing."
 		case .failed:

@@ -27,6 +27,10 @@ actor MediaLibrary {
         let (thumbnails, continuation) = AsyncStream.makeStream(of: CGImage?.self)
         self.thumbnails = thumbnails
         self.continuation = continuation
+        
+        Task {
+            await self.loadInitialThumbnail()
+        }
     }
     
     // MARK: - Authorization
@@ -116,11 +120,13 @@ actor MediaLibrary {
         // Deferring this call prevents the app from prompting for Photos authorization when the app starts.
         guard PHPhotoLibrary.authorizationStatus(for: .readWrite) == .authorized else { return }
         
-        let options = PHFetchOptions()
-        options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: true)]
-        if let asset = PHAsset.fetchAssets(with: options).lastObject {
-            await createThumbnail(for: asset)
-        }
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        
+        let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+        guard let asset = fetchResult.firstObject else { return }
+        
+        await createThumbnail(for: asset)
     }
     
     private func createThumbnail(for asset: PHAsset) async {

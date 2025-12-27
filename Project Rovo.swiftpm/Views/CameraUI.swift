@@ -70,7 +70,6 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
         VStack(spacing: 0) {
             FeaturesToolbar(camera: camera, isShowingFlashMenu: $isShowingFlashMenu, dismissFlashMenuRectangle: dismissFlashMenuRectangle)
                 .padding(.bottom)
-                .background(Color.black.opacity(0.3))
                 .zIndex(2)
             
             VStack(spacing: 0) {
@@ -108,7 +107,6 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
                     .materialOpacity(0.6)
                     .padding(.bottom, 15)
             }
-//            .background(Color.black.opacity(0.3).padding(.top, bottomPadding/2).padding(.bottom, -bottomPadding))
             .overlay {
                 dismissFlashMenuRectangle
             }

@@ -69,7 +69,6 @@ struct CameraView<CameraModel: Camera>: PlatformView {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .onAppear {
-            camera.fetchLastPhoto()
             startTranscription()
         }
         .onChange(of: speechRecognizer.transcript) {

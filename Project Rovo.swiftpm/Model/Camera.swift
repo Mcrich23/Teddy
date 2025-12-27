@@ -103,7 +103,4 @@ protocol Camera: AnyObject, Sendable {
     
     /// An error if the camera encountered a problem.
     var error: Error? { get }
-    
-    /// Fetches the last photo and sets ``thumbnail`` to said image.
-    func fetchLastPhoto()
 }
