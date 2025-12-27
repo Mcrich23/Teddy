@@ -7,10 +7,15 @@ A view that provides a container view around the camera preview.
 
 import SwiftUI
 
-// Portrait-orientation aspect ratios.
-typealias AspectRatio = CGSize
-let photoAspectRatio = AspectRatio(width: 9.0, height: 16.0)//AspectRatio(width: 3.0, height: 4.0)
-let movieAspectRatio = AspectRatio(width: 9.0, height: 16.0)
+struct AspectRatio {
+    let width: CGFloat
+    let height: CGFloat
+    
+    var cgSize: CGSize { .init(width: width, height: height) }
+    
+    static let photo = AspectRatio(width: 3.0, height: 4.0)
+    @MainActor static let movie = UIDevice.current.userInterfaceIdiom == .phone ? AspectRatio(width: 9.0, height: 16.0) : AspectRatio(width: 4, height: 3)
+}
 
 /// A view that provides a container view around the camera preview.
 ///
@@ -38,20 +43,10 @@ struct PreviewContainer<Content: View, CameraModel: Camera>: View {
     }
     
     var body: some View {
-        // On compact devices, show a view finder rectangle around the video preview bounds.
-        if horizontalSizeClass == .compact {
-            ZStack {
-                previewView
-            }
+        previewView
             .clipped()
-            // Apply an appropriate aspect ratio based on the selected capture mode.
-//            .aspectRatio(aspectRatio, contentMode: .fit)
-            // In photo mode, adjust the vertical offset of the preview area to better fit the UI.
-//            .offset(y: camera.captureMode == .photo ? photoModeOffset : 0)
-        } else {
-            // On regular-sized UIs, show the content in full screen.
-            previewView
-        }
+        // Apply an appropriate aspect ratio based on the selected capture mode.
+            .aspectRatio(aspectRatio.cgSize, contentMode: .fit)
     }
     
     /// Attach animations to the camera preview.
@@ -69,6 +64,6 @@ struct PreviewContainer<Content: View, CameraModel: Camera>: View {
     }
     
     var aspectRatio: AspectRatio {
-        camera.captureMode == .photo ? photoAspectRatio : movieAspectRatio
+        camera.captureMode == .photo ? AspectRatio.photo : AspectRatio.movie
     }
 }
