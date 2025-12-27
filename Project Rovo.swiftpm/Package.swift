@@ -37,7 +37,8 @@ let package = Package(
                 .speechRecognition(purposeString: "Project Ravo would like to use speech recognition software."),
                 .camera(purposeString: "Project Ravo would like to use your camera."),
                 .photoLibrary(purposeString: "Project Ravo would like to use your photo library.")
-            ]
+            ],
+            additionalInfoPlistContentFilePath: "Info.plist"
         )
     ],
     targets: [
