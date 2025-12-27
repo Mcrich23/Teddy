@@ -13,6 +13,13 @@ struct AspectRatio {
     let height: CGFloat
     
     var cgSize: CGSize { .init(width: width, height: height) }
+    var portrait: AspectRatio {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            return .init(width: height, height: width)
+        }
+        
+        return self
+    }
     
     static let photo = UIDevice.current.userInterfaceIdiom == .phone ? AspectRatio(width: 3, height: 4) : AspectRatio(width: 4, height: 3)
     static let movie = UIDevice.current.userInterfaceIdiom == .phone ? AspectRatio(width: 9.0, height: 16.0) : AspectRatio(width: 16, height: 9)
@@ -27,6 +34,7 @@ struct AspectRatio {
 struct PreviewContainer<Content: View, CameraModel: Camera>: View {
     
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.orientation) var orientation
     
     @State var camera: CameraModel
     
@@ -73,6 +81,12 @@ struct PreviewContainer<Content: View, CameraModel: Camera>: View {
     }
     
     var aspectRatio: AspectRatio {
-        camera.captureMode == .photo ? AspectRatio.photo : AspectRatio.movie
+        let aspectRatio = camera.captureMode == .photo ? AspectRatio.photo : AspectRatio.movie
+        
+        if orientation.isPortrait {
+            return aspectRatio.portrait
+        } else {
+            return aspectRatio
+        }
     }
 }
