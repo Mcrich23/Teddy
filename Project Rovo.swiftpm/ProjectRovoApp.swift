@@ -29,6 +29,7 @@ struct ProjectRovoApp: App {
     var body: some Scene {
         WindowGroup {
             CameraView(camera: camera)
+                .preferredColorScheme(.dark)
                 .statusBarHidden(true)
                 .task {
                     // Start the capture pipeline.
