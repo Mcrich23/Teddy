@@ -66,6 +66,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
             .ignoresSafeArea()
             // The main camera user interface.
             CameraUI(camera: camera, swipeDirection: $swipeDirection)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .onAppear {
             camera.fetchLastPhoto()

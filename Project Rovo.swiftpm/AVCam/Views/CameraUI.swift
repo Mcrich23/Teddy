@@ -100,14 +100,15 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
                     .padding(.bottom)
                 CaptureModeView(camera: camera, direction: $swipeDirection)
                     .materialOpacity(0.6)
-                    .padding(.bottom, bottomPadding)
+                    .padding(.bottom, 15)
             }
-            .background(Color.black.opacity(0.3).padding(.top, bottomPadding/2).padding(.bottom, -bottomPadding))
+//            .background(Color.black.opacity(0.3).padding(.top, bottomPadding/2).padding(.bottom, -bottomPadding))
             .overlay {
                 dismissFlashMenuRectangle
             }
             .overlay(alignment: .bottom) {
                 speechTranscript
+                    .offset(y: 7)
             }
         }
         .onGeometryChange(for: CGRect.self) { proxy in
@@ -170,6 +171,14 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
                 }
             }
             .padding(.horizontal)
+            .onChange(of: modelResponse, initial: true) { _, newValue in
+                Task {
+                    try? await Task.sleep(for: .seconds(3))
+                    if modelResponse == newValue {
+                        modelController.modelResponse = nil
+                    }
+                }
+            }
         }
     }
     

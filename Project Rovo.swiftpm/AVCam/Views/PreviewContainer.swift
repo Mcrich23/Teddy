@@ -43,10 +43,18 @@ struct PreviewContainer<Content: View, CameraModel: Camera>: View {
     }
     
     var body: some View {
-        previewView
-            .clipped()
-        // Apply an appropriate aspect ratio based on the selected capture mode.
-            .aspectRatio(aspectRatio.cgSize, contentMode: .fit)
+        if horizontalSizeClass == .compact {
+            previewView
+                .clipped()
+            // Apply an appropriate aspect ratio based on the selected capture mode.
+                .aspectRatio(aspectRatio.cgSize, contentMode: .fit)
+                .offset(y: -15)
+        } else {
+            previewView
+                .clipped()
+            // Apply an appropriate aspect ratio based on the selected capture mode.
+                .aspectRatio(aspectRatio.cgSize, contentMode: .fit)
+        }
     }
     
     /// Attach animations to the camera preview.
