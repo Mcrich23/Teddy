@@ -8,18 +8,25 @@
 import Foundation
 import FoundationModels
 
-struct SetCaptureModeTool<CameraModel: Camera>: Tool {
+struct SetCaptureModeTool<CameraModel: Camera>: CameraTool {
+    typealias Output = String
+    
     let name: String = "setCaptureMode"
     let description: String = "Switches the capture mode."
     
     let camera: CameraModel
+    let uiManager: ToolEnabledUIManager
     
     @Generable
     struct Arguments {
         let mode: CaptureMode
     }
     
-    func call(arguments: Arguments) async throws -> String {
+    func toolName(arguments: Arguments) async -> String {
+        return "Switching to \(arguments.mode) capture mode"
+    }
+    
+    func use(arguments: Arguments) async throws -> String {
         Task { @MainActor in
             camera.captureMode = arguments.mode
         }

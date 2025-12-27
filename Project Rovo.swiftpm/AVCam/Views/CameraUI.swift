@@ -19,6 +19,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.orientation) var orientation
     
+    @Environment(ToolEnabledUIManager.self) var toolUIManager
     @Environment(VoiceActivatedFMController<CameraModel>.self) var modelController
     @EnvironmentObject var speechRecognizer: SpeechRecognizer
     
@@ -100,12 +101,13 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
                 CaptureModeView(camera: camera, direction: $swipeDirection)
                     .materialOpacity(0.6)
                     .padding(.bottom, bottomPadding)
-                
-                speechTranscript
             }
             .background(Color.black.opacity(0.3).padding(.top, bottomPadding/2).padding(.bottom, -bottomPadding))
             .overlay {
                 dismissFlashMenuRectangle
+            }
+            .overlay(alignment: .bottom) {
+                speechTranscript
             }
         }
         .onGeometryChange(for: CGRect.self) { proxy in
@@ -171,9 +173,18 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
         }
     }
     
+    @ViewBuilder
     var speechTranscript: some View {
         Group {
-            if speechRecognizer.transcript.isEmpty {
+            if let currentTool = toolUIManager.currentTool {
+                HStack {
+                    ProgressView()
+                    Text(currentTool)
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 4)
+                .glassEffect(in: .capsule)
+            } else if speechRecognizer.transcript.isEmpty {
                 Text(" ")
             } else {
                 Text(speechRecognizer.transcript.components(separatedBy: " ").suffix(6).joined(separator: " "))

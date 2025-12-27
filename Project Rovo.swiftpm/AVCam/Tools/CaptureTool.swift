@@ -8,16 +8,28 @@
 import Foundation
 import FoundationModels
 
-struct CaptureTool<CameraModel: Camera>: Tool {
+struct CaptureTool<CameraModel: Camera>: CameraTool {
+    typealias Output = String
+    
     let name: String = "startCapture"
     let description: String = "Captures a new photo or video based on the current settings."
     
     let camera: CameraModel
+    let uiManager: ToolEnabledUIManager
     
     @Generable
     struct Arguments {}
     
-    func call(arguments: Arguments) async throws -> String {
+    func toolName(arguments: Arguments) async -> String {
+        switch await camera.captureMode {
+        case .photo:
+            return "Taking Photo"
+        case .video:
+            return "Starting Video"
+        }
+    }
+    
+    func use(arguments: Arguments) async throws -> String {
         switch await camera.captureMode {
         case .photo:
             await camera.capturePhoto()

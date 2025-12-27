@@ -9,7 +9,9 @@ import Foundation
 import FoundationModels
 @preconcurrency import AVFoundation
 
-struct SwitchCameraTool<CameraModel: Camera>: Tool {
+struct SwitchCameraTool<CameraModel: Camera>: CameraTool {
+    typealias Output = String
+    
     let name: String = "switchCamera"
     let description: String = "Switches to the specified camera. If no device type is specified, it will switch to the next available camera."
     
@@ -21,7 +23,11 @@ struct SwitchCameraTool<CameraModel: Camera>: Tool {
         let deviceType: String?
     }
     
-    func call(arguments: Arguments) async throws -> String {
+    func toolName(arguments: Arguments) async -> String {
+        "Switching Camera"
+    }
+    
+    func use(arguments: Arguments) async throws -> String {
         var avDevice: AVCaptureDevice?
         
         if let deviceTypeString = arguments.deviceType {
@@ -34,16 +40,23 @@ struct SwitchCameraTool<CameraModel: Camera>: Tool {
     }
 }
 
-struct GetAvailableCamerasTool<CameraModel: Camera>: Tool {
+struct GetAvailableCamerasTool<CameraModel: Camera>: CameraTool {
+    typealias Output = [AVCaptureDevice.DeviceType.RawValue]
+    
     let name: String = "getCameras"
     let description: String = "Returns all available camera device types."
     
     let camera: CameraModel
+    let uiManager: ToolEnabledUIManager
     
     @Generable
     struct Arguments {}
     
-    func call(arguments: Arguments) async throws -> [AVCaptureDevice.DeviceType.RawValue] {
+    func toolName(arguments: Arguments) async -> String {
+        "Getting Cameras"
+    }
+    
+    func use(arguments: Arguments) async throws -> [AVCaptureDevice.DeviceType.RawValue] {
         return await camera.availableCameras.values.map(\.deviceType.rawValue)
     }
 }

@@ -75,12 +75,12 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     /// Generates an array of tools to use.
     private static func getTools(camera: CameraModel, toolUIManager: ToolEnabledUIManager) -> [any Tool] {
         [
-            CaptureTool(camera: camera),
+            CaptureTool(camera: camera, uiManager: toolUIManager),
             SwitchCameraTool(camera: camera, uiManager: toolUIManager),
-            GetAvailableCamerasTool(camera: camera),
-            SetCaptureModeTool(camera: camera),
-            SetFlashModeTool(camera: camera),
-            SetLiveTool(camera: camera)
+            GetAvailableCamerasTool(camera: camera, uiManager: toolUIManager),
+            SetCaptureModeTool(camera: camera, uiManager: toolUIManager),
+            SetFlashModeTool(camera: camera, uiManager: toolUIManager),
+            SetLiveTool(camera: camera, uiManager: toolUIManager)
         ]
     }
 }
@@ -94,6 +94,13 @@ final class ToolEnabledUIManager {
     /// Updates ``cameraFlipRotation``
     func flipCamera() {
         cameraFlipRotation += 180
+    }
+    
+    /// The current tool being used
+    private(set) var currentTool: String?
+    
+    func setCurrentTool(_ tool: String?) {
+        currentTool = tool
     }
 }
 
