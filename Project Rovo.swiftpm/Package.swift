@@ -39,6 +39,7 @@ let package = Package(
                 .photoLibrary(purposeString: "Project Rovo would like to use your photo library."),
                 .fileAccess(.pictureFolder, mode: .readWrite)
             ],
+            appCategory: .photography,
             additionalInfoPlistContentFilePath: "Info.plist"
         )
     ],
