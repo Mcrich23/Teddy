@@ -33,10 +33,10 @@ let package = Package(
                 .portraitUpsideDown(.when(deviceFamilies: [.pad]))
             ],
             capabilities: [
-                .microphone(purposeString: "Project Ravo would like to use your microphone."),
-                .speechRecognition(purposeString: "Project Ravo would like to use speech recognition software."),
-                .camera(purposeString: "Project Ravo would like to use your camera."),
-                .photoLibrary(purposeString: "Project Ravo would like to use your photo library."),
+                .microphone(purposeString: "Project Rovo would like to use your microphone."),
+                .speechRecognition(purposeString: "Project Rovo would like to use speech recognition software."),
+                .camera(purposeString: "Project Rovo would like to use your camera."),
+                .photoLibrary(purposeString: "Project Rovo would like to use your photo library."),
                 .fileAccess(.pictureFolder, mode: .readWrite)
             ],
             additionalInfoPlistContentFilePath: "Info.plist"
