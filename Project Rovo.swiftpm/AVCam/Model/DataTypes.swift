@@ -60,7 +60,10 @@ extension FlashMode {
     }
 }
 
-struct ZoomFactor: Equatable, ExpressibleByFloatLiteral, ExpressibleByIntegerLiteral, Comparable, Hashable {
+@Generable
+struct ZoomFactor: Equatable, ExpressibleByFloatLiteral, ExpressibleByIntegerLiteral, Hashable, PromptRepresentable {
+    var promptRepresentation: Prompt { value }
+    
     var value: Float
     
     init(_ value: Float) {
@@ -76,17 +79,6 @@ struct ZoomFactor: Equatable, ExpressibleByFloatLiteral, ExpressibleByIntegerLit
     }
     
     // Equatable Function Overrides
-    static func > (lhs: ZoomFactor, rhs: ZoomFactor) -> Bool {
-        lhs.value > rhs.value
-    }
-    
-    static func < (lhs: ZoomFactor, rhs: ZoomFactor) -> Bool {
-        lhs.value < rhs.value
-    }
-    
-    static func == (lhs: ZoomFactor, rhs: ZoomFactor) -> Bool {
-        lhs.value == rhs.value
-    }
     
     static func += (lhs: inout ZoomFactor, rhs: ZoomFactor) {
         lhs.value += rhs.value
@@ -102,6 +94,20 @@ struct ZoomFactor: Equatable, ExpressibleByFloatLiteral, ExpressibleByIntegerLit
     
     static func - (lhs: ZoomFactor, rhs: ZoomFactor) -> ZoomFactor {
         ZoomFactor(lhs.value - rhs.value)
+    }
+}
+
+extension ZoomFactor: Comparable {
+    static func < (lhs: ZoomFactor, rhs: ZoomFactor) -> Bool {
+        lhs.value < rhs.value
+    }
+    
+    static func > (lhs: ZoomFactor, rhs: ZoomFactor) -> Bool {
+        lhs.value > rhs.value
+    }
+    
+    static func == (lhs: ZoomFactor, rhs: ZoomFactor) -> Bool {
+        lhs.value == rhs.value
     }
 }
 

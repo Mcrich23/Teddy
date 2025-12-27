@@ -81,7 +81,10 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             GetAvailableCamerasTool(camera: camera, uiManager: toolUIManager),
             SetCaptureModeTool(camera: camera, uiManager: toolUIManager),
             SetFlashModeTool(camera: camera, uiManager: toolUIManager),
-            SetLiveTool(camera: camera, uiManager: toolUIManager)
+            SetLiveTool(camera: camera, uiManager: toolUIManager),
+            GetZoomFactorsTool(camera: camera, uiManager: toolUIManager),
+            GetZoomTool(camera: camera, uiManager: toolUIManager),
+            SetZoomTool(camera: camera, uiManager: toolUIManager),
         ]
     }
 }
