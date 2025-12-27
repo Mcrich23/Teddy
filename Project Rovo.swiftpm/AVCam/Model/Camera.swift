@@ -101,9 +101,6 @@ protocol Camera: AnyObject, Sendable {
     /// An error if the camera encountered a problem.
     var error: Error? { get }
     
-    /// Synchronize the state of the camera with the persisted values.
-    func syncState() async
-    
     /// Fetches the last photo and sets ``thumbnail`` to said image.
     func fetchLastPhoto()
 }

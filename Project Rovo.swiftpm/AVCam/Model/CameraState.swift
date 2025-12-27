@@ -10,60 +10,21 @@ import Foundation
 
 struct CameraState: Codable {
     
-    var flashMode = FlashMode.auto {
-        didSet { save() }
-    }
+    var flashMode = FlashMode.auto
     
     /// A Boolean that indicates whether the camera has flash available.
-    var isFlashAvailable = false {
-        didSet { save() }
-    }
+    var isFlashAvailable = false
     
     /// A Boolean that indicates whether the camera has live photo capabilities and live is currently available.
-    var isLivePhotoAvailable = false {
-        didSet { save() }
-    }
+    var isLivePhotoAvailable = false
     
-    var isLivePhotoEnabled = true {
-        didSet { save() }
-    }
+    var isLivePhotoEnabled = true
     
-    var qualityPrioritization = QualityPrioritization.quality {
-        didSet { save() }
-    }
+    var qualityPrioritization = QualityPrioritization.quality
     
-    var isVideoHDRSupported = true {
-        didSet { save() }
-    }
+    var isVideoHDRSupported = true
     
-    var isVideoHDREnabled = true {
-        didSet { save() }
-    }
+    var isVideoHDREnabled = true
     
-    var captureMode = CaptureMode.photo {
-        didSet { save() }
-    }
-    
-    private func save() {
-        Task {
-            do {
-                try await AVCamCaptureIntent.updateAppContext(self)
-            } catch {
-                os.Logger().debug("Unable to update intent context: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    static var current: CameraState {
-        get async {
-            do {
-                if let context = try await AVCamCaptureIntent.appContext {
-                    return context
-                }
-            } catch {
-                os.Logger().debug("Unable to fetch intent context: \(error.localizedDescription)")
-            }
-            return CameraState()
-        }
-    }
+    var captureMode = CaptureMode.photo
 }

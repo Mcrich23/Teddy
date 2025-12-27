@@ -81,8 +81,6 @@ final class CameraModel: Camera {
             return
         }
         do {
-            // Synchronize the state of the model with the persistent state.
-            await syncState()
             // Start the capture service to start the flow of data.
             try await captureService.start(with: cameraState)
             observeState()
@@ -91,17 +89,6 @@ final class CameraModel: Camera {
             logger.error("Failed to start capture service. \(error)")
             status = .failed
         }
-    }
-    
-    /// Synchronizes the persistent camera state.
-    ///
-    /// `CameraState` represents the persistent state, such as the capture mode, that the app and extension share.
-    func syncState() async {
-        cameraState = await CameraState.current
-        captureMode = cameraState.captureMode
-        qualityPrioritization = cameraState.qualityPrioritization
-        isLivePhotoEnabled = cameraState.isLivePhotoEnabled
-        isHDRVideoEnabled = cameraState.isVideoHDREnabled
     }
     
     // MARK: - Changing flash
@@ -170,18 +157,23 @@ final class CameraModel: Camera {
         didSet {
             guard status == .running else { return }
             Task {
-                isSwitchingModes = true
-                defer { isSwitchingModes = false }
-                // Update the configuration of the capture service for the new mode.
-                do {
-                    try await captureService.setCaptureMode(captureMode)
-                    
-                    // Update the persistent state value.
-                    cameraState.captureMode = captureMode
-                } catch {
-                    self.error = error
-                }
+                await captureModeDidSet()
             }
+        }
+    }
+    
+    private func captureModeDidSet() async {
+        isSwitchingModes = true
+        defer { isSwitchingModes = false }
+        
+        // Update the persistent state value.
+        cameraState.captureMode = captureMode
+        
+        // Update the configuration of the capture service for the new mode.
+        do {
+            try captureService.setCaptureMode(captureMode)
+        } catch {
+            self.error = error
         }
     }
     
