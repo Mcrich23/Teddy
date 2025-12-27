@@ -75,7 +75,8 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     /// Generates an array of tools to use.
     private static func getTools(camera: CameraModel, toolUIManager: ToolEnabledUIManager) -> [any Tool] {
         [
-            CaptureTool(camera: camera, uiManager: toolUIManager),
+            StartCaptureTool(camera: camera, uiManager: toolUIManager),
+            StopVideoTool(camera: camera, uiManager: toolUIManager),
             SwitchCameraTool(camera: camera, uiManager: toolUIManager),
             GetAvailableCamerasTool(camera: camera, uiManager: toolUIManager),
             SetCaptureModeTool(camera: camera, uiManager: toolUIManager),

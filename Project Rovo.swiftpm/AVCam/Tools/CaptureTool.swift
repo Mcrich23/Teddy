@@ -8,7 +8,7 @@
 import Foundation
 import FoundationModels
 
-struct CaptureTool<CameraModel: Camera>: CameraTool {
+struct StartCaptureTool<CameraModel: Camera>: CameraTool {
     typealias Output = String
     
     let name: String = "startCapture"
@@ -42,5 +42,27 @@ struct CaptureTool<CameraModel: Camera>: CameraTool {
                 return "Video Started"
             }
         }
+    }
+}
+
+struct StopVideoTool<CameraModel: Camera>: CameraTool {
+    typealias Output = String
+    
+    let name: String = "stopVideo"
+    let description: String = "Stops the video capture."
+    
+    let camera: CameraModel
+    let uiManager: ToolEnabledUIManager
+    
+    @Generable
+    struct Arguments {}
+    
+    func toolName(arguments: Arguments) async -> String {
+        "Stopping Video"
+    }
+    
+    func use(arguments: Arguments) async throws -> String {
+        await camera.toggleRecording()
+        return "Video Stopped"
     }
 }
