@@ -42,16 +42,7 @@ private final class ZoomModeModel<CameraModel: Camera> {
     func isActive(value: ZoomFactor) -> Bool {
         let zoom = self.zoom ?? camera.currentZoom
         
-        guard !camera.zoomFactors.contains(zoom) else {
-            return zoom == value
-        }
-        
-        let closestValueIndex = camera.zoomFactors.enumerated().min { abs($0.element.value - zoom.value) < abs($1.element.value - zoom.value) }?.offset
-        guard let closestValueIndex, let valueIndex = zoomRange.firstIndex(of: value), closestValueIndex == valueIndex else {
-            return false
-        }
-        
-        return true
+        return getZoomedValue(value) == zoom
     }
     
     func getZoomedValue(_ value: ZoomFactor) -> ZoomFactor {
@@ -61,7 +52,7 @@ private final class ZoomModeModel<CameraModel: Camera> {
             return value
         }
         
-        let closestValue = camera.zoomFactors.enumerated().min { abs($0.element.value - zoom.value) < abs($1.element.value - zoom.value) }
+        let closestValue = camera.zoomFactors.enumerated().filter({ $0.element < zoom }).sorted(by: <).last
         guard let closestValue, let factorIndex = camera.zoomFactors.firstIndex(of: value), closestValue.element >= value, ((closestValue.offset == camera.zoomFactors.count - 1 && value == camera.zoomFactors.last) || closestValue.element < camera.zoomFactors[factorIndex + 1]) else {
             return value
         }
