@@ -20,7 +20,8 @@ final class CaptureService {
     @Published private(set) var flashMode: FlashMode = .auto
     /// A value that indicates the current zoom.
     var currentZoom: ZoomFactor {
-        ZoomFactor(floatLiteral: currentDevice.videoZoomFactor/2)
+        let divideFactor = CGFloat(currentDevice.virtualDeviceSwitchOverVideoZoomFactors.first?.floatValue ?? 1)
+        return ZoomFactor(floatLiteral: currentDevice.videoZoomFactor/divideFactor)
     }
     /// A value that indicates the zoom factors available.
     @Published private(set) var zoomFactors: [ZoomFactor] = [1.0]
@@ -121,7 +122,7 @@ final class CaptureService {
     }
     
     // MARK: - Set Zoom
-    private func setZoomControls(for device: AVCaptureDevice) {
+    private func setZoomControls(for device: AVCaptureDevice) throws {
         if device.position == .back, device.deviceType != .builtInWideAngleCamera {
             let zoomFactors = [1] + device.virtualDeviceSwitchOverVideoZoomFactors.map { $0.floatValue }
             let mainIndex = device.constituentDevices.firstIndex(where: { $0.deviceType == .builtInWideAngleCamera }) ?? 0
@@ -140,8 +141,14 @@ final class CaptureService {
 //        } else {
 //            try? setZoomFactor(1, device: device)
 //        }
-        try? device.lockForConfiguration()
-        device.videoZoomFactor = 1
+        try device.lockForConfiguration()
+        
+        if device.activePrimaryConstituentDeviceSwitchingBehavior != .unsupported {
+            device.setPrimaryConstituentDeviceSwitchingBehavior(.restricted, restrictedSwitchingBehaviorConditions: [.exposureModeChanged, .focusModeChanged])
+        }
+        
+        try setZoomFactor(1, device: device, animatedRate: nil)
+        
         device.unlockForConfiguration()
     }
     
@@ -160,8 +167,6 @@ final class CaptureService {
             // Retrieve the default camera and microphone.
             let defaultCamera = try deviceLookup.camera(for: .back)
             let defaultMic = try deviceLookup.defaultMic
-            
-            setZoomControls(for: defaultCamera)
 
             // Add inputs for the default camera and microphone devices.
             activeVideoInput = try addInput(for: defaultCamera)
@@ -177,6 +182,8 @@ final class CaptureService {
                 try addOutput(movieCapture.output)
                 setHDRVideoEnabled(isHDRVideoEnabled)
             }
+            
+            try setZoomControls(for: defaultCamera)
             
             // Configure controls to use with the Camera Control.
             configureControls(for: defaultCamera)
@@ -305,10 +312,16 @@ final class CaptureService {
             try device.lockForConfiguration()
         }
         
+        var newZoom = zoom.value
+        
+        if device.isVirtualDevice {
+            newZoom = zoom.value * (device.virtualDeviceSwitchOverVideoZoomFactors.first?.floatValue ?? 1)
+        }
+        
         if let animatedRate {
-            device.ramp(toVideoZoomFactor: CGFloat(zoom.value*2), withRate: animatedRate)
+            device.ramp(toVideoZoomFactor: CGFloat(newZoom), withRate: animatedRate)
         } else {
-            device.videoZoomFactor = CGFloat(zoom.value*2)
+            device.videoZoomFactor = CGFloat(newZoom)
         }
         
         if !isConfigurationLocked {
@@ -393,7 +406,6 @@ final class CaptureService {
         guard videoDevices.contains(device) else {
             throw AVError(.deviceNotConnected)
         }
-        setZoomControls(for: device)
         
         // Bracket the following configuration in a begin/commit configuration pair.
         captureSession.beginConfiguration()
@@ -404,6 +416,8 @@ final class CaptureService {
         do {
             // Attempt to connect a new input and device to the capture session.
             activeVideoInput = try addInput(for: device)
+            
+            try setZoomControls(for: device)
             // Configure capture controls for new device selection.
             configureControls(for: device)
             // Configure a new rotation coordinator for the new device.
@@ -415,6 +429,8 @@ final class CaptureService {
         } catch {
             // Reconnect the existing camera on failure.
             captureSession.addInput(currentInput)
+            
+            try setZoomControls(for: device)
         }
         
         // The app only calls this method in response to the user requesting to switch cameras.
