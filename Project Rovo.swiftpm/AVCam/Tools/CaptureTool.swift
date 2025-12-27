@@ -8,11 +8,11 @@
 import Foundation
 import FoundationModels
 
-struct StartCaptureTool<CameraModel: Camera>: CameraTool {
+struct TakePhotoTool<CameraModel: Camera>: CameraTool {
     typealias Output = String
     
-    let name: String = "startCapture"
-    let description: String = "Captures a new photo or video based on the current settings."
+    let name: String = "takePhoto"
+    let description: String = "Captures a new photo."
     
     let camera: CameraModel
     let uiManager: ToolEnabledUIManager
@@ -21,26 +21,44 @@ struct StartCaptureTool<CameraModel: Camera>: CameraTool {
     struct Arguments {}
     
     func toolName(arguments: Arguments) async -> String {
-        switch await camera.captureMode {
-        case .photo:
-            return "Taking Photo"
-        case .video:
-            return "Starting Video"
-        }
+        return "Taking Photo"
     }
     
     func use(arguments: Arguments) async throws -> String {
-        switch await camera.captureMode {
-        case .photo:
+        Task { @MainActor in
+            camera.captureMode = .photo
             await camera.capturePhoto()
-            return "Photo Taken"
-        case .video:
-            if await camera.captureActivity.isRecording {
-                return "Video is already recording"
-            } else {
+        }
+        return "Photo Taken"
+    }
+}
+
+struct StartVideoTool<CameraModel: Camera>: CameraTool {
+    typealias Output = String
+    
+    let name: String = "startVideo"
+    let description: String = "Starts recording a new video."
+    
+    let camera: CameraModel
+    let uiManager: ToolEnabledUIManager
+    
+    @Generable
+    struct Arguments {}
+    
+    func toolName(arguments: Arguments) async -> String {
+        return "Starting Video"
+    }
+    
+    func use(arguments: Arguments) async throws -> String {
+        if await camera.captureActivity.isRecording {
+            return "Video is already recording"
+        } else {
+            Task { @MainActor in
+                camera.captureMode = .video
                 await camera.toggleRecording()
                 return "Video Started"
             }
+            return "Photo Taken"
         }
     }
 }

@@ -13,10 +13,14 @@ import SwiftUI
 @MainActor
 final class VoiceActivatedFMController<CameraModel: Camera> {
     var modelResponse: AttributedString?
-    private let session: LanguageModelSession
+    private var session: LanguageModelSession
+    private let camera: CameraModel
+    private let toolUIManager: ToolEnabledUIManager
     
     init(camera: CameraModel, toolUIManager: ToolEnabledUIManager) {
-        self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text. DO NOT CAPTURE UNLESS DIRECTED BY THE USER. When asked to take a selfie, ensure that you are using the selfie camera before taking the picture.")
+        self.camera = camera
+        self.toolUIManager = toolUIManager
+        self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: llmInstructions)
     }
     
     var isResponding: Bool { session.isResponding }
@@ -50,6 +54,13 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         }
         
         respondTask?.cancel()
+        
+        // Restart session is requested instead of passing to LLM
+        if command.lowercased().contains("restart llm session") {
+            restartSession()
+            return true
+        }
+        
         respondTask = Task {
             respondingPrompt = command
             
@@ -72,10 +83,16 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     }
     
     // MARK: – Tool Stuff
+    func restartSession() {
+        self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: llmInstructions)
+        self.modelResponse = AttributedString("Session Restarted.")
+    }
+    
     /// Generates an array of tools to use.
     private static func getTools(camera: CameraModel, toolUIManager: ToolEnabledUIManager) -> [any Tool] {
         [
-            StartCaptureTool(camera: camera, uiManager: toolUIManager),
+            TakePhotoTool(camera: camera, uiManager: toolUIManager),
+            StartVideoTool(camera: camera, uiManager: toolUIManager),
             StopVideoTool(camera: camera, uiManager: toolUIManager),
             SwitchCameraTool(camera: camera, uiManager: toolUIManager),
             GetAvailableCamerasTool(camera: camera, uiManager: toolUIManager),
@@ -88,6 +105,8 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         ]
     }
 }
+
+private let llmInstructions: String = "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text. DO NOT CAPTURE UNLESS DIRECTED BY THE USER. When asked to take a selfie, please  ensure that you are using the selfie camera before taking the picture."
 
 @Observable
 @MainActor
