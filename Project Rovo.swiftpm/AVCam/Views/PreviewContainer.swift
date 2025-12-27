@@ -7,14 +7,15 @@ A view that provides a container view around the camera preview.
 
 import SwiftUI
 
+@MainActor
 struct AspectRatio {
     let width: CGFloat
     let height: CGFloat
     
     var cgSize: CGSize { .init(width: width, height: height) }
     
-    static let photo = AspectRatio(width: 3.0, height: 4.0)
-    @MainActor static let movie = UIDevice.current.userInterfaceIdiom == .phone ? AspectRatio(width: 9.0, height: 16.0) : AspectRatio(width: 4, height: 3)
+    static let photo = UIDevice.current.userInterfaceIdiom == .phone ? AspectRatio(width: 3, height: 4) : AspectRatio(width: 4, height: 3)
+    static let movie = UIDevice.current.userInterfaceIdiom == .phone ? AspectRatio(width: 9.0, height: 16.0) : AspectRatio(width: 16, height: 9)
 }
 
 /// A view that provides a container view around the camera preview.
