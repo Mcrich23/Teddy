@@ -16,27 +16,45 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     private let session: LanguageModelSession
     
     init(camera: CameraModel, toolUIManager: ToolEnabledUIManager) {
-        self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text. DO NOT CAPTURE UNLESS DIRECTED BY THE USER.")
+        self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text. DO NOT CAPTURE UNLESS DIRECTED BY THE USER. When asked to take a selfie, ensure that you are using the selfie camera before taking the picture.")
     }
     
     var isResponding: Bool { session.isResponding }
     
     var respondTask: Task<Void, Never>?
     var respondingPrompt: String?
+    
+    func getCommand(from transcript: String?) -> String? {
+        var transcript = transcript
+        // Allow different alts since Rovo isn't a word.
+        let rovoAlts = [
+            "Rovo",
+        ]
+        
+        for alt in rovoAlts {
+            transcript = transcript?.replacingOccurrences(of: alt, with: "(rovo)\(alt)").replacingOccurrences(of: alt.lowercased(), with: "(rovo)\(alt.lowercased())")
+        }
+        
+        return transcript?.components(separatedBy: "(rovo)").dropFirst().joined(separator: "(rovo)").replacingOccurrences(of: "(rovo)", with: "")
+    }
 
     func pendModelResponse(from boundValue: Binding<String>) async -> Bool {
         let transcript = boundValue.wrappedValue
         try? await Task.sleep(for: .milliseconds(1500))
-        guard transcript == boundValue.wrappedValue, !transcript.isEmpty, transcript != respondingPrompt else {
+        guard transcript == boundValue.wrappedValue, !transcript.isEmpty, let command = getCommand(from: transcript), command != getCommand(from: respondingPrompt) else {
             return false
+        }
+        
+        if command.isEmpty {
+            return true
         }
         
         respondTask?.cancel()
         respondTask = Task {
-            respondingPrompt = transcript
+            respondingPrompt = command
             
             do {
-                try await streamModelResponse(from: transcript)
+                try await streamModelResponse(from: command)
             } catch {
                 print(error)
             }
@@ -48,7 +66,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         guard !isResponding else { throw FMErrors.modelBusy }
         let stream = session.streamResponse(to: transcript)
         
-        for try await chunk in stream {
+        for try await chunk in stream where chunk.content != "null" {
             modelResponse = try? AttributedString(styledMarkdown: chunk.content)
         }
     }
