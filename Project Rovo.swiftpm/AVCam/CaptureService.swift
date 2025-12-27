@@ -144,7 +144,7 @@ final class CaptureService {
         try device.lockForConfiguration()
         
         if device.activePrimaryConstituentDeviceSwitchingBehavior != .unsupported {
-            device.setPrimaryConstituentDeviceSwitchingBehavior(.restricted, restrictedSwitchingBehaviorConditions: [.exposureModeChanged, .focusModeChanged])
+            device.setPrimaryConstituentDeviceSwitchingBehavior(.restricted, restrictedSwitchingBehaviorConditions: [.videoZoomChanged])
         }
         
         try setZoomFactor(1, device: device, animatedRate: nil)
