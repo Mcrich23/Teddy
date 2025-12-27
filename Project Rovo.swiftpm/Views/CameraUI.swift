@@ -178,7 +178,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
             .onChange(of: modelResponse, initial: true) { _, newValue in
                 Task {
                     try? await Task.sleep(for: .seconds(3))
-                    if modelResponse == newValue {
+                    if modelController.modelResponse == newValue {
                         modelController.modelResponse = nil
                     }
                 }
