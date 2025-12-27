@@ -8,13 +8,13 @@ import PackageDescription
 import AppleProductTypes
 
 let package = Package(
-    name: "Project Ravo",
+    name: "Project Rovo",
     platforms: [
         .iOS("26.0")
     ],
     products: [
         .iOSApplication(
-            name: "Project Ravo",
+            name: "Project Rovo",
             targets: ["AppModule"],
             bundleIdentifier: "com.mcrich.Project-Ravo",
             teamIdentifier: "L7JQRVXU2V",
