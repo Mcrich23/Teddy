@@ -31,7 +31,10 @@ protocol Camera: AnyObject, Sendable {
     func start() async
 
     /// The capture mode, which can be photo or video.
-    var captureMode: CaptureMode { get set }
+    var captureMode: CaptureMode { get }
+    
+    /// Sets the capture mode, which can be photo or video.
+    func setCaptureMode(_ mode: CaptureMode) async
     
     /// A Boolean value that indicates whether the camera is currently switching capture modes.
     var isSwitchingModes: Bool { get }

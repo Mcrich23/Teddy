@@ -25,10 +25,8 @@ struct TakePhotoTool<CameraModel: Camera>: CameraTool {
     }
     
     func use(arguments: Arguments) async throws -> String {
-        Task { @MainActor in
-            camera.captureMode = .photo
-            await camera.capturePhoto()
-        }
+        await camera.setCaptureMode(.photo)
+        await camera.capturePhoto()
         return "Photo Taken"
     }
 }
@@ -53,12 +51,9 @@ struct StartVideoTool<CameraModel: Camera>: CameraTool {
         if await camera.captureActivity.isRecording {
             return "Video is already recording"
         } else {
-            Task { @MainActor in
-                camera.captureMode = .video
-                await camera.toggleRecording()
-                return "Video Started"
-            }
-            return "Photo Taken"
+            await camera.setCaptureMode(.video)
+            await camera.toggleRecording()
+            return "Video Started"
         }
     }
 }

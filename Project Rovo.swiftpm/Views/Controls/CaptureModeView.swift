@@ -23,7 +23,9 @@ struct CaptureModeView<CameraModel: Camera>: View {
     var body: some View {
         DeviceVHStack(spacing: 30) {
             Button {
-                camera.captureMode = .photo
+                Task {
+                    await camera.setCaptureMode(.photo)
+                }
             } label: {
                 Text("Photo")
                     .padding(.top, horizontalSizeClass == .compact ? 0 : nil)
@@ -47,7 +49,9 @@ struct CaptureModeView<CameraModel: Camera>: View {
 //            .foregroundStyle(.white)
             
             Button {
-                camera.captureMode = .video
+                Task {
+                    await camera.setCaptureMode(.video)
+                }
             } label: {
                 Text("Video")
                     .padding(.bottom, horizontalSizeClass == .compact ? 0 : nil)
@@ -66,7 +70,9 @@ struct CaptureModeView<CameraModel: Camera>: View {
             let newIndex = selectedIndex + (increment ? 1 : -1)
             
             guard newIndex >= 0, newIndex < modes.count else { return }
-            camera.captureMode = modes[newIndex]
+            Task {
+                await camera.setCaptureMode(modes[newIndex])
+            }
         }
         // Hide the capture mode view when a person interacts with capture controls.
         .opacity(camera.prefersMinimizedUI ? 0 : 1)

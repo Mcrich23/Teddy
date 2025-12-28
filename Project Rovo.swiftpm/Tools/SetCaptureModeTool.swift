@@ -27,9 +27,7 @@ struct SetCaptureModeTool<CameraModel: Camera>: CameraTool {
     }
     
     func use(arguments: Arguments) async throws -> String {
-        Task { @MainActor in
-            camera.captureMode = arguments.mode
-        }
+        await camera.setCaptureMode(arguments.mode)
         return "Switched to \(arguments.mode) capture mode."
     }
 }

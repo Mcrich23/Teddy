@@ -43,16 +43,7 @@ class PreviewCameraModel: Camera {
     
     private(set) var status = CameraStatus.unknown
     private(set) var captureActivity = CaptureActivity.idle
-    var captureMode = CaptureMode.photo {
-        didSet {
-            isSwitchingModes = true
-            Task {
-                // Create a short delay to mimic the time it takes to reconfigure the session.
-                try? await Task.sleep(until: .now + .seconds(0.3), clock: .continuous)
-                self.isSwitchingModes = false
-            }
-        }
-    }
+    private(set) var captureMode = CaptureMode.photo
     private(set) var isSwitchingModes = false
     private(set) var isVideoDeviceSwitchable = true
     private(set) var isSwitchingVideoDevices = false
@@ -69,6 +60,13 @@ class PreviewCameraModel: Camera {
         if status == .unknown {
             status = .running
         }
+    }
+    
+    func setCaptureMode(_ mode: CaptureMode) async {
+        isSwitchingModes = true
+        // Create a short delay to mimic the time it takes to reconfigure the session.
+        try? await Task.sleep(until: .now + .seconds(0.3), clock: .continuous)
+        self.isSwitchingModes = false
     }
     
     func switchVideoDevices(to position: CameraPosition? = nil) async throws -> CameraPosition {

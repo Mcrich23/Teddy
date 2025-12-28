@@ -157,16 +157,12 @@ final class CameraModel: Camera {
     // MARK: - Changing modes and devices
     
     /// A value that indicates the mode of capture for the camera.
-    var captureMode = CaptureMode.photo {
-        didSet {
-            guard status == .running else { return }
-            Task {
-                await captureModeDidSet()
-            }
-        }
-    }
+    private(set) var captureMode = CaptureMode.photo
     
-    private func captureModeDidSet() async {
+    func setCaptureMode(_ mode: CaptureMode) async {
+        captureMode = mode
+        guard status == .running else { return }
+        
         isSwitchingModes = true
         defer { isSwitchingModes = false }
         
