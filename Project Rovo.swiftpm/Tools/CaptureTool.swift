@@ -80,7 +80,10 @@ struct StopVideoTool<CameraModel: Camera>: CameraTool {
     }
     
     func use(arguments: Arguments) async throws -> String {
-        await camera.toggleRecording()
+        Task {
+            await camera.toggleRecording()
+        }
+        try? await Task.sleep(for: .seconds(1))
         return "Video Stopped"
     }
 }
