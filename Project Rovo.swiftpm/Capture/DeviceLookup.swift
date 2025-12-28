@@ -19,7 +19,8 @@ enum CameraPosition: String, Identifiable, PromptRepresentable {
     
     var id: String { rawValue }
 }
-extension CameraPosition {
+
+extension CameraPosition: Comparable {
     init(avPosition: AVCaptureDevice.Position) {
         switch avPosition {
         case .unspecified:
@@ -31,6 +32,17 @@ extension CameraPosition {
         @unknown default:
             self = .external
         }
+    }
+    
+    static func < (lhs: CameraPosition, rhs: CameraPosition) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
+}
+
+extension [CameraPosition] {
+    var ordered: [CameraPosition] {
+        [.front, .back, .external]
+            .filter({ self.contains($0) })
     }
 }
 

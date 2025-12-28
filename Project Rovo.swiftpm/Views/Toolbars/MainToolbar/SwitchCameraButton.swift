@@ -19,7 +19,8 @@ struct SwitchCameraButton<CameraModel: Camera>: View {
                 .frame(width: largeButtonSize.width, height: largeButtonSize.height)
         } else {
             Menu {
-                ForEach(Array(camera.availableCameras.keys)) { position in
+                // Reversed somehow makes it correct?
+                ForEach(Array(camera.availableCameras.keys).ordered.reversed()) { position in
                     Button {
                         Task {
                             await withAnimation {
