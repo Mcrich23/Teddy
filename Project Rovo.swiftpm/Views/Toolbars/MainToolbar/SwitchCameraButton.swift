@@ -13,18 +13,23 @@ struct SwitchCameraButton<CameraModel: Camera>: View {
     @State var camera: CameraModel
     
     var body: some View {
-        Button {
-            Task {
-                try await camera.switchVideoDevices()
+        if camera.availableCameras.count < 2 {
+            Spacer()
+                .frame(width: largeButtonSize.width, height: largeButtonSize.height)
+        } else {
+            Button {
+                Task {
+                    try await camera.switchVideoDevices()
+                }
+                toolUIManager.flipCamera()
+            } label: {
+                Image(systemName: "arrow.triangle.2.circlepath")
+                    .rotationEffect(.degrees(toolUIManager.cameraFlipRotation))
+                    .animation(.bouncy, value: toolUIManager.cameraFlipRotation)
             }
-            toolUIManager.flipCamera()
-        } label: {
-            Image(systemName: "arrow.triangle.2.circlepath")
-                .rotationEffect(.degrees(toolUIManager.cameraFlipRotation))
-                .animation(.bouncy, value: toolUIManager.cameraFlipRotation)
+            .frame(width: largeButtonSize.width, height: largeButtonSize.height)
+            .disabled(camera.captureActivity.isRecording)
+            .allowsHitTesting(!camera.isSwitchingVideoDevices)
         }
-        .frame(width: largeButtonSize.width, height: largeButtonSize.height)
-        .disabled(camera.captureActivity.isRecording)
-        .allowsHitTesting(!camera.isSwitchingVideoDevices)
     }
 }
