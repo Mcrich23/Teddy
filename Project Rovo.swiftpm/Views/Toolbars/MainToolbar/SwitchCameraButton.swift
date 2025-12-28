@@ -21,10 +21,10 @@ struct SwitchCameraButton<CameraModel: Camera>: View {
             Menu {
                 ForEach(Array(camera.availableCameras.keys)) { position in
                     Button(position.rawValue.capitalized) {
+                        toolUIManager.flipCamera()
                         Task {
                             try await camera.switchVideoDevices(to: position)
                         }
-                        toolUIManager.flipCamera()
                     }
                 }
             } label: {
@@ -35,10 +35,10 @@ struct SwitchCameraButton<CameraModel: Camera>: View {
                     .rotationEffect(.degrees(UIDevice.current.userInterfaceIdiom == .phone ? iconRotationAngle : 0))
                     .animation(.default, value: iconRotationAngle)
             } primaryAction: {
+                toolUIManager.flipCamera()
                 Task {
                     try await camera.switchVideoDevices()
                 }
-                toolUIManager.flipCamera()
             }
             .frame(width: largeButtonSize.width, height: largeButtonSize.height)
             .disabled(camera.captureActivity.isRecording)
