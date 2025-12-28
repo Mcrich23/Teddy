@@ -21,6 +21,9 @@ protocol Camera: AnyObject, Sendable {
     /// The camera's current activity state, which can be photo capture, movie capture, or idle.
     var captureActivity: CaptureActivity { get }
 
+    /// The currently selected camera.
+    var cameraPosition: CameraPosition { get }
+
     /// The source of video content for a camera preview.
     var previewSource: PreviewSource { get }
     
@@ -38,11 +41,11 @@ protocol Camera: AnyObject, Sendable {
 
     /// Switches between video devices available on the host system.
     @discardableResult
-    func switchVideoDevices() async throws -> AVCaptureDevice.DeviceType
+    func switchVideoDevices() async throws -> CameraPosition
     
     /// Switches between video devices available on the host system.
     @discardableResult
-    func switchVideoDevices(to position: CameraPosition?) async throws -> AVCaptureDevice.DeviceType
+    func switchVideoDevices(to position: CameraPosition?) async throws -> CameraPosition
     
     /// A dictionary of all of the available cameras
     var availableCameras: [CameraPosition : AVCaptureDevice] { get }

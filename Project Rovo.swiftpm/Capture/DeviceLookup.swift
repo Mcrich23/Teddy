@@ -19,6 +19,26 @@ enum CameraPosition: String, Identifiable, PromptRepresentable {
     
     var id: String { rawValue }
 }
+extension CameraPosition {
+    init(avPosition: AVCaptureDevice.Position) {
+        switch avPosition {
+        case .unspecified:
+            self = .external
+        case .back:
+            self = .back
+        case .front:
+            self = .front
+        @unknown default:
+            self = .external
+        }
+    }
+}
+
+extension AVCaptureDevice {
+    var cameraPosition: CameraPosition {
+        .init(avPosition: self.position)
+    }
+}
 
 /// An object that retrieves camera and microphone devices.
 final class DeviceLookup {

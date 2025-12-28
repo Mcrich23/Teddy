@@ -26,6 +26,9 @@ final class CameraModel: Camera {
     /// The current state of photo or movie capture.
     private(set) var captureActivity = CaptureActivity.idle
     
+    /// The currently selected camera position.
+    private(set) var cameraPosition: CameraPosition = AVCaptureDevice.userPreferredCamera?.cameraPosition ?? .back
+    
     /// A Boolean value that indicates whether the app is currently switching video devices.
     private(set) var isSwitchingVideoDevices = false
     
@@ -179,20 +182,21 @@ final class CameraModel: Camera {
     }
     
     /// Selects the next available video device for capture.
-    func switchVideoDevices() async throws -> AVCaptureDevice.DeviceType {
+    func switchVideoDevices() async throws -> CameraPosition {
         try await switchVideoDevices(to: nil)
     }
     
     /// Selects the next available video device for capture.
-    func switchVideoDevices(to position: CameraPosition? = nil) async throws -> AVCaptureDevice.DeviceType {
+    func switchVideoDevices(to position: CameraPosition? = nil) async throws -> CameraPosition {
         if let position, let device = availableCameras[position] {
+            self.cameraPosition = position
             try captureService.changeCaptureDevice(to: device)
-            return device.deviceType
+            return device.cameraPosition
         }
         
         isSwitchingVideoDevices = true
         defer { isSwitchingVideoDevices = false }
-        return try captureService.selectNextVideoDevice().deviceType
+        return try captureService.selectNextVideoDevice().cameraPosition
     }
     
     var availableCameras: [CameraPosition : AVCaptureDevice] {

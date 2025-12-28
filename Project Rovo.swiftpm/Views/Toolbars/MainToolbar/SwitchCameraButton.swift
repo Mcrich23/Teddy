@@ -20,12 +20,21 @@ struct SwitchCameraButton<CameraModel: Camera>: View {
         } else {
             Menu {
                 ForEach(Array(camera.availableCameras.keys)) { position in
-                    Button(position.rawValue.capitalized) {
+                    Button {
                         Task {
                             await withAnimation {
                                 toolUIManager.flipCamera()
                             }
                             try await camera.switchVideoDevices(to: position)
+                        }
+                    } label: {
+                        if camera.cameraPosition == position {
+                            HStack {
+                                Image(systemName: "checkmark")
+                                Text(position.rawValue.capitalized)
+                            }
+                        } else {
+                            Text(position.rawValue.capitalized)
                         }
                     }
                 }

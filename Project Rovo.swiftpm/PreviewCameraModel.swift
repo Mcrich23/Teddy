@@ -13,6 +13,7 @@ import AVFoundation
 class PreviewCameraModel: Camera {
     
     var flashMode: FlashMode = .auto
+    var cameraPosition: CameraPosition = .back
     var isLivePhotoEnabled = true
     var prefersMinimizedUI = false
     var qualityPrioritization = QualityPrioritization.quality
@@ -70,12 +71,12 @@ class PreviewCameraModel: Camera {
         }
     }
     
-    func switchVideoDevices(to position: CameraPosition? = nil) async throws -> AVCaptureDevice.DeviceType {
+    func switchVideoDevices(to position: CameraPosition? = nil) async throws -> CameraPosition {
         logger.debug("Device switching isn't implemented in PreviewCamera.")
         return .external
     }
     
-    func switchVideoDevices() async throws -> AVCaptureDevice.DeviceType {
+    func switchVideoDevices() async throws -> CameraPosition {
         try await switchVideoDevices(to: nil)
     }
     
