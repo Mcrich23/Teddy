@@ -29,9 +29,9 @@ struct SetLiveTool<CameraModel: Camera>: CameraTool {
         
         switch arguments.isOn {
         case true:
-            return "Turning Live Mode On"
+            return "Enabling Live Mode"
         case false:
-            return "Turning Live Mode Off"
+            return "Disabling Live Mode"
         }
     }
     
@@ -43,6 +43,12 @@ struct SetLiveTool<CameraModel: Camera>: CameraTool {
         Task { @MainActor in
             camera.isLivePhotoEnabled = arguments.isOn
         }
-        return "Switched live mode to \(arguments.isOn)."
+        
+        switch arguments.isOn {
+        case true:
+            return "Enabled Live Mode"
+            case false:
+            return "Disabled Live Mode"
+        }
     }
 }

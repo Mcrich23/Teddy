@@ -29,9 +29,9 @@ struct SetHDRTool<CameraModel: Camera>: CameraTool {
         
         switch arguments.isOn {
         case true:
-            return "Turning HDR On"
+            return "Enabling HDR"
         case false:
-            return "Turning HDR Off"
+            return "Disabling HDR"
         }
     }
     
@@ -47,6 +47,12 @@ struct SetHDRTool<CameraModel: Camera>: CameraTool {
         Task { @MainActor in
             camera.isHDRVideoEnabled = arguments.isOn
         }
-        return "Switched HDR to \(arguments.isOn)."
+        
+        switch arguments.isOn {
+        case true:
+            return "Enabled HDR"
+            case false:
+            return "Disabled HDR"
+        }
     }
 }
