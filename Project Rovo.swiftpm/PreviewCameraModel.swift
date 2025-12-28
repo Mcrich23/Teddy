@@ -70,7 +70,7 @@ class PreviewCameraModel: Camera {
         }
     }
     
-    func switchVideoDevices(to device: AVCaptureDevice?) async throws -> AVCaptureDevice.DeviceType {
+    func switchVideoDevices(to position: CameraPosition? = nil) async throws -> AVCaptureDevice.DeviceType {
         logger.debug("Device switching isn't implemented in PreviewCamera.")
         return .external
     }

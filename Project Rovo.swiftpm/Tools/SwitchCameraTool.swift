@@ -13,38 +13,36 @@ struct SwitchCameraTool<CameraModel: Camera>: CameraTool {
     typealias Output = String
     
     let name: String = "switchCamera"
-    let description: String = "Switches to the specified camera. If no device type is specified, it will switch to the next available camera."
+    let description: String = "Switches to the specified camera. If no position is specified, it will switch to the next available camera."
     
     let camera: CameraModel
     let uiManager: ToolEnabledUIManager
     
     @Generable
     struct Arguments {
-        let deviceType: String?
+        let cameraPosition: CameraPosition?
     }
     
     func toolName(arguments: Arguments) async -> String {
-        "Switching Camera"
+        guard let cameraPosition = arguments.cameraPosition else {
+            return "Switching Camera"
+        }
+        
+        return "Switching to \(cameraPosition.rawValue.capitalized) camera"
     }
     
     func use(arguments: Arguments) async throws -> String {
-        var avDevice: AVCaptureDevice?
-        
-        if let deviceTypeString = arguments.deviceType {
-            let deviceType = AVCaptureDevice.DeviceType(rawValue: deviceTypeString)
-            avDevice = await camera.availableCameras.first(where: { $0.value.deviceType == deviceType })?.value
-        }
-        let device = try await camera.switchVideoDevices(to: avDevice)
+        let device = try await camera.switchVideoDevices(to: arguments.cameraPosition)
         await uiManager.flipCamera()
         return "Now using the \(device) camera."
     }
 }
 
 struct GetAvailableCamerasTool<CameraModel: Camera>: CameraTool {
-    typealias Output = [AVCaptureDevice.DeviceType.RawValue]
+    typealias Output = [CameraPosition]
     
     let name: String = "getCameras"
-    let description: String = "Returns all available camera device types."
+    let description: String = "Returns all available camera positions."
     
     let camera: CameraModel
     let uiManager: ToolEnabledUIManager
@@ -56,7 +54,7 @@ struct GetAvailableCamerasTool<CameraModel: Camera>: CameraTool {
         "Getting Cameras"
     }
     
-    func use(arguments: Arguments) async throws -> [AVCaptureDevice.DeviceType.RawValue] {
-        return await camera.availableCameras.values.map(\.deviceType.rawValue)
+    func use(arguments: Arguments) async throws -> [CameraPosition] {
+        return await Array(camera.availableCameras.keys)
     }
 }

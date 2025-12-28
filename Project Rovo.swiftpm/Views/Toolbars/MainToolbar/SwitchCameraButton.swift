@@ -19,10 +19,10 @@ struct SwitchCameraButton<CameraModel: Camera>: View {
                 .frame(width: largeButtonSize.width, height: largeButtonSize.height)
         } else {
             Menu {
-                ForEach(camera.availableCameras.map({ (position: $0.key, device: $0.value) }), id: \.position) { device in
-                    Button(device.position.rawValue.capitalized) {
+                ForEach(Array(camera.availableCameras.keys)) { position in
+                    Button(position.rawValue.capitalized) {
                         Task {
-                            try await camera.switchVideoDevices(to: device.device)
+                            try await camera.switchVideoDevices(to: position)
                         }
                         toolUIManager.flipCamera()
                     }

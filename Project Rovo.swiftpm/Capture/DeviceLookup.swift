@@ -7,8 +7,12 @@ An object that retrieves camera and microphone devices.
 
 import AVFoundation
 import Combine
+import FoundationModels
 
-enum CameraPosition: String, Identifiable {
+@Generable
+enum CameraPosition: String, Identifiable, PromptRepresentable {
+    var promptRepresentation: Prompt { rawValue }
+    
     case front
     case back
     case external

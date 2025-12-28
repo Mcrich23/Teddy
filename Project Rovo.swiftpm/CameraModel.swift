@@ -184,8 +184,8 @@ final class CameraModel: Camera {
     }
     
     /// Selects the next available video device for capture.
-    func switchVideoDevices(to device: AVCaptureDevice? = nil) async throws -> AVCaptureDevice.DeviceType {
-        if let device {
+    func switchVideoDevices(to position: CameraPosition? = nil) async throws -> AVCaptureDevice.DeviceType {
+        if let position, let device = availableCameras[position] {
             try captureService.changeCaptureDevice(to: device)
             return device.deviceType
         }

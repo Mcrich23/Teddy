@@ -42,7 +42,7 @@ protocol Camera: AnyObject, Sendable {
     
     /// Switches between video devices available on the host system.
     @discardableResult
-    func switchVideoDevices(to device: AVCaptureDevice?) async throws -> AVCaptureDevice.DeviceType
+    func switchVideoDevices(to position: CameraPosition?) async throws -> AVCaptureDevice.DeviceType
     
     /// A dictionary of all of the available cameras
     var availableCameras: [CameraPosition : AVCaptureDevice] { get }
