@@ -37,14 +37,14 @@ actor MediaLibrary {
     
     private var isAuthorized: Bool {
         get async {
-            let status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
+            let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
             /// Determine whether the user has previously authorized `PHPhotoLibrary` access.
             var isAuthorized = status == .authorized
             // If the system hasn't determined the user's authorization status,
             // explicitly prompt them for approval.
             if status == .notDetermined {
                 // Request authorization to add media to the library.
-                let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+                let status = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
                 isAuthorized = status == .authorized
             }
             return isAuthorized
@@ -118,7 +118,7 @@ actor MediaLibrary {
     private func loadInitialThumbnail() async {
         // Only load an initial thumbnail if the user has already authorized the app to write to the Photos library.
         // Deferring this call prevents the app from prompting for Photos authorization when the app starts.
-        guard PHPhotoLibrary.authorizationStatus(for: .readWrite) == .authorized else { return }
+        guard await isAuthorized else { return }
         
         let fetchOptions = PHFetchOptions()
         fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
