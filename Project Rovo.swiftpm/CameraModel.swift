@@ -319,9 +319,9 @@ final class CameraModel: Camera {
         Task {
             // Await updates to a person's interaction with the Camera Control HUD.
             for await isShowingFullscreenControls in captureService.$isShowingFullscreenControls.values {
-                withAnimation {
+                await withAnimation {
                     // Prefer showing a minimized UI when capture controls enter a fullscreen appearance.
-                    prefersMinimizedUI = isShowingFullscreenControls
+                    self.prefersMinimizedUI = isShowingFullscreenControls
                 }
             }
         }
@@ -331,9 +331,9 @@ final class CameraModel: Camera {
             while true {
                 try? await Task.sleep(for: .milliseconds(100))
                 guard currentZoom != captureService.currentZoom else { continue }
-                withAnimation {
+                await withAnimation {
                     // Prefer showing a minimized UI when capture controls enter a fullscreen appearance.
-                    self.currentZoom = captureService.currentZoom
+                    self.currentZoom = self.captureService.currentZoom
                 }
             }
         }
@@ -341,7 +341,7 @@ final class CameraModel: Camera {
         Task {
             // Await updates to a camera max zoom factor.
             for await zoomFactors in captureService.$zoomFactors.values {
-                withAnimation {
+                await withAnimation {
                     // Prefer showing a minimized UI when capture controls enter a fullscreen appearance.
                     self.zoomFactors = zoomFactors
                 }
@@ -351,7 +351,7 @@ final class CameraModel: Camera {
         Task {
             // Await updates to a person's interaction with the Camera Control HUD.
             for await flashMode in captureService.$flashMode.values {
-                withAnimation {
+                await withAnimation {
                     // Prefer showing a minimized UI when capture controls enter a fullscreen appearance.
                     self.flashMode = flashMode
                 }

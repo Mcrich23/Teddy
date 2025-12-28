@@ -32,7 +32,9 @@ struct SwitchCameraTool<CameraModel: Camera>: CameraTool {
     }
     
     func use(arguments: Arguments) async throws -> String {
-        await uiManager.flipCamera()
+        await withAnimation {
+            uiManager.flipCamera()
+        }
         let device = try await camera.switchVideoDevices(to: arguments.cameraPosition)
         return "Now using the \(device) camera."
     }
