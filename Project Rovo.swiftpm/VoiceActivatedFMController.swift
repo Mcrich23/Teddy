@@ -29,7 +29,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     var respondingPrompt: String?
     
     func getCommand(from transcript: String?) -> String? {
-        guard !toolUIManager.isActiveListening else { return transcript }
+        guard !toolUIManager.isActiveListening || camera.captureActivity.isRecording else { return transcript }
         
         var transcript = transcript
         // Allow different alts since Rovo isn't a word.

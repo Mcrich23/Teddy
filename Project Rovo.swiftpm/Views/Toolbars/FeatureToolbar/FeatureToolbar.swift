@@ -258,6 +258,10 @@ struct ActiveListeningButton<CameraModel: Camera>: PlatformView {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(ToolEnabledUIManager.self) var toolUIManager
     
+    var isEnabled: Bool {
+        toolUIManager.isActiveListening && !camera.captureActivity.isRecording
+    }
+    
     var body: some View {
         Button {
             toolUIManager.setActiveListening(!toolUIManager.isActiveListening)
@@ -265,18 +269,19 @@ struct ActiveListeningButton<CameraModel: Camera>: PlatformView {
             ZStack {
                 Text("\(Image(systemName: "microphone"))R")
                     .font(.callout.weight(.semibold))
-                Image(systemName: toolUIManager.isActiveListening ? "circle" : "circle.slash")
+                Image(systemName: isEnabled ? "circle" : "circle.slash")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .symbolRenderingMode(.palette)
-                    .foregroundStyle(!toolUIManager.isActiveListening ? .white : .clear, .clear)
+                    .foregroundStyle(!isEnabled ? .white : .clear, .clear)
                     .contentTransition(.symbolEffect(.replace.magic(fallback: .replace)))
                     .allowsHitTesting(false)
             }
                 .frame(width: 30, height: 30)
         }
-        .accessibilityLabel(Text(toolUIManager.isActiveListening ? "Disable Active Listening" : "Enable Active Listening"))
+        .accessibilityLabel(Text(isEnabled ? "Disable Active Listening" : "Enable Active Listening"))
         .opacity(camera.prefersMinimizedUI ? 0 : 1)
         .buttonStyle(DefaultButtonStyle(size: isRegularSize ? .large : .small))
+        .disabled(camera.captureActivity.isRecording)
     }
 }
