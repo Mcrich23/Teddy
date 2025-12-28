@@ -23,14 +23,22 @@ struct SetZoomTool<CameraModel: Camera>: CameraTool {
     }
     
     func toolName(arguments: Arguments) async -> String {
-        return "Switching to \(arguments.factor)x zoom"
+        return await "Switching to \(normalizeZoom(arguments.factor).value)x zoom"
     }
     
     func use(arguments: Arguments) async throws -> String {
         Task { @MainActor in
             camera.animateZoom(to: arguments.factor)
         }
-        return "Switched to \(arguments.factor)x zoom."
+        
+        return await "Switched to \(normalizeZoom(arguments.factor).value)x zoom."
+    }
+    
+    func normalizeZoom(_ zoom: ZoomFactor) async -> ZoomFactor {
+        let zoomFactors = await camera.zoomFactors
+        let normalizedZoom = max(Float(zoomFactors.first?.value ?? 1), min(zoom.value, powf(zoomFactors.last?.value ?? Float(zoomFactors.first?.value ?? 1), 2)))
+        
+        return ZoomFactor(normalizedZoom)
     }
 }
 

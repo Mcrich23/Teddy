@@ -312,10 +312,11 @@ final class CaptureService {
             try device.lockForConfiguration()
         }
         
-        var newZoom = zoom.value
+        // Normalize zoom to acceptable range
+        var newZoom = max(Float(zoomFactors.first?.value ?? 1), min(zoom.value, powf(zoomFactors.last?.value ?? Float(zoomFactors.first?.value ?? 1), 2)))
         
         if device.isVirtualDevice {
-            newZoom = zoom.value * (device.virtualDeviceSwitchOverVideoZoomFactors.first?.floatValue ?? 1)
+            newZoom = newZoom * (device.virtualDeviceSwitchOverVideoZoomFactors.first?.floatValue ?? 1)
         }
         
         if let animatedRate {
