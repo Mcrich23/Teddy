@@ -24,6 +24,7 @@ struct MainToolbar<CameraModel: Camera>: PlatformView {
                 regularUI
             }
         }
+        .menuStyle(DefaultMenuStyle(size: .large))
         .buttonStyle(DefaultButtonStyle(size: .large))
     }
     

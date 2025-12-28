@@ -8,10 +8,12 @@ An object that retrieves camera and microphone devices.
 import AVFoundation
 import Combine
 
-enum CameraPosition {
+enum CameraPosition: String, Identifiable {
     case front
     case back
     case external
+    
+    var id: String { rawValue }
 }
 
 /// An object that retrieves camera and microphone devices.

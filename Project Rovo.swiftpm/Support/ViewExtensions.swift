@@ -50,19 +50,18 @@ struct AdaptiveToolbar<Content: View>: PlatformView {
     }
 }
 
+enum Size: CGFloat {
+    case small = 22
+    case large = 24
+}
+
 struct DefaultButtonStyle: PrimitiveButtonStyle {
     
     @Environment(\.isEnabled) private var isEnabled: Bool
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.iconRotationAngle) var iconRotationAngle
-    @Environment(\.materialOpacity) var materialOpacity
 
-    enum Size: CGFloat {
-        case small = 22
-        case large = 24
-    }
-    
     private let size: Size
     
     init(size: Size) {
@@ -77,16 +76,35 @@ struct DefaultButtonStyle: PrimitiveButtonStyle {
                 // Pad buttons on devices that use the `regular` size class,
                 // and also when explicitly requesting large buttons.
                 .padding(isRegularSize || size == .large ? 10.0 : 5.0)
-    //            .background(.black.opacity(0.4))
-    //            .background(
-    //                Circle()
-    //                    .strokeBorder(.white, lineWidth: 0.5)
-    //                    .fill(.ultraThinMaterial.opacity(materialOpacity))
-    //                    .shadow(radius: 2)
-    //            )
                 .rotationEffect(.degrees(UIDevice.current.userInterfaceIdiom == .phone ? iconRotationAngle : 0))
                 .animation(.default, value: iconRotationAngle)
         }
+        .buttonStyle(.glass)
+        .environment(\.colorScheme, .dark)
+        .buttonBorderShape(.circle)
+    }
+    
+    var isRegularSize: Bool {
+        horizontalSizeClass == .regular && verticalSizeClass == .regular
+    }
+}
+
+struct DefaultMenuStyle: MenuStyle {
+    
+    @Environment(\.isEnabled) private var isEnabled: Bool
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    
+    private let size: Size
+    
+    init(size: Size) {
+        self.size = size
+    }
+    
+    func makeBody(configuration: Configuration) -> some View {
+        Menu(configuration)
+        .foregroundStyle(isEnabled ? .primary : Color(white: 0.4))
+        .font(.system(size: size.rawValue))
         .buttonStyle(.glass)
         .environment(\.colorScheme, .dark)
         .buttonBorderShape(.circle)

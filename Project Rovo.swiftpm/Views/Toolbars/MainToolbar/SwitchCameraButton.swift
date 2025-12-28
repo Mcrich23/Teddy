@@ -10,6 +10,7 @@ import SwiftUI
 /// A view that displays a button to switch between available cameras.
 struct SwitchCameraButton<CameraModel: Camera>: View {
     @Environment(ToolEnabledUIManager.self) var toolUIManager
+    @Environment(\.iconRotationAngle) var iconRotationAngle
     @State var camera: CameraModel
     
     var body: some View {
@@ -17,15 +18,27 @@ struct SwitchCameraButton<CameraModel: Camera>: View {
             Spacer()
                 .frame(width: largeButtonSize.width, height: largeButtonSize.height)
         } else {
-            Button {
-                Task {
-                    try await camera.switchVideoDevices()
+            Menu {
+                ForEach(camera.availableCameras.map({ (position: $0.key, device: $0.value) }), id: \.position) { device in
+                    Button(device.position.rawValue.capitalized) {
+                        Task {
+                            try await camera.switchVideoDevices(to: device.device)
+                        }
+                        toolUIManager.flipCamera()
+                    }
                 }
-                toolUIManager.flipCamera()
             } label: {
                 Image(systemName: "arrow.triangle.2.circlepath")
                     .rotationEffect(.degrees(toolUIManager.cameraFlipRotation))
                     .animation(.bouncy, value: toolUIManager.cameraFlipRotation)
+                    .padding(10)
+                    .rotationEffect(.degrees(UIDevice.current.userInterfaceIdiom == .phone ? iconRotationAngle : 0))
+                    .animation(.default, value: iconRotationAngle)
+            } primaryAction: {
+                Task {
+                    try await camera.switchVideoDevices()
+                }
+                toolUIManager.flipCamera()
             }
             .frame(width: largeButtonSize.width, height: largeButtonSize.height)
             .disabled(camera.captureActivity.isRecording)
