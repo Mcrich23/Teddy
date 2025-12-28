@@ -13,7 +13,6 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.orientation) var orientation
-    @Environment(ToolEnabledUIManager.self) var toolUIManager
     
     @State var camera: CameraModel
     
@@ -54,12 +53,18 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
         DeviceVHStack(spacing: 30) {
             if camera.isFlashAvailable {
                 flashMenu
-            }
-            if horizontalSizeClass == .compact {
-                activeListeningButton
-                Spacer()
+                    .overlay {
+                        if camera.isPrecisionZooming {
+                            dismissFlashMenuRectangle
+                        }
+                    }
             }
             Group {
+                if horizontalSizeClass == .compact {
+                    ActiveListeningButton(camera: camera)
+                    Spacer()
+                }
+                
                 if camera.isLivePhotoAvailable {
                     livePhotoButton
                 }
@@ -69,18 +74,13 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
                 }
             }
             .allowsHitTesting(!isShowingFlashMenu)
-            .onTapGesture {
-                isShowingFlashMenu = false
+            .overlay {
+                dismissFlashMenuRectangle
             }
         }
         .opacity(camera.prefersMinimizedUI ? 0 : 1)
         .buttonStyle(DefaultButtonStyle(size: isRegularSize ? .large : .small))
         .background(dismissFlashMenuRectangle)
-        .overlay {
-            if camera.isPrecisionZooming {
-                dismissFlashMenuRectangle
-            }
-        }
     }
     
     ///  A button to toggle the enabled state of Live Photo capture.
@@ -95,27 +95,6 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
                 .animation(.default, value: camera.isLivePhotoEnabled)
                 .frame(width: 30, height: 30)
         }
-    }
-    
-    ///  A button to toggle the enabled state of Live Photo capture.
-    var activeListeningButton: some View {
-        Button {
-            toolUIManager.setActiveListening(!toolUIManager.isActiveListening)
-        } label: {
-            ZStack {
-                Text("\(Image(systemName: "microphone"))R")
-                    .font(.callout.weight(.semibold))
-                Image(systemName: toolUIManager.isActiveListening ? "circle" : "circle.slash")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .symbolRenderingMode(.palette)
-                    .foregroundStyle(!toolUIManager.isActiveListening ? .white : .clear, .clear)
-                    .contentTransition(.symbolEffect(.replace.magic(fallback: .replace)))
-                    .allowsHitTesting(false)
-            }
-                .frame(width: 30, height: 30)
-        }
-        .accessibilityLabel(Text(toolUIManager.isActiveListening ? "Disable Active Listening" : "Enable Active Listening"))
     }
     
     @ViewBuilder
@@ -268,5 +247,36 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
         .scaleEffect(isShowingFlashMenuDict[mode] == true ? 1 : 0)
         .allowsHitTesting(isShowingFlashMenuDict[mode] == true)
         .materialOpacity(0.7)
+    }
+}
+
+///  A button to toggle the enabled state of LLM active listening
+struct ActiveListeningButton<CameraModel: Camera>: PlatformView {
+    let camera: CameraModel
+    
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(ToolEnabledUIManager.self) var toolUIManager
+    
+    var body: some View {
+        Button {
+            toolUIManager.setActiveListening(!toolUIManager.isActiveListening)
+        } label: {
+            ZStack {
+                Text("\(Image(systemName: "microphone"))R")
+                    .font(.callout.weight(.semibold))
+                Image(systemName: toolUIManager.isActiveListening ? "circle" : "circle.slash")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(!toolUIManager.isActiveListening ? .white : .clear, .clear)
+                    .contentTransition(.symbolEffect(.replace.magic(fallback: .replace)))
+                    .allowsHitTesting(false)
+            }
+                .frame(width: 30, height: 30)
+        }
+        .accessibilityLabel(Text(toolUIManager.isActiveListening ? "Disable Active Listening" : "Enable Active Listening"))
+        .opacity(camera.prefersMinimizedUI ? 0 : 1)
+        .buttonStyle(DefaultButtonStyle(size: isRegularSize ? .large : .small))
     }
 }
