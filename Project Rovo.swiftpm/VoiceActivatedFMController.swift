@@ -105,6 +105,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             GetZoomFactorsTool(camera: camera, uiManager: toolUIManager),
             GetZoomTool(camera: camera, uiManager: toolUIManager),
             SetZoomTool(camera: camera, uiManager: toolUIManager),
+            SetActiveListeningTool(camera: camera, uiManager: toolUIManager),
         ]
     }
 }
