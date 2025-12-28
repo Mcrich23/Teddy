@@ -13,6 +13,7 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.orientation) var orientation
+    @Environment(ToolEnabledUIManager.self) var toolUIManager
     
     @State var camera: CameraModel
     
@@ -55,6 +56,7 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
                 flashMenu
             }
             if horizontalSizeClass == .compact {
+                activeListeningButton
                 Spacer()
             }
             Group {
@@ -81,7 +83,7 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
         }
     }
     
-    //  A button to toggle the enabled state of Live Photo capture.
+    ///  A button to toggle the enabled state of Live Photo capture.
     var livePhotoButton: some View {
         Button {
             camera.isLivePhotoEnabled.toggle()
@@ -93,6 +95,27 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
                 .animation(.default, value: camera.isLivePhotoEnabled)
                 .frame(width: 30, height: 30)
         }
+    }
+    
+    ///  A button to toggle the enabled state of Live Photo capture.
+    var activeListeningButton: some View {
+        Button {
+            toolUIManager.setActiveListening(!toolUIManager.isActiveListening)
+        } label: {
+            ZStack {
+                Text("\(Image(systemName: "microphone"))R")
+                    .font(.callout.weight(.semibold))
+                Image(systemName: toolUIManager.isActiveListening ? "circle" : "circle.slash")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(!toolUIManager.isActiveListening ? .white : .clear, .clear)
+                    .contentTransition(.symbolEffect(.replace.magic(fallback: .replace)))
+                    .allowsHitTesting(false)
+            }
+                .frame(width: 30, height: 30)
+        }
+        .accessibilityLabel(Text(toolUIManager.isActiveListening ? "Disable Active Listening" : "Enable Active Listening"))
     }
     
     @ViewBuilder
