@@ -35,6 +35,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         // Allow different alts since Rovo isn't a word.
         let rovoAlts = [
             "Rovo",
+            "Robo",
         ]
         
         for alt in rovoAlts {
