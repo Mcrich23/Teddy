@@ -37,7 +37,8 @@ let package = Package(
                 .speechRecognition(purposeString: "Project Rovo would like to use speech recognition software."),
                 .camera(purposeString: "Project Rovo would like to use your camera."),
                 .photoLibrary(purposeString: "Project Rovo would like to use your photo library."),
-                .fileAccess(.pictureFolder, mode: .readWrite)
+                .fileAccess(.pictureFolder, mode: .readWrite),
+                .locationWhenInUse(purposeString: "Project Rovo would like to use your location when the app is active.")
             ],
             appCategory: .photography,
             additionalInfoPlistContentFilePath: "Info.plist"
