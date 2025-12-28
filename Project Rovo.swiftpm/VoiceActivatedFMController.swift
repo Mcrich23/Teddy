@@ -59,7 +59,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         respondTask?.cancel()
         
         // Restart session is requested instead of passing to LLM
-        if command.lowercased().contains("restart llm session") {
+        if command.lowercased().contains("restart llm session") || command.lowercased().contains("restart model") || command.lowercased().contains("clear context") {
             restartSession()
             return true
         }
