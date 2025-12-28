@@ -23,7 +23,7 @@ struct SetZoomTool<CameraModel: Camera>: CameraTool {
     }
     
     func toolName(arguments: Arguments) async -> String {
-        return await "Switching to \(normalizeZoom(arguments.factor).value)x zoom"
+        return await "Zooming to \(normalizeZoom(arguments.factor).value)x"
     }
     
     func use(arguments: Arguments) async throws -> String {
@@ -31,7 +31,7 @@ struct SetZoomTool<CameraModel: Camera>: CameraTool {
             camera.animateZoom(to: arguments.factor)
         }
         
-        return await "Switched to \(normalizeZoom(arguments.factor).value)x zoom."
+        return await "Zoomed to \(normalizeZoom(arguments.factor).value)x."
     }
     
     func normalizeZoom(_ zoom: ZoomFactor) async -> ZoomFactor {
