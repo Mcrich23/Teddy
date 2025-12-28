@@ -110,7 +110,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     }
 }
 
-private let llmInstructions: String = "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text. When asked to take a selfie, please ensure that you are using the front facing selfie camera before taking the picture. Generally, the front camera is the selfie camera. DO NOT CAPTURE UNLESS DIRECTED BY THE USER."
+private let llmInstructions: String = "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text. When asked to take a selfie, please ensure that you are using the front facing selfie camera before taking the picture. Generally, the front camera is the selfie camera. To zoom all of the way out, zoom to 0. To zoom all the way in, zoom to 1000. These zoom parameters will be overriden by the boundaries. Only present what the zoom ended up being, never what you attempted to zoom. DO NOT CAPTURE UNLESS DIRECTED BY THE USER."
 
 @Observable
 @MainActor
