@@ -36,6 +36,10 @@ struct SetZoomTool<CameraModel: Camera>: CameraTool {
     
     func normalizeZoom(_ zoom: ZoomFactor) async -> ZoomFactor {
         let zoomFactors = await camera.zoomFactors
+        guard zoomFactors != [1] else {
+            return ZoomFactor(max(1, min(zoom.value, 4)))
+        }
+        
         let normalizedZoom = max(Float(zoomFactors.first?.value ?? 1), min(zoom.value, powf(zoomFactors.last?.value ?? Float(zoomFactors.first?.value ?? 1), 2)))
         
         return ZoomFactor(normalizedZoom)

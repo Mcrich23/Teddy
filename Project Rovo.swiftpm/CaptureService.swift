@@ -313,7 +313,11 @@ final class CaptureService {
         }
         
         // Normalize zoom to acceptable range
-        var newZoom = max(Float(zoomFactors.first?.value ?? 1), min(zoom.value, powf(zoomFactors.last?.value ?? Float(zoomFactors.first?.value ?? 1), 2)))
+        var newZoom = if zoomFactors == [1] {
+            max(1, min(zoom.value, 4))
+        } else {
+            max(Float(zoomFactors.first?.value ?? 1), min(zoom.value, powf(zoomFactors.last?.value ?? Float(zoomFactors.first?.value ?? 1), 2)))
+        }
         
         if device.isVirtualDevice {
             newZoom = newZoom * (device.virtualDeviceSwitchOverVideoZoomFactors.first?.floatValue ?? 1)
