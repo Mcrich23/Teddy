@@ -25,6 +25,7 @@ struct ThumbnailButton<CameraModel: Camera>: View {
         .clipShape(.circle)
         .disabled(camera.captureActivity.isRecording)
         .buttonStyle(.automatic)
+        .accessibilityLabel(Text("Photo Library"))
     }
     
     @ViewBuilder

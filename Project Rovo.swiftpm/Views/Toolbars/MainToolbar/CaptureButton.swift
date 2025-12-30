@@ -38,12 +38,14 @@ struct CaptureButton<CameraModel: Camera>: View {
                     await camera.capturePhoto()
                 }
             }
+            .accessibilityLabel(Text("Capture Photo"))
         case .video:
             MovieCaptureButton(isRecording: $isRecording) { _ in
                 Task {
                     await camera.toggleRecording()
                 }
             }
+            .accessibilityLabel(Text(camera.captureActivity.isRecording ? "Stop Recording" : "Start Recording"))
         }
     }
 }

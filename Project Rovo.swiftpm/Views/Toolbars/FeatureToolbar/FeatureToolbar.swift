@@ -219,6 +219,7 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
             }
             .foregroundStyle(Color.white)
             .opacity(isShowingFlashMenu ? 0.5 : 1)
+            .accessibilityLabel(Text(camera.flashMode.accessibilityLabel))
         }
         .onChange(of: isShowingFlashMenu) { _, newValue in
             if newValue {

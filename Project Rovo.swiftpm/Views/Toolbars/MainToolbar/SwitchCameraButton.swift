@@ -57,6 +57,7 @@ struct SwitchCameraButton<CameraModel: Camera>: View {
             .frame(width: largeButtonSize.width, height: largeButtonSize.height)
             .disabled(camera.captureActivity.isRecording)
             .allowsHitTesting(!camera.isSwitchingVideoDevices)
+            .accessibilityLabel(Text("Switch Camera"))
         }
     }
 }

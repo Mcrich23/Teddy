@@ -52,6 +52,17 @@ enum FlashMode: CaseIterable, Codable {
             return .auto
         }
     }
+    
+    var accessibilityLabel: String {
+        switch self {
+        case .off:
+            return "Flash Disabled"
+        case .on:
+            return "Flash Enabled"
+        case .auto:
+            return "Automatic Flash"
+        }
+    }
 }
 
 extension FlashMode {
