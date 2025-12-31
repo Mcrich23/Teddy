@@ -60,17 +60,24 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
                     }
             }
             Group {
-                if horizontalSizeClass == .compact {
-                    ActiveListeningButton(camera: camera)
+                if isCompactSize {
                     Spacer()
                 }
                 
-                if camera.isLivePhotoAvailable {
-                    livePhotoButton
+                Group {
+                    if camera.isLivePhotoAvailable {
+                        livePhotoButton
+                    }
+                    //              prioritizePicker
+                    if camera.isHDRVideoSupported {
+                        hdrButton
+                    }
                 }
-//              prioritizePicker
-                if camera.isHDRVideoSupported {
-                    hdrButton
+                .overlay(alignment: .bottom) {
+                    if isCompactSize {
+                        ActiveListeningButton(camera: camera)
+                            .offset(y: 60)
+                    }
                 }
             }
             .allowsHitTesting(!isShowingFlashMenu)
