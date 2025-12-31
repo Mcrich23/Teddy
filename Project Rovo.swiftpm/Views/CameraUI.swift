@@ -234,5 +234,25 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
 }
 
 #Preview {
-    CameraUI(camera: PreviewCameraModel(), swipeDirection: .constant(.left))
+    @Previewable @State var toolUIManager = ToolEnabledUIManager()
+    
+    _CameraUIPreview(toolUIManager: toolUIManager)
+        .environment(toolUIManager)
+        .environmentObject(SpeechRecognizer())
 }
+
+#if DEBUG
+/// A private struct only for previews designed to help manage one ``ToolEnabledUIManager`` in descendents
+private struct _CameraUIPreview: View {
+    @State var model: VoiceActivatedFMController<PreviewCameraModel>
+    
+    init(toolUIManager: ToolEnabledUIManager) {
+        self.model = VoiceActivatedFMController<PreviewCameraModel>(camera: PreviewCameraModel(), toolUIManager: toolUIManager)
+    }
+    
+    var body: some View {
+        CameraUI(camera: PreviewCameraModel(), swipeDirection: .constant(.left))
+            .environment(model)
+    }
+}
+#endif
