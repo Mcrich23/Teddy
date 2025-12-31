@@ -24,7 +24,7 @@ struct TextView: View {
 
     init(text: Binding<String>,
          font: UIFont? = .preferredFont(forTextStyle: .body),
-         textColor: UIColor? = .black,
+         textColor: UIColor? = .label,
          textAlignment: NSTextAlignment = .left,
          exclusionPaths: [UIBezierPath],
 
@@ -48,7 +48,7 @@ struct TextView: View {
 
     init(text: String,
          font: UIFont? = .preferredFont(forTextStyle: .body),
-         textColor: UIColor? = .black,
+         textColor: UIColor? = .label,
          textAlignment: NSTextAlignment = .left,
          exclusionPaths: [UIBezierPath],
 

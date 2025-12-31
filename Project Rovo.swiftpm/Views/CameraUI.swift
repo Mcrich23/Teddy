@@ -104,6 +104,12 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
                     .materialOpacity(0.8)
                     .padding(.bottom)
                 CaptureModeView(camera: camera, direction: $swipeDirection)
+                    .frame(maxWidth: .infinity)
+                    .overlay(alignment: .leading) {
+                        ShowAboutButton()
+                            .buttonStyle(DefaultButtonStyle(size: .small))
+                            .padding(.leading)
+                    }
                     .materialOpacity(0.6)
                     .padding(.bottom, 15)
             }
