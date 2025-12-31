@@ -65,6 +65,7 @@ class PreviewCameraModel: Camera {
     func setCaptureMode(_ mode: CaptureMode) async {
         isSwitchingModes = true
         // Create a short delay to mimic the time it takes to reconfigure the session.
+        self.captureMode = mode
         try? await Task.sleep(until: .now + .seconds(0.3), clock: .continuous)
         self.isSwitchingModes = false
     }
