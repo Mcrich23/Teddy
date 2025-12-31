@@ -153,7 +153,11 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
         })
         .overlay(alignment: .bottomLeading, content: {
             ActiveListeningButton(camera: camera)
-                .padding(.leading)
+                .padding([.leading, .bottom])
+        })
+        .overlay(alignment: .bottomLeading, content: {
+            ShowAboutButton()
+                .padding([.trailing, .bottom])
         })
         .overlay {
             llmResponseUI
