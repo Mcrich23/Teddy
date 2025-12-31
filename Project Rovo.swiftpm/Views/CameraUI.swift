@@ -161,8 +161,9 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
             ActiveListeningButton(camera: camera)
                 .padding([.leading, .bottom])
         })
-        .overlay(alignment: .bottomLeading, content: {
+        .overlay(alignment: .bottomTrailing, content: {
             ShowAboutButton()
+                .buttonStyle(DefaultButtonStyle(size: .large))
                 .padding([.trailing, .bottom])
         })
         .overlay {
