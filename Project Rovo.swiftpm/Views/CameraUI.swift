@@ -240,6 +240,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
     }
 }
 
+#if DEBUG
 #Preview {
     @Previewable @State var toolUIManager = ToolEnabledUIManager()
     
@@ -248,7 +249,6 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
         .environmentObject(SpeechRecognizer())
 }
 
-#if DEBUG
 /// A private struct only for previews designed to help manage one ``ToolEnabledUIManager`` in descendents
 private struct _CameraUIPreview: View {
     @State var model: VoiceActivatedFMController<PreviewCameraModel>
