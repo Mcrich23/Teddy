@@ -43,8 +43,10 @@ struct AboutView: View {
                         Text("Thank you to Apple's [AVCam](https://developer.apple.com/documentation/avfoundation/avcam-building-a-camera-app) sample app for providing some of the internal camera logic.")
                     }
                 }
-                .padding([.horizontal, .bottom])
+                .padding(.top, -40)
+                .padding([.bottom, .horizontal])
             }
+            .glassSheet()
             .toolbar {
                 Button(role: .close, action: dismiss.callAsFunction)
             }
