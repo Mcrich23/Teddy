@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 extension View {
-    public func glassSheet(variant: Int = 2) -> some View {
+    public func glassSheet(variant: Int = 4) -> some View {
         background{ VCWrapper(variant: variant) }
     }
 }
