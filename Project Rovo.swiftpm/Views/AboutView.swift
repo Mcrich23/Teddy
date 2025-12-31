@@ -27,20 +27,20 @@ struct AboutView: View {
                         }
                     }
                     
-                    VStack(alignment: .leading, spacing: 15) {
-                        Text("Credits:")
-                            .bold()
-                        Text("Thank you to Apple's [AVCam](https://developer.apple.com/documentation/avfoundation/avcam-building-a-camera-app) sample app for providing some of the internal camera logic.")
-                    }
-                    
-                    Divider()
-                    
                     VStack {
                         Text("Project Rovo was created in loving memory of Laurence\u{00a0}N.\u{00a0}Smith")
                             .bold()
                             .multilineTextAlignment(.center)
                         
                         LarrySmithBioView()
+                    }
+                    
+                    Divider()
+                    
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text("Credits:")
+                            .bold()
+                        Text("Thank you to Apple's [AVCam](https://developer.apple.com/documentation/avfoundation/avcam-building-a-camera-app) sample app for providing some of the internal camera logic.")
                     }
                 }
                 .padding([.horizontal, .bottom])
