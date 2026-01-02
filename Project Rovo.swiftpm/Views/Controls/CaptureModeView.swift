@@ -15,53 +15,75 @@ struct CaptureModeView<CameraModel: Camera>: View {
     @Environment(\.materialOpacity) var materialOpacity
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
+    @State var captureMode: CaptureMode
+    
     init(camera: CameraModel, direction: Binding<SwipeDirection>) {
         self.camera = camera
         _direction = direction
+        captureMode = camera.captureMode
+        
+        UISegmentedControl.appearance().perform(NSSelectorFromString("_setUseGlass:"), with: true)
     }
     
     var body: some View {
         DeviceVHStack(spacing: 30) {
-            Button {
-                Task {
-                    await camera.setCaptureMode(.photo)
+            Picker("Capture Mode", selection: $captureMode) {
+                ForEach(CaptureMode.allCases) { mode in
+                    Text(mode.rawValue.capitalized)
                 }
-            } label: {
-                Text("Photo")
-                    .padding(.top, horizontalSizeClass == .compact ? 0 : nil)
-                    .padding(.bottom, horizontalSizeClass == .compact ? 0 : 3)
             }
-            .foregroundStyle(camera.captureMode == .photo ? Color.accentColor : .white)
-            
+            .pickerStyle(.segmented)
+            .frame(maxWidth: 200)
             
 //            Button {
-//                
-//            } label: {
-//                Label {
-//                    Text("Expand")
-//                } icon: {
-//                    Image(systemName: "chevron.compact.up")
-//                        .resizable()
-//                        .frame(width: 20, height: 8)
+//                Task {
+//                    await camera.setCaptureMode(.photo)
 //                }
-//                    .labelStyle(.iconOnly)
+//            } label: {
+//                Text("Photo")
+//                    .padding(.top, horizontalSizeClass == .compact ? 0 : nil)
+//                    .padding(.bottom, horizontalSizeClass == .compact ? 0 : 3)
 //            }
-//            .foregroundStyle(.white)
-            
-            Button {
-                Task {
-                    await camera.setCaptureMode(.video)
-                }
-            } label: {
-                Text("Video")
-                    .padding(.bottom, horizontalSizeClass == .compact ? 0 : nil)
-                    .padding(.top, horizontalSizeClass == .compact ? 0 : 3)
-            }
-            .foregroundStyle(camera.captureMode == .video ? Color.accentColor : .white)
+//            .foregroundStyle(camera.captureMode == .photo ? Color.accentColor : .white)
+//            
+//            
+////            Button {
+////                
+////            } label: {
+////                Label {
+////                    Text("Expand")
+////                } icon: {
+////                    Image(systemName: "chevron.compact.up")
+////                        .resizable()
+////                        .frame(width: 20, height: 8)
+////                }
+////                    .labelStyle(.iconOnly)
+////            }
+////            .foregroundStyle(.white)
+//            
+//            Button {
+//                Task {
+//                    await camera.setCaptureMode(.video)
+//                }
+//            } label: {
+//                Text("Video")
+//                    .padding(.bottom, horizontalSizeClass == .compact ? 0 : nil)
+//                    .padding(.top, horizontalSizeClass == .compact ? 0 : 3)
+//            }
+//            .foregroundStyle(camera.captureMode == .video ? Color.accentColor : .white)
         }
-        .padding()
+//        .padding()
         .glassEffect(.regular.interactive(), in: .capsule)
         .disabled(camera.captureActivity.isRecording)
+        .onChange(of: captureMode, { oldValue, newValue in
+            guard camera.captureMode != newValue else { return }
+            Task {
+                await camera.setCaptureMode(newValue)
+            }
+        })
+        .onChange(of: camera.captureMode) { oldValue, newValue in
+            captureMode = newValue
+        }
         .onChange(of: direction) { _, _ in
             let modes = CaptureMode.allCases
             let selectedIndex = modes.firstIndex(of: camera.captureMode) ?? -1
