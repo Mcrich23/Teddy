@@ -18,6 +18,7 @@ struct OnboardingIntroView: View {
             Button("Get Started") {
                 stepManager.next()
             }
+            .tint(Color.accentColor.mix(with: .black, by: 0.1))
             .buttonBorderShape(.capsule)
             .buttonStyle(.borderedProminent)
         }

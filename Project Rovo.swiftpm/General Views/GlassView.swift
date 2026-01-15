@@ -9,33 +9,41 @@ import SwiftUI
 
 public struct GlassView: View {
     /// Defaults to 3
-    var variant: Int
+    var variant: Int?
+    
+    /// Transition animation
+    var animation: Animation?
 
-    public init(variant: Int = 3) {
+    public init(variant: Int? = 3, animation: Animation? = nil) {
         self.variant = variant
+        self.animation = animation
     }
 
     public var body: some View {
-        Representable(glassVariant: variant)
+        Representable(glassVariant: variant, animation: animation)
     }
 }
 
 // MARK: - Representable
 
 private struct Representable: UIViewRepresentable {
-    var glassVariant: Int
+    var glassVariant: Int?
+    var animation: Animation?
     
     func makeUIView(context: Context) -> UIVisualEffectView {
         context.coordinator.blurView
     }
     
     func updateUIView(_ view: UIVisualEffectView, context: Context) {
-        guard let glass = _UIViewGlass(variant: glassVariant) else { return }
-        context.coordinator.update(glass: glass)
+        if let glassVariant {
+            context.coordinator.update(glass: _UIViewGlass(variant: glassVariant))
+        } else {
+            context.coordinator.update(glass: nil)
+        }
     }
     
     func makeCoordinator() -> Coordinator {
-        Coordinator()
+        Coordinator(animation: animation)
     }
 }
 
@@ -53,9 +61,25 @@ extension Representable {
             
             return UIVisualEffectView(effect: effect)
         }()
+        let animation: Animation?
         
-        func update(glass: NSObject) {
-            blurView.effect = createGlassEffect(glass: glass)
+        init(animation: Animation?) {
+            self.animation = animation
+        }
+        
+        func update(glass: NSObject?) {
+            guard let glass else {
+                blurView.effect = nil
+                return
+            }
+            
+            if let animation {
+                UIView.animate(animation) {
+                    blurView.effect = createGlassEffect(glass: glass)
+                }
+            } else {
+                blurView.effect = createGlassEffect(glass: glass)
+            }
         }
         
         private func createGlassEffect(glass: NSObject) -> UIVisualEffect? {

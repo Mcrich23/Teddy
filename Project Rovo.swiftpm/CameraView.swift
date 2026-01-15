@@ -21,7 +21,8 @@ struct CameraView<CameraModel: Camera>: PlatformView {
     @State var camera: CameraModel
     @State var toolUIManager: ToolEnabledUIManager
     
-    let isOnboarding = true
+    @State var isOnboarding = false
+    @AppStorage("hasOnboarded") var hasOnboarded = false
     
     init(camera: CameraModel) {
         self.camera = camera
@@ -72,16 +73,34 @@ struct CameraView<CameraModel: Camera>: PlatformView {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .overlay(content: {
-            GlassView(variant: 0)
+            GlassView(variant: isOnboarding ? 3 : nil, animation: .easeInOut.speed(0.5))
                 .ignoresSafeArea()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(-4)
+                .padding(-1)
                 .overlay {
-                    MainOnboardingView()
+                    Group {
+                        if isOnboarding {
+                            MainOnboardingView()
+                                .transition(.blurReplace)
+                        }
+                    }
+                    .animation(.easeInOut.speed(0.75).delay(0.3), value: isOnboarding)
                 }
         })
+        .onChange(of: isOnboarding, { oldValue, newValue in
+            if !newValue {
+                startTranscription()
+            }
+        })
         .onAppear {
-            startTranscription()
+            if !hasOnboarded {
+                Task {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    isOnboarding = true
+                }
+            } else {
+                startTranscription()
+            }
         }
         .onChange(of: speechRecognizer.transcript) {
             Task {
