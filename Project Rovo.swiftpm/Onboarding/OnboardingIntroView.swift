@@ -9,6 +9,7 @@ import SwiftUI
 
 struct OnboardingIntroView: View {
     @Environment(OnboardingStepManager.self) var stepManager
+    @Environment(\.customEnabledDismiss) var customEnabledDismiss
     
     var body: some View {
         VStack {
@@ -16,7 +17,8 @@ struct OnboardingIntroView: View {
                 .font(.title)
             Text("You're about to experience the future of accessibility through the lens of a camera.")
             Button("Get Started") {
-                stepManager.next()
+//                stepManager.next()
+                customEnabledDismiss()
             }
             .tint(Color.accentColor.mix(with: .black, by: 0.1))
             .buttonBorderShape(.capsule)

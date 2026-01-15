@@ -151,6 +151,10 @@ extension View {
     func onRotate(perform action: @escaping (UIDeviceOrientation) -> Void) -> some View {
         self.modifier(DeviceRotationViewModifier(action: action))
     }
+    
+    func customDismiss(_ action: @escaping () -> Void) -> some View {
+        environment(\.customDismiss, action)
+    }
 }
 
 extension EnvironmentValues {
@@ -171,5 +175,13 @@ extension EnvironmentValues {
         default:
             return previousValue
         }
+    }
+    
+    /// Dismisses to select anchor view
+    @Entry var customDismiss: (() -> Void)?
+    
+    @MainActor
+    var customEnabledDismiss: () -> Void {
+        customDismiss ?? dismiss.callAsFunction
     }
 }

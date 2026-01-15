@@ -22,6 +22,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
     @State var toolUIManager: ToolEnabledUIManager
     
     @State var isOnboarding = false
+    @State var isShowingOnboarding = false
     @AppStorage("hasOnboarded") var hasOnboarded = false
     
     init(camera: CameraModel) {
@@ -72,8 +73,14 @@ struct CameraView<CameraModel: Camera>: PlatformView {
             CameraUI(camera: camera, swipeDirection: $swipeDirection)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .onChange(of: isOnboarding, { oldValue, newValue in
+            Task {
+                try? await Task.sleep(for: .seconds(1))
+                isShowingOnboarding = newValue
+            }
+        })
         .overlay(content: {
-            GlassView(variant: isOnboarding ? 2 : nil, animation: .easeInOut.speed(0.5))
+            GlassView(variant: isOnboarding ? 2 : nil, animation: glassOnboardingAnimation)
                 .ignoresSafeArea()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(-1)
@@ -82,15 +89,15 @@ struct CameraView<CameraModel: Camera>: PlatformView {
                         if isOnboarding {
                             MainOnboardingView()
                                 .transition(.blurReplace)
+                                .customDismiss {
+                                    isOnboarding = false
+                                    startTranscription()
+//                                    hasOnboarded = true
+                                }
                         }
                     }
-                    .animation(.easeInOut.speed(0.75).delay(0.3), value: isOnboarding)
+                    .animation(viewOnboardingAnimation, value: isOnboarding)
                 }
-        })
-        .onChange(of: isOnboarding, { oldValue, newValue in
-            if !newValue {
-                startTranscription()
-            }
         })
         .onAppear {
             if !hasOnboarded {
@@ -113,6 +120,24 @@ struct CameraView<CameraModel: Camera>: PlatformView {
         .environment(modelController)
         .environment(toolUIManager)
         .environmentObject(speechRecognizer)
+    }
+    
+    var glassOnboardingAnimation: Animation {
+        switch isShowingOnboarding {
+        case true:
+            return .easeInOut.speed(0.75)
+        case false:
+            return .easeInOut.speed(0.5)
+        }
+    }
+    
+    var viewOnboardingAnimation: Animation {
+        switch isShowingOnboarding {
+        case true:
+            return .easeInOut.speed(1)
+        case false:
+            return .easeInOut.speed(0.75).delay(0.3)
+        }
     }
 
     var swipeGesture: some Gesture {

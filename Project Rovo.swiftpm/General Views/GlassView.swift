@@ -36,14 +36,14 @@ private struct Representable: UIViewRepresentable {
     
     func updateUIView(_ view: UIVisualEffectView, context: Context) {
         if let glassVariant {
-            context.coordinator.update(glass: _UIViewGlass(variant: glassVariant))
+            context.coordinator.update(glass: _UIViewGlass(variant: glassVariant), animation: animation)
         } else {
-            context.coordinator.update(glass: nil)
+            context.coordinator.update(glass: nil, animation: animation)
         }
     }
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(animation: animation)
+        Coordinator()
     }
 }
 
@@ -61,24 +61,27 @@ extension Representable {
             
             return UIVisualEffectView(effect: effect)
         }()
-        let animation: Animation?
         
-        init(animation: Animation?) {
-            self.animation = animation
-        }
-        
-        func update(glass: NSObject?) {
+        func update(glass: NSObject?, animation: Animation?) {
             guard let glass else {
-                blurView.effect = nil
+                animate(animation) {
+                    self.blurView.effect = nil
+                }
                 return
             }
             
+            animate(animation) {
+                self.blurView.effect = self.createGlassEffect(glass: glass)
+            }
+        }
+        
+        private func animate(_ animation: Animation?, action: @escaping () -> Void) {
             if let animation {
                 UIView.animate(animation) {
-                    blurView.effect = createGlassEffect(glass: glass)
+                    action()
                 }
             } else {
-                blurView.effect = createGlassEffect(glass: glass)
+                action()
             }
         }
         
