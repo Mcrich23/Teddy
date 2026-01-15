@@ -21,6 +21,8 @@ struct CameraView<CameraModel: Camera>: PlatformView {
     @State var camera: CameraModel
     @State var toolUIManager: ToolEnabledUIManager
     
+    let isOnboarding = true
+    
     init(camera: CameraModel) {
         self.camera = camera
         let toolUIManager = ToolEnabledUIManager()
@@ -39,6 +41,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
                 CameraPreview(source: camera.previewSource)
                     // Handle capture events from device hardware buttons.
                     .onCameraCaptureEvent { event in
+                        guard !isOnboarding else { return }
                         if event.phase == .ended {
                             Task {
                                 switch camera.captureMode {
@@ -68,6 +71,15 @@ struct CameraView<CameraModel: Camera>: PlatformView {
             CameraUI(camera: camera, swipeDirection: $swipeDirection)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .overlay(content: {
+            GlassView(variant: 0)
+                .ignoresSafeArea()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(-4)
+                .overlay {
+                    MainOnboardingView()
+                }
+        })
         .onAppear {
             startTranscription()
         }
