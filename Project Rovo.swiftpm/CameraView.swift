@@ -125,7 +125,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
     var glassOnboardingAnimation: Animation {
         switch isShowingOnboarding {
         case true:
-            return .easeInOut.speed(0.75)
+            return .easeInOut.speed(0.5).delay(0.1)
         case false:
             return .easeInOut.speed(0.5)
         }
@@ -134,7 +134,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
     var viewOnboardingAnimation: Animation {
         switch isShowingOnboarding {
         case true:
-            return .easeInOut.speed(1)
+            return .easeInOut.speed(0.75)
         case false:
             return .easeInOut.speed(0.75).delay(0.3)
         }
