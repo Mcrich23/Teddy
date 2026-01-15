@@ -43,6 +43,7 @@ struct MainOnboardingView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
+        .tint(Color.accentColor.mix(with: .black, by: 0.1))
         .environment(stepManager)
     }
 }

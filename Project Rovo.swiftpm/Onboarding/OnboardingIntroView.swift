@@ -21,7 +21,6 @@ struct OnboardingIntroView: View {
 //                stepManager.next()
                 customEnabledDismiss()
             }
-            .tint(Color.accentColor.mix(with: .black, by: 0.1))
             .buttonBorderShape(.capsule)
             .buttonStyle(.borderedProminent)
         }

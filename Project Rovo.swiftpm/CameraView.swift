@@ -83,7 +83,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
             GlassView(variant: isOnboarding ? 2 : nil, animation: glassOnboardingAnimation)
                 .ignoresSafeArea()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(-5)
+                .allowsHitTesting(isOnboarding) // Allow tap underneath glass layer
                 .overlay {
                     Group {
                         if isOnboarding {
