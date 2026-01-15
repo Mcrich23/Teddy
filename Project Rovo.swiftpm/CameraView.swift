@@ -83,7 +83,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
             GlassView(variant: isOnboarding ? 2 : nil, animation: glassOnboardingAnimation)
                 .ignoresSafeArea()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(-1)
+                .padding(-5)
                 .overlay {
                     Group {
                         if isOnboarding {
