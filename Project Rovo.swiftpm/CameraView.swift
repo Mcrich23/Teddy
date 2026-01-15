@@ -73,7 +73,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .overlay(content: {
-            GlassView(variant: isOnboarding ? 3 : nil, animation: .easeInOut.speed(0.5))
+            GlassView(variant: isOnboarding ? 2 : nil, animation: .easeInOut.speed(0.5))
                 .ignoresSafeArea()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(-1)
