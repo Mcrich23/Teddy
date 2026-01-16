@@ -18,8 +18,7 @@ struct OnboardingIntroView: View {
                 .font(.title)
             Text("You're about to experience the future of accessibility through the lens of a camera.")
             Button("Get Started") {
-//                stepManager.next()
-                customEnabledDismiss()
+                stepManager.next()
             }
             .buttonBorderShape(.capsule)
             .buttonStyle(.borderedProminent)
