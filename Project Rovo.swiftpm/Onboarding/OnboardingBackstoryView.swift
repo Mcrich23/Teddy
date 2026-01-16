@@ -9,7 +9,6 @@ import SwiftUI
 
 struct OnboardingBackstoryView: View {
     @Environment(OnboardingStepManager.self) var stepManager
-    @Environment(\.customEnabledDismiss) var customEnabledDismiss
     @State var isPresentingAbout = false
     
     var body: some View {

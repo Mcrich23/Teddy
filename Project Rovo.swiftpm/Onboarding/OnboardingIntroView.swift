@@ -9,7 +9,6 @@ import SwiftUI
 
 struct OnboardingIntroView: View {
     @Environment(OnboardingStepManager.self) var stepManager
-    @Environment(\.customEnabledDismiss) var customEnabledDismiss
     
     var body: some View {
         VStack {
