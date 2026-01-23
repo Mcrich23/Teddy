@@ -21,7 +21,6 @@ struct CameraView<CameraModel: Camera>: PlatformView {
     @State var camera: CameraModel
     @State var toolUIManager: ToolEnabledUIManager
     
-    @State var isOnboarding = false
     @State var isShowingOnboarding = false
     @AppStorage("hasOnboarded") var hasOnboarded = false
     
@@ -43,7 +42,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
                 CameraPreview(source: camera.previewSource)
                     // Handle capture events from device hardware buttons.
                     .onCameraCaptureEvent { event in
-                        guard !isOnboarding else { return }
+                        guard !toolUIManager.isOnboarding else { return }
                         if event.phase == .ended {
                             Task {
                                 switch camera.captureMode {
@@ -73,37 +72,35 @@ struct CameraView<CameraModel: Camera>: PlatformView {
             CameraUI(camera: camera, swipeDirection: $swipeDirection)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .onChange(of: isOnboarding, { oldValue, newValue in
+        .onChange(of: toolUIManager.isOnboarding, { oldValue, newValue in
             Task {
                 try? await Task.sleep(for: .seconds(1))
                 isShowingOnboarding = newValue
             }
         })
         .overlay(content: {
-            GlassView(variant: isOnboarding ? 2 : nil, animation: glassOnboardingAnimation)
+            GlassView(variant: toolUIManager.isOnboarding ? 2 : nil, animation: glassOnboardingAnimation)
                 .ignoresSafeArea()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .allowsHitTesting(isOnboarding) // Allow tap underneath glass layer
+                .allowsHitTesting(toolUIManager.isOnboarding) // Allow tap underneath glass layer
                 .overlay {
                     Group {
-                        if isOnboarding {
+                        if toolUIManager.isOnboarding {
                             MainOnboardingView()
                                 .transition(.blurReplace)
                                 .customDismiss {
-                                    isOnboarding = false
-                                    startTranscription()
 //                                    hasOnboarded = true
                                 }
                         }
                     }
-                    .animation(viewOnboardingAnimation, value: isOnboarding)
+                    .animation(viewOnboardingAnimation, value: toolUIManager.isOnboarding)
                 }
         })
         .onAppear {
             if !hasOnboarded {
                 Task {
                     try? await Task.sleep(for: .milliseconds(500))
-                    isOnboarding = true
+                    toolUIManager.setOnboarding(true)
                 }
             } else {
                 startTranscription()
@@ -120,6 +117,8 @@ struct CameraView<CameraModel: Camera>: PlatformView {
         .environment(modelController)
         .environment(toolUIManager)
         .environmentObject(speechRecognizer)
+        .environment(\.startTranscription, startTranscription)
+        .environment(\.endTranscription, endTranscription)
     }
     
     var glassOnboardingAnimation: Animation {
@@ -158,6 +157,11 @@ struct CameraView<CameraModel: Camera>: PlatformView {
         speechRecognizer.stopTranscribing()
         isRecording = false
     }
+}
+
+extension EnvironmentValues {
+    @Entry var startTranscription: (() -> Void)?
+    @Entry var endTranscription: (() -> Void)?
 }
 
 #Preview {

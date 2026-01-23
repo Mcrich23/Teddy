@@ -117,7 +117,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
                 dismissFlashMenuRectangle
             }
             .overlay(alignment: .bottom) {
-                speechTranscript
+                SpeechTranscriptionView()
                     .offset(y: 7)
             }
         }
@@ -155,7 +155,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
             CameraUIBadgeOverlay(camera: camera)
         }
         .overlay(alignment: .bottom, content: {
-            speechTranscript
+            SpeechTranscriptionView()
         })
         .overlay(alignment: .bottomLeading, content: {
             ActiveListeningButton(camera: camera)
@@ -201,27 +201,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
         }
     }
     
-    @ViewBuilder
-    var speechTranscript: some View {
-        Group {
-            if let currentTool = toolUIManager.currentTool {
-                HStack {
-                    ProgressView()
-                    Text(currentTool)
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 4)
-                .glassEffect(in: .capsule)
-            } else if speechRecognizer.transcript.isEmpty {
-                Text(" ")
-            } else {
-                Text(speechRecognizer.transcript.components(separatedBy: " ").suffix(6).joined(separator: " "))
-            }
-        }
-        .foregroundStyle(.white)
-        .lineLimit(1)
-        .fixedSize(horizontal: false, vertical: true)
-    }
+    
     
     var swipeGesture: some Gesture {
         DragGesture(minimumDistance: 50)

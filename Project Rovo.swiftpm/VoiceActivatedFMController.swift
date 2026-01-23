@@ -107,6 +107,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             GetZoomTool(camera: camera, uiManager: toolUIManager),
             SetZoomTool(camera: camera, uiManager: toolUIManager),
             SetActiveListeningTool(camera: camera, uiManager: toolUIManager),
+            DismissOnboardingTool(uiManager: toolUIManager)
         ]
     }
 }
@@ -136,6 +137,13 @@ final class ToolEnabledUIManager {
     
     func setActiveListening(_ isActive: Bool) {
         isActiveListening = isActive
+    }
+    
+    /// Tracks if the user has onboarded
+    private(set) var isOnboarding: Bool = false
+    
+    func setOnboarding(_ isOnboarding: Bool) {
+        self.isOnboarding = isOnboarding
     }
 }
 
