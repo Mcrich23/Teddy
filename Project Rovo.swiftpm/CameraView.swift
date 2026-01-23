@@ -73,7 +73,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .onChange(of: toolUIManager.isOnboarding, { oldValue, newValue in
-//            hasOnboarded = !newValue
+            hasOnboarded = !newValue
             Task {
                 try? await Task.sleep(for: .seconds(1))
                 isShowingOnboarding = newValue
