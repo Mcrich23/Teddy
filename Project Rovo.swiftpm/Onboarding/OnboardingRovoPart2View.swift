@@ -15,10 +15,10 @@ struct OnboardingRovoPart2View: View {
             Text("Meet Rovo")
                 .bold()
                 .font(.title)
-            Text("With Rovo, you just tell it what to do, and it figure out the rest. No strict commands, just say what you want.")
+            Text("With Rovo, you just tell it what to do, and it figure out the rest. No strict commands, just say the wake word \(Text("Rovo").bold()) and give it your idea.")
             
             GroupBox {
-                Text("Say \(Text("Rovo get started").bold()) to begin.")
+                Text("Say \(Text("\"Rovo, get started\"").bold()) to begin.")
             }
             .padding(.top)
         }
