@@ -34,7 +34,7 @@ final class OnboardingStepManager {
 }
 
 enum OnboardingSteps: Int, ViewSteps {
-    case intro, backstory
+    case intro, backstory, rovoPart1
 }
 
 struct MainOnboardingView: View {
@@ -54,11 +54,11 @@ struct MainOnboardingView: View {
                     .padding()
                     .fillSpaceAvailable()
                     .backForward(isBack: stepManager.isBack)
-//            case .rovo:
-//                Text("")
-//                    .padding()
-//                    .fillSpaceAvailable()
-//                    .backForward(isBack: stepManager.isBack)
+            case .rovoPart1:
+                OnboardingRovoPart1View()
+                    .padding()
+                    .fillSpaceAvailable()
+                    .backForward(isBack: stepManager.isBack)
             }
         }
         .tint(Color.accentColor.mix(with: .black, by: 0.1))

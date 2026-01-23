@@ -1,5 +1,5 @@
 //
-//  OnboardingBackstoryView.swift
+//  OnboardingRovoView.swift
 //  Project Rovo
 //
 //  Created by Morris Richman on 1/15/26.
@@ -7,16 +7,16 @@
 
 import SwiftUI
 
-struct OnboardingBackstoryView: View {
+struct OnboardingRovoPart1View: View {
     @Environment(OnboardingStepManager.self) var stepManager
     @State var isPresentingAbout = false
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("But Why A Camera App?")
+            Text("Fixing That With Rovo")
                 .bold()
                 .font(.title)
-            Text("Many people around the world struggle to use their phone due to a variety of conditions. Unfortunately, it often shows up when trying to capture a moment, leading to frustration and missed moments.")
+            Text("A notable population who has difficulty using touch devices are those slightly more advanced in age who did not grow up with touch interfaces. The same people often have difficulty learning accessibility systems or refuse to use them do to their personal connotation of the word. This creates more frustration towards the device.")
                 .frame(maxWidth: .infinity)
             
             HStack {
