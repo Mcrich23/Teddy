@@ -89,6 +89,8 @@ struct CameraView<CameraModel: Camera>: PlatformView {
                             MainOnboardingView()
                                 .transition(.blurReplace)
                                 .customDismiss {
+                                    toolUIManager.setOnboarding(false)
+                                    startTranscription()
 //                                    hasOnboarded = true
                                 }
                         }
