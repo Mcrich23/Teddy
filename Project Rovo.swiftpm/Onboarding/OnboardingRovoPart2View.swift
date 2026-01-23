@@ -21,6 +21,7 @@ struct OnboardingRovoPart2View: View {
             Text("With Rovo, you just tell it what to do, and it figure out the rest. No strict commands, just say the wake word \(Text("Rovo").bold()) and give it your idea.")
             
             Group {
+                #if !targetEnvironment(simulator)
                 if let startTranscription, SystemLanguageModel.default.isAvailable {
                     GroupBox {
                         Text("Say \(Text("\"Rovo, get started\"").bold()) to begin.")
@@ -29,11 +30,11 @@ struct OnboardingRovoPart2View: View {
                         startTranscription()
                     }
                 } else {
-                    Button("Get Started") {
-                        stepManager.next()
-                    }
-                    .buttonStyle(.borderedProminent)
+                    getStartedButton
                 }
+                #else
+                getStartedButton
+                #endif
             }
             .padding(.top)
         }
@@ -42,6 +43,14 @@ struct OnboardingRovoPart2View: View {
         .overlay(alignment: .bottom) {
             SpeechTranscriptionView()
         }
+    }
+    
+    @ViewBuilder
+    var getStartedButton: some View {
+        Button("Get Started") {
+            stepManager.next()
+        }
+        .buttonStyle(.borderedProminent)
     }
 }
 
