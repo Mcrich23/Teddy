@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TipKit
 
 ///  A button to toggle the enabled state of LLM active listening
 struct ActiveListeningButton<CameraModel: Camera>: PlatformView {
@@ -19,8 +20,11 @@ struct ActiveListeningButton<CameraModel: Camera>: PlatformView {
         toolUIManager.isActiveListening && !camera.captureActivity.isRecording
     }
     
+    let tip = ActiveListentingTip()
+    
     var body: some View {
         Button {
+            tip.invalidate(reason: .actionPerformed)
             toolUIManager.setActiveListening(!toolUIManager.isActiveListening)
         } label: {
             ZStack {
@@ -40,5 +44,23 @@ struct ActiveListeningButton<CameraModel: Camera>: PlatformView {
         .opacity(camera.prefersMinimizedUI ? 0 : 1)
         .buttonStyle(DefaultButtonStyle(size: isRegularSize ? .large : .small))
         .disabled(camera.captureActivity.isRecording)
+        .popoverTip(tip)
     }
+}
+
+struct ActiveListentingTip: Tip {
+    @Parameter
+    static var isAvailable: Bool = false
+    
+    var rules: [Rule] {
+        #Rule(Self.$isAvailable) {
+            $0 == true
+        }
+    }
+    
+    var title: Text { Text("Did you know?") }
+    var message: Text? {
+        Text("You can tell Rovo more things without saying \"Rovo\" through Active Listening.")
+    }
+    var image: Image? { Image(systemName: "microphone") }
 }

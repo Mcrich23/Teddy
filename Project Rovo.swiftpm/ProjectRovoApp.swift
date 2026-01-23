@@ -4,6 +4,7 @@ See the LICENSE.txt file for this sample’s licensing information.
 
 import os
 import SwiftUI
+import TipKit
 
 @main
 /// The AVCam app's main entry point.
@@ -23,6 +24,13 @@ struct ProjectRovoApp: App {
     @State var iconRotationAngle: CGFloat = 0
     
     init() {
+        do {
+            // Configure and load all tips in the app.
+            try Tips.configure()
+        }
+        catch {
+            print("Error initializing tips: \(error)")
+        }
     }
     
     var body: some Scene {

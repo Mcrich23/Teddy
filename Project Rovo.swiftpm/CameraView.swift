@@ -104,6 +104,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
                 }
             } else {
                 startTranscription()
+                ActiveListentingTip.isAvailable = true
             }
         }
         .onChange(of: speechRecognizer.transcript) {

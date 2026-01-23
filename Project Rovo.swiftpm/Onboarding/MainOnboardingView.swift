@@ -71,5 +71,11 @@ struct MainOnboardingView: View {
         .onChange(of: customEnabledDismissAction, initial: true) { oldValue, newValue in
             stepManager.dismiss = newValue
         }
+        .onAppear {
+            ActiveListentingTip.isAvailable = false
+        }
+        .onDisappear {
+            ActiveListentingTip.isAvailable = true
+        }
     }
 }
