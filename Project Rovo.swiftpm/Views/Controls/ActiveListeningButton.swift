@@ -44,7 +44,7 @@ struct ActiveListeningButton<CameraModel: Camera>: PlatformView {
         .opacity(camera.prefersMinimizedUI ? 0 : 1)
         .buttonStyle(DefaultButtonStyle(size: isRegularSize ? .large : .small))
         .disabled(camera.captureActivity.isRecording)
-        .popoverTip(tip)
+        .popoverTip(tip, arrowEdge: .top)
     }
 }
 
