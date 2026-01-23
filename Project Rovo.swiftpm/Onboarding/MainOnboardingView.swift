@@ -34,7 +34,7 @@ final class OnboardingStepManager {
 }
 
 enum OnboardingSteps: Int, ViewSteps {
-    case intro, backstory, rovoPart1
+    case intro, backstory, rovoPart1, rovoPart2
 }
 
 struct MainOnboardingView: View {
@@ -56,6 +56,11 @@ struct MainOnboardingView: View {
                     .backForward(isBack: stepManager.isBack)
             case .rovoPart1:
                 OnboardingRovoPart1View()
+                    .padding()
+                    .fillSpaceAvailable()
+                    .backForward(isBack: stepManager.isBack)
+            case .rovoPart2:
+                OnboardingRovoPart2View()
                     .padding()
                     .fillSpaceAvailable()
                     .backForward(isBack: stepManager.isBack)
