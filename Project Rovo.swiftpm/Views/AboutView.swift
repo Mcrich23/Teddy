@@ -38,9 +38,20 @@ struct AboutView: View {
                     Divider()
                     
                     VStack(alignment: .leading, spacing: 15) {
+                        Text("Sources:")
+                            .bold()
+                        Link(destination: URL(string: "https://journals.sagepub.com/doi/10.1177/21695067231193656")!) {
+                            Text("**Paper:** Older Adults Disproportionately Hindered by Touch Screen Interfaces in Driving Tasks")
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .multilineTextAlignment(.leading)
+                        }
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 15) {
                         Text("Credits:")
                             .bold()
                         Text("Thank you to Apple's [AVCam](https://developer.apple.com/documentation/avfoundation/avcam-building-a-camera-app) sample app for providing some of the internal camera logic.")
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
                 .padding(.top, -40)
@@ -59,20 +70,10 @@ private struct LarrySmithBioView: View {
     @State var width: CGFloat = 0
     
     var body: some View {
-//        VStack {
-            ViewThatFits(in: .horizontal) {
-//                HStack(alignment: .top) {
-                        bigImageBio
-                            .frame(idealWidth: 400)
-//                }
-//                VStack {
-//                    image
-//                        .frame(maxHeight: 150)
-//                    Text(bio)
-//                }
-                smallImageBio
-//            }
-//            continuedBio
+        ViewThatFits(in: .horizontal) {
+            bigImageBio
+                .frame(idealWidth: 400)
+            smallImageBio
         }
         .frame(maxWidth: .infinity)
         .onGeometryChange(for: CGSize.self) { proxy in
@@ -122,7 +123,9 @@ private struct LarrySmithBioView: View {
 }
 
 #Preview {
-    Spacer()
+    Image(.videoMode)
+        .ignoresSafeArea()
+        .scaledToFit()
         .sheet(isPresented: .constant(true)) {
             AboutView()
         }
