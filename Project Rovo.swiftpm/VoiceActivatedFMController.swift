@@ -28,6 +28,8 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     var respondTask: Task<Void, Never>?
     var respondingPrompt: String?
     
+    private var responseCount: Int = 0
+    
     func getCommand(from transcript: String?) -> String? {
         guard !toolUIManager.isActiveListening || camera.captureActivity.isRecording else { return transcript }
         
@@ -68,8 +70,15 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             return true
         }
         
+        // Auto restart session to fix context issues
+        if responseCount >= 3 {
+            restartSession(showAlert: false)
+            responseCount = 0
+        }
+        
         respondTask = Task {
             respondingPrompt = command
+            responseCount += 1
             
             do {
                 try await streamModelResponse(from: command)
@@ -90,9 +99,11 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     }
     
     // MARK: – Tool Stuff
-    func restartSession() {
+    func restartSession(showAlert: Bool = true) {
         self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: llmInstructions(zoom: camera.currentZoom, currentCamera: camera.cameraPosition, availableCameras: Array(camera.availableCameras.keys), flashMode: camera.flashMode, isHDREnabled: camera.isHDRVideoEnabled, isLivePhotoEnabled: camera.isLivePhotoEnabled))
-        self.modelResponse = AttributedString("Session Restarted.")
+        if showAlert {
+            self.modelResponse = AttributedString("Session Restarted.")
+        }
     }
     
     /// Generates an array of tools to use.
