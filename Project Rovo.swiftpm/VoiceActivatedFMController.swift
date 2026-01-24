@@ -37,6 +37,9 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             "Rovo",
             "Robo",
             "Bravo",
+            "Rubber",
+            "Bro",
+            "Brother",
         ]
         
         for alt in rovoAlts {
