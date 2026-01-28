@@ -19,6 +19,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.orientation) var orientation
+    @Environment(\.iconRotationAngle) var iconRotationAngle
     
     @Environment(ToolEnabledUIManager.self) var toolUIManager
     @Environment(VoiceActivatedFMController<CameraModel>.self) var modelController
@@ -90,11 +91,11 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
                         }
                     }
             }
-            .overlay(alignment: .leading) {
+            .overlay(alignment: orientation == .landscapeRight ? .leading : .trailing) {
                 if orientation.isLandscape {
                     CameraUIBadgeOverlay(camera: camera)
-                        .rotationEffect(.degrees(90))
-                        .padding(.leading, -30)
+                        .rotationEffect(.degrees(UIDevice.current.userInterfaceIdiom == .phone ? iconRotationAngle : 0))
+                        .padding(orientation == .landscapeRight ? .leading : .trailing, -30)
                         .animation(.default, value: orientation)
                 }
             }
