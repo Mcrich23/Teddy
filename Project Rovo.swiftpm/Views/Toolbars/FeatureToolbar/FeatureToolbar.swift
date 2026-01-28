@@ -77,7 +77,8 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
                     .overlay(alignment: .bottom) {
                         if isCompactSize {
                             ActiveListeningButton(camera: camera)
-                                .offset(y: 60)
+                                .offset(x: camera.captureMode == .photo ? -60 : 0, y: camera.captureMode == .video ? 60 : 0)
+                                .animation(.easeInOut, value: camera.captureMode)
                         }
                     }
                 }
