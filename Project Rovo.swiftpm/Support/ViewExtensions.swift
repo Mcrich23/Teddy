@@ -162,6 +162,21 @@ extension View {
 }
 
 extension EnvironmentValues {
+    @MainActor
+    static func getOrientation() -> UIDeviceOrientation {
+        let result: UIDeviceOrientation = UIDevice.current.orientation
+        
+        guard result == .unknown else {
+            return result
+        }
+        
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            return .portrait
+        } else {
+            return .landscapeLeft
+        }
+    }
+    
     @Entry var orientation: UIDeviceOrientation = .unknown
     @Entry var iconRotationAngle: CGFloat = setIconRotationAngle(.unknown, previousValue: 0)
     @Entry var materialOpacity: CGFloat = 0.3

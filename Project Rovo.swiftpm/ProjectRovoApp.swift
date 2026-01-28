@@ -20,7 +20,7 @@ struct ProjectRovoApp: App {
     
     // An indication of the scene's operational state.
     @Environment(\.scenePhase) var scenePhase
-    @State var orientation = UIDevice.current.orientation
+    @State var orientation = EnvironmentValues.getOrientation()
     @State var iconRotationAngle: CGFloat = 0
     
     init() {
