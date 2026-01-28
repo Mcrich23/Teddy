@@ -100,13 +100,11 @@ final class CameraModel: Camera {
     var flashMode: FlashMode = .auto {
         didSet {
             guard status == .running else { return }
-            Task {
-                do {
-                    try? await captureService.setFlashMode(flashMode)
-                    cameraState.flashMode = flashMode
-                } catch {
-                    self.error = error
-                }
+            do {
+                try captureService.setFlashMode(flashMode)
+                cameraState.flashMode = flashMode
+            } catch {
+                self.error = error
             }
         }
     }
@@ -141,15 +139,13 @@ final class CameraModel: Camera {
     
     var isPrecisionZooming: Bool = false {
         didSet {
-            Task {
-                do {
-                    switch isPrecisionZooming {
-                    case true: try await captureService.startPrecisionZooming()
-                    case false: await captureService.stopPrecisionZooming()
-                    }
-                } catch {
-                    self.error = error
+            do {
+                switch isPrecisionZooming {
+                case true: try captureService.startPrecisionZooming()
+                case false: captureService.stopPrecisionZooming()
                 }
+            } catch {
+                self.error = error
             }
         }
     }
@@ -229,8 +225,8 @@ final class CameraModel: Camera {
     }
     
     /// Performs a focus and expose operation at the specified screen point.
-    func focusAndExpose(at point: CGPoint) async {
-        await captureService.focusAndExpose(at: point)
+    func focusAndExpose(at point: CGPoint) {
+        captureService.focusAndExpose(at: point)
     }
     
     /// Sets the `showCaptureFeedback` state to indicate that capture is underway.
@@ -246,11 +242,9 @@ final class CameraModel: Camera {
     var isHDRVideoEnabled = false {
         didSet {
             guard status == .running, captureMode == .video else { return }
-            Task {
-                await captureService.setHDRVideoEnabled(isHDRVideoEnabled)
-                // Update the persistent state value.
-                cameraState.isVideoHDREnabled = isHDRVideoEnabled
-            }
+            captureService.setHDRVideoEnabled(isHDRVideoEnabled)
+            // Update the persistent state value.
+            cameraState.isVideoHDREnabled = isHDRVideoEnabled
         }
     }
     
