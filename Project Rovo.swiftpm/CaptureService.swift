@@ -173,7 +173,9 @@ final class CaptureService {
             try addInput(for: defaultMic)
 
             // Configure the session preset based on the current capture mode.
+            #if !targetEnvironment(macCatalyst)
             captureSession.sessionPreset = captureMode == .photo ? .photo : .high
+            #endif
             // Add the photo capture output as the default output type.
             try addOutput(photoCapture.output)
             // If the capture mode is set to Video, add a movie capture output.
