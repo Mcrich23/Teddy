@@ -19,13 +19,13 @@ struct CameraPreview<CameraType: Camera>: UIViewControllerRepresentable {
     
     func makeUIViewController(context: Context) -> UIViewController {
         guard let camera = camera as? CameraModel else {
-            return UIViewController()
+            let preview = SingleCameraPreviewViewController<CameraType>()
+            preview.camera = camera
+            return preview
         }
+        
         let preview = DualCameraPreviewViewController()
         preview.camera = camera
-//        let preview = PreviewView()
-        // Connect the preview layer to the capture session.
-//        source.connect(to: preview)
         return preview
     }
     
@@ -76,11 +76,87 @@ class PreviewView: UIView, PreviewTarget {
     }
 }
 
+/// A protocol that enables a preview source to connect to a preview target.
+///
+/// The app provides an instance of this type to the client tier so it can connect
+/// the capture session to the `PreviewView` view. It uses these protocols
+/// to prevent explicitly exposing the capture objects to the UI layer.
+///
+protocol PreviewSource: Sendable {
+    // Connects a preview destination to this source.
+    func connect(to target: PreviewTarget)
+}
+
+/// A protocol that passes the app's capture session to the `CameraPreview` view.
+protocol PreviewTarget {
+    // Sets the capture session on the destination.
+    func setSession(_ session: AVCaptureSession)
+}
+
+/// The app's default `PreviewSource` implementation.
+struct DefaultPreviewSource: PreviewSource {
+    
+    private let session: AVCaptureSession
+    
+    init(session: AVCaptureSession) {
+        self.session = session
+    }
+    
+    func connect(to target: PreviewTarget) {
+        target.setSession(session)
+    }
+}
+
+
+// MARK: - SingleCameraPreviewViewController
+final class SingleCameraPreviewViewController<CameraModel: Camera>: UIViewController {
+    var camera: CameraModel? = nil
+    let cameraPreview = PreviewView()
+    
+    private var previewAspectRatio: CGSize {
+        guard let camera else { return CGSize(width: 3, height: 4) }
+
+        let base: CGSize =
+            camera.captureMode == .photo
+            ? CGSize(width: 4, height: 3)
+            : CGSize(width: 16, height: 9)
+
+        let isPortrait = view.bounds.height > view.bounds.width
+
+        return isPortrait
+            ? CGSize(width: base.height, height: base.width)
+            : base
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .black
+        
+        view.addSubview(cameraPreview)
+        cameraPreview.frame = view.bounds
+        
+        camera?.previewSource.connect(to: cameraPreview)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        // Main preview (aspect-fit like SwiftUI)
+        cameraPreview.frame = aspectFitRect(
+            aspectRatio: previewAspectRatio,
+            inside: view.bounds
+        )
+    }
+}
+
+// MARK: - DualCameraPreviewViewController
+/// Tracks the current background image
 @Observable
 final class ImageTracker {
     var image: UIImage?
 }
 
+/// Plays back the blurred image
 struct MirrorImage: View {
     @State var imageTracker: ImageTracker
     
@@ -92,6 +168,7 @@ struct MirrorImage: View {
     }
 }
 
+/// Displays a clear image preview with a mirror on the edges as well.
 final class DualCameraPreviewViewController: UIViewController {
     var camera: CameraModel? = nil
     let cameraPreview = PreviewView()
@@ -172,38 +249,38 @@ final class DualCameraPreviewViewController: UIViewController {
 
         view.addSubview(mirrorView)
     }
-    
-    private func aspectFitRect(
-        aspectRatio: CGSize,
-        inside bounds: CGRect
-    ) -> CGRect {
+}
 
-        let targetAspect = aspectRatio.width / aspectRatio.height
-        let boundsAspect = bounds.width / bounds.height
+private func aspectFitRect(
+    aspectRatio: CGSize,
+    inside bounds: CGRect
+) -> CGRect {
 
-        var size: CGSize
+    let targetAspect = aspectRatio.width / aspectRatio.height
+    let boundsAspect = bounds.width / bounds.height
 
-        if boundsAspect > targetAspect {
-            // Container is wider → constrain by height
-            size = CGSize(
-                width: bounds.height * targetAspect,
-                height: bounds.height
-            )
-        } else {
-            // Container is taller → constrain by width
-            size = CGSize(
-                width: bounds.width,
-                height: bounds.width / targetAspect
-            )
-        }
+    var size: CGSize
 
-        return CGRect(
-            x: bounds.midX - size.width / 2,
-            y: bounds.midY - size.height / 2,
-            width: size.width,
-            height: size.height
+    if boundsAspect > targetAspect {
+        // Container is wider → constrain by height
+        size = CGSize(
+            width: bounds.height * targetAspect,
+            height: bounds.height
+        )
+    } else {
+        // Container is taller → constrain by width
+        size = CGSize(
+            width: bounds.width,
+            height: bounds.width / targetAspect
         )
     }
+
+    return CGRect(
+        x: bounds.midX - size.width / 2,
+        y: bounds.midY - size.height / 2,
+        width: size.width,
+        height: size.height
+    )
 }
 
 extension DualCameraPreviewViewController: @MainActor AVCaptureVideoDataOutputSampleBufferDelegate {
@@ -236,36 +313,5 @@ extension DualCameraPreviewViewController: @MainActor AVCaptureVideoDataOutputSa
         let isFrontCamera = camera?.cameraPosition == .front // adjust if your CameraModel differs
 
         return isFrontCamera ? .leftMirrored : .right
-    }
-}
-
-/// A protocol that enables a preview source to connect to a preview target.
-///
-/// The app provides an instance of this type to the client tier so it can connect
-/// the capture session to the `PreviewView` view. It uses these protocols
-/// to prevent explicitly exposing the capture objects to the UI layer.
-///
-protocol PreviewSource: Sendable {
-    // Connects a preview destination to this source.
-    func connect(to target: PreviewTarget)
-}
-
-/// A protocol that passes the app's capture session to the `CameraPreview` view.
-protocol PreviewTarget {
-    // Sets the capture session on the destination.
-    func setSession(_ session: AVCaptureSession)
-}
-
-/// The app's default `PreviewSource` implementation.
-struct DefaultPreviewSource: PreviewSource {
-    
-    private let session: AVCaptureSession
-    
-    init(session: AVCaptureSession) {
-        self.session = session
-    }
-    
-    func connect(to target: PreviewTarget) {
-        target.setSession(session)
     }
 }
