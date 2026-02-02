@@ -7,66 +7,235 @@ A view that presents a video preview of the captured content.
 
 import SwiftUI
 @preconcurrency import AVFoundation
+import CoreImage
 
-struct CameraPreview: UIViewRepresentable {
+struct CameraPreview<CameraType: Camera>: UIViewControllerRepresentable {
     
-    private let source: PreviewSource
+    private let camera: CameraType
     
-    init(source: PreviewSource) {
-        self.source = source
+    init(camera: CameraType) {
+        self.camera = camera
     }
     
-    func makeUIView(context: Context) -> PreviewView {
-        let preview = PreviewView()
+    func makeUIViewController(context: Context) -> UIViewController {
+        guard let camera = camera as? CameraModel else {
+            return UIViewController()
+        }
+        let preview = DualCameraPreviewViewController()
+        preview.camera = camera
+//        let preview = PreviewView()
         // Connect the preview layer to the capture session.
-        source.connect(to: preview)
+//        source.connect(to: preview)
         return preview
     }
     
-    func updateUIView(_ previewView: PreviewView, context: Context) {
+    func updateUIViewController(_ previewView: UIViewController, context: Context) {
         // No-op.
     }
+}
+
+/// A class that presents the captured content.
+///
+/// This class owns the `AVCaptureVideoPreviewLayer` that presents the captured content.
+///
+class PreviewView: UIView, PreviewTarget {
     
-    /// A class that presents the captured content.
-    ///
-    /// This class owns the `AVCaptureVideoPreviewLayer` that presents the captured content.
-    ///
-    class PreviewView: UIView, PreviewTarget {
-        
-        init() {
-            super.init(frame: .zero)
-    #if targetEnvironment(simulator)
-            // The capture APIs require running on a real device. If running
-            // in Simulator, display a static image to represent the video feed.
-            let imageView = UIImageView(frame: UIScreen.main.bounds)
-            imageView.image = UIImage(named: "video_mode")
-            imageView.contentMode = .scaleAspectFill
-            imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            addSubview(imageView)
-    #endif
+    init() {
+        super.init(frame: .zero)
+#if targetEnvironment(simulator)
+        // The capture APIs require running on a real device. If running
+        // in Simulator, display a static image to represent the video feed.
+        let imageView = UIImageView(frame: UIScreen.main.bounds)
+        imageView.image = UIImage(named: "video_mode")
+        imageView.contentMode = .scaleAspectFill
+        imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        addSubview(imageView)
+#endif
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // Use the preview layer as the view's backing layer.
+    override class var layerClass: AnyClass {
+        AVCaptureVideoPreviewLayer.self
+    }
+    
+    var previewLayer: AVCaptureVideoPreviewLayer {
+        layer as! AVCaptureVideoPreviewLayer
+    }
+    
+    nonisolated func setSession(_ session: AVCaptureSession) {
+        // Connects the session with the preview layer, which allows the layer
+        // to provide a live view of the captured content.
+        Task { @MainActor in
+            previewLayer.session = session
+            previewLayer.videoGravity = .resizeAspectFill
         }
-        
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
+    }
+}
+
+@Observable
+final class ImageTracker {
+    var image: UIImage?
+}
+
+struct MirrorImage: View {
+    @State var imageTracker: ImageTracker
+    
+    var body: some View {
+        if let image = imageTracker.image {
+            Image(uiImage: image)
+                .blur(radius: 10)
         }
+    }
+}
+
+final class DualCameraPreviewViewController: UIViewController {
+    var camera: CameraModel? = nil
+    let cameraPreview = PreviewView()
+    
+    // MIRROR preview (frame-based)
+    private let imageTracker = ImageTracker()
+    private var mirrorView: _UIHostingView<MirrorImage>? = nil
+    
+    private let outputQueue = DispatchQueue.main//(label: "camera.frame.queue")
+    
+    private var previewAspectRatio: CGSize {
+        guard let camera else { return CGSize(width: 3, height: 4) }
+
+        let base: CGSize =
+            camera.captureMode == .photo
+            ? CGSize(width: 4, height: 3)
+            : CGSize(width: 16, height: 9)
+
+        let isPortrait = view.bounds.height > view.bounds.width
+
+        return isPortrait
+            ? CGSize(width: base.height, height: base.width)
+            : base
+    }
+
+    // MARK: - Lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .black
+
+        setupMirrorView()
+        view.addSubview(cameraPreview)
+
+        camera?.previewSource.connect(to: cameraPreview)
+        setupSession()
+    }
+
+    override func viewDidLayoutSubviews() {
+        guard let mirrorView else { return }
         
-        // Use the preview layer as the view's backing layer.
-        override class var layerClass: AnyClass {
-            AVCaptureVideoPreviewLayer.self
+        super.viewDidLayoutSubviews()
+
+        let bounds = view.bounds
+
+        // Background mirror (oversized)
+        let scale: CGFloat = 1.3
+        mirrorView.frame = bounds.insetBy(
+            dx: -bounds.width * (scale - 1) / 2,
+            dy: -bounds.height * (scale - 1) / 2
+        )
+
+        // Main preview (aspect-fit like SwiftUI)
+        cameraPreview.frame = aspectFitRect(
+            aspectRatio: previewAspectRatio,
+            inside: bounds
+        )
+    }
+
+    // MARK: - Setup
+
+    private func setupSession() {
+        guard let camera else {
+            return
         }
+        camera.connectPreviewViewController(self, queue: outputQueue)
+    }
+
+    private func setupMirrorView() {
+        mirrorView = _UIHostingView(rootView: MirrorImage(imageTracker: imageTracker))
+        guard let mirrorView else { return }
         
-        var previewLayer: AVCaptureVideoPreviewLayer {
-            layer as! AVCaptureVideoPreviewLayer
+        mirrorView.contentMode = .scaleAspectFill
+        mirrorView.clipsToBounds = true
+
+        // Optional polish
+        mirrorView.alpha = 0.85
+
+        view.addSubview(mirrorView)
+    }
+    
+    private func aspectFitRect(
+        aspectRatio: CGSize,
+        inside bounds: CGRect
+    ) -> CGRect {
+
+        let targetAspect = aspectRatio.width / aspectRatio.height
+        let boundsAspect = bounds.width / bounds.height
+
+        var size: CGSize
+
+        if boundsAspect > targetAspect {
+            // Container is wider → constrain by height
+            size = CGSize(
+                width: bounds.height * targetAspect,
+                height: bounds.height
+            )
+        } else {
+            // Container is taller → constrain by width
+            size = CGSize(
+                width: bounds.width,
+                height: bounds.width / targetAspect
+            )
         }
-        
-        nonisolated func setSession(_ session: AVCaptureSession) {
-            // Connects the session with the preview layer, which allows the layer
-            // to provide a live view of the captured content.
-            Task { @MainActor in
-                previewLayer.session = session
-                previewLayer.videoGravity = .resizeAspectFill
-            }
+
+        return CGRect(
+            x: bounds.midX - size.width / 2,
+            y: bounds.midY - size.height / 2,
+            width: size.width,
+            height: size.height
+        )
+    }
+}
+
+extension DualCameraPreviewViewController: @MainActor AVCaptureVideoDataOutputSampleBufferDelegate {
+
+    func captureOutput(_ output: AVCaptureOutput,
+                       didOutput sampleBuffer: CMSampleBuffer,
+                       from connection: AVCaptureConnection) {
+
+        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
+            return
         }
+
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let context = CIContext()
+
+        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
+            return
+        }
+
+        let orientation = imageOrientationForCurrentDevice()
+
+        let image = UIImage(cgImage: cgImage, scale: 1, orientation: orientation)
+
+        imageTracker.image = image
+    }
+
+    // MARK: - Orientation mapping
+
+    private func imageOrientationForCurrentDevice() -> UIImage.Orientation {
+        let isFrontCamera = camera?.cameraPosition == .front // adjust if your CameraModel differs
+
+        return isFrontCamera ? .leftMirrored : .right
     }
 }
 

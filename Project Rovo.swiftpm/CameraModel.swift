@@ -94,6 +94,11 @@ final class CameraModel: Camera {
         }
     }
     
+    /// Sets up Preview Layer output
+    func connectPreviewViewController(_ previewViewController: DualCameraPreviewViewController, queue: DispatchQueue) {
+        captureService.connectPreviewViewController(previewViewController, queue: queue)
+    }
+    
     // MARK: - Changing flash
     
     /// The current state of flash for capture
@@ -188,7 +193,10 @@ final class CameraModel: Camera {
         
         isSwitchingVideoDevices = true
         defer { isSwitchingVideoDevices = false }
-        return try captureService.selectNextVideoDevice().cameraPosition
+        let position = try captureService.selectNextVideoDevice().cameraPosition
+        
+        self.cameraPosition = position
+        return position
     }
     
     var availableCameras: [CameraPosition : AVCaptureDevice] {

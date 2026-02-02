@@ -39,7 +39,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
             // A container view that manages the placement of the preview.
             PreviewContainer(camera: camera) {
                 // A view that provides a preview of the captured content.
-                CameraPreview(source: camera.previewSource)
+                CameraPreview(camera: camera)
                     // Handle capture events from device hardware buttons.
                     .onCameraCaptureEvent { event in
                         guard !toolUIManager.isOnboarding else { return }

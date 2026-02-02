@@ -49,6 +49,8 @@ final class CaptureService {
     // An object that manages the app's video capture behavior.
     private let movieCapture = MovieCapture()
     
+    private let videoDataOutput = AVCaptureVideoDataOutput()
+    
     // An internal collection of output services.
     private var outputServices: [any OutputService] { [photoCapture, movieCapture] }
     
@@ -176,6 +178,7 @@ final class CaptureService {
             #if !targetEnvironment(macCatalyst)
             captureSession.sessionPreset = captureMode == .photo ? .photo : .high
             #endif
+            try addOutput(videoDataOutput)
             // Add the photo capture output as the default output type.
             try addOutput(photoCapture.output)
             // If the capture mode is set to Video, add a movie capture output.
@@ -445,6 +448,20 @@ final class CaptureService {
         // The app only calls this method in response to the user requesting to switch cameras.
         // Set the new selection as the user's preferred camera.
         AVCaptureDevice.userPreferredCamera = device
+    }
+    
+    /// Sets up Preview Layer output
+    func connectPreviewViewController(_ previewViewController: DualCameraPreviewViewController, queue: DispatchQueue) {
+        captureSession.beginConfiguration()
+        
+        // Video output (for mirror)
+        videoDataOutput.videoSettings = [
+            kCVPixelBufferPixelFormatTypeKey as String:
+                kCVPixelFormatType_32BGRA
+        ]
+        videoDataOutput.setSampleBufferDelegate(previewViewController, queue: queue)
+        videoDataOutput.alwaysDiscardsLateVideoFrames = true
+        captureSession.commitConfiguration()
     }
     
     /// Monitors changes to the system's preferred camera selection.
