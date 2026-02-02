@@ -7,8 +7,9 @@
 
 import SwiftUI
 
-struct SpeechTranscriptionView: View {
+struct SpeechTranscriptionView<Camera: CameraModel>: View {
     @Environment(ToolEnabledUIManager.self) var toolUIManager
+    @Environment(VoiceActivatedFMController<Camera>.self) var fmController
     @EnvironmentObject var speechRecognizer: SpeechRecognizer
     
     var body: some View {
@@ -17,6 +18,14 @@ struct SpeechTranscriptionView: View {
                 HStack {
                     ProgressView()
                     Text(currentTool)
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 4)
+                .glassEffect(in: .capsule)
+            } else if fmController.isResponding {
+                HStack {
+                    ProgressView()
+                    Text("Thinking")
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 4)
