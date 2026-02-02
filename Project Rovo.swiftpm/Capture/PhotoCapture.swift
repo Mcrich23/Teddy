@@ -128,8 +128,10 @@ final class PhotoCapture: OutputService {
         photoOutput.isLivePhotoCaptureEnabled = photoOutput.isLivePhotoCaptureSupported
         photoOutput.maxPhotoQualityPrioritization = .quality
         photoOutput.isResponsiveCaptureEnabled = photoOutput.isResponsiveCaptureSupported
+        #if !targetEnvironment(macCatalyst)
         photoOutput.isFastCapturePrioritizationEnabled = photoOutput.isFastCapturePrioritizationSupported
         photoOutput.isAutoDeferredPhotoDeliveryEnabled = photoOutput.isAutoDeferredPhotoDeliverySupported
+        #endif
         updateCapabilities(for: device)
     }
     
@@ -191,6 +193,7 @@ private class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
         livePhotoMovieURL = outputFileURL
     }
     
+#if !targetEnvironment(macCatalyst)
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishCapturingDeferredPhotoProxy deferredPhotoProxy: AVCaptureDeferredPhotoProxy?, error: Error?) {
         if let error = error {
             logger.debug("Error capturing deferred photo: \(error)")
@@ -200,6 +203,7 @@ private class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
         photoData = deferredPhotoProxy?.fileDataRepresentation()
         isProxyPhoto = true
     }
+    #endif
     
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         if let error = error {

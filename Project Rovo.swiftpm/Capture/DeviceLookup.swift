@@ -107,6 +107,19 @@ final class DeviceLookup {
     var cameras: [CameraPosition : AVCaptureDevice] {
         // Populate the cameras array with the available cameras.
         var cameras: [CameraPosition : AVCaptureDevice] = [:]
+        
+        // Mac Catalyst Handles this differently
+        #if targetEnvironment(macCatalyst)
+        for camera in frontCameraDiscoverySession.devices {
+            if cameras[.back] == nil {
+                cameras[.back] = camera
+            } else if cameras[.front] == nil {
+                cameras[.front] = camera
+            } else if cameras[.external] == nil {
+                cameras[.external] = camera
+            }
+        }
+        #else
         if let backCamera = backCameraDiscoverySession.devices.first {
             cameras[.back] = backCamera
         }
@@ -117,6 +130,7 @@ final class DeviceLookup {
         if let externalCamera = externalCameraDiscoverSession.devices.first {
             cameras[.external] = externalCamera
         }
+        #endif
         
 #if !targetEnvironment(simulator)
         if cameras.isEmpty {

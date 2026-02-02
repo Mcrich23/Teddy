@@ -134,7 +134,11 @@ actor SpeechRecognizer: ObservableObject {
         request.contextualStrings = ["Rovo"]
         
         let audioSession = AVAudioSession.sharedInstance()
+        #if targetEnvironment(macCatalyst)
+        try audioSession.setCategory(.playAndRecord, mode: .voiceChat, options: [.duckOthers, .allowBluetoothA2DP, .allowBluetoothHFP])
+        #else
         try audioSession.setCategory(.playAndRecord, mode: .voiceChat, options: [.duckOthers, .allowBluetoothA2DP, .bluetoothHighQualityRecording, .allowBluetoothHFP])
+        #endif
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
         let inputNode = audioEngine.inputNode
         
