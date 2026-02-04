@@ -161,9 +161,24 @@ struct MirrorImage: View {
     @State var imageTracker: ImageTracker
     
     var body: some View {
-        if let image = imageTracker.image {
-            Image(uiImage: image)
-                .blur(radius: 10)
+        GeometryReader { geo in
+            VStack {
+                if let image = imageTracker.image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: geo.size.height/4, alignment: .top)
+                        .clipped()
+                        .blur(radius: 10)
+                    Spacer()
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: geo.size.height/4, alignment: .bottom)
+                        .clipped()
+                        .blur(radius: 10)
+                }
+            }
         }
     }
 }
@@ -215,8 +230,11 @@ final class DualCameraPreviewViewController: UIViewController {
         let bounds = view.bounds
 
         // Background mirror (oversized)
-        mirrorView.frame = bounds
-
+        let scale: CGFloat = 1.1
+        mirrorView.frame = bounds.insetBy(
+            dx: -bounds.width * (scale - 1) / 2,
+            dy: -bounds.height * (scale - 1) / 2
+        )
         // Main preview (aspect-fit like SwiftUI)
         cameraPreview.frame = aspectFitRect(
             aspectRatio: previewAspectRatio,
@@ -244,6 +262,7 @@ final class DualCameraPreviewViewController: UIViewController {
         mirrorView.alpha = 0.85
 
         view.addSubview(mirrorView)
+        self.present(UIHostingController(rootView: MirrorImage(imageTracker: imageTracker)), animated: true)
     }
 }
 
