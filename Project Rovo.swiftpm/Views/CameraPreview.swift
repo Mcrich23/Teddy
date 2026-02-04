@@ -215,11 +215,7 @@ final class DualCameraPreviewViewController: UIViewController {
         let bounds = view.bounds
 
         // Background mirror (oversized)
-        let scale: CGFloat = 1.3
-        mirrorView.frame = bounds.insetBy(
-            dx: -bounds.width * (scale - 1) / 2,
-            dy: -bounds.height * (scale - 1) / 2
-        )
+        mirrorView.frame = bounds
 
         // Main preview (aspect-fit like SwiftUI)
         cameraPreview.frame = aspectFitRect(
