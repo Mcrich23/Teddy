@@ -79,6 +79,7 @@ struct FeaturesToolbar<CameraModel: Camera, DismissRectangle: View>: PlatformVie
                             ActiveListeningButton(camera: camera)
                                 .offset(x: camera.captureMode == .photo ? -60 : 0, y: camera.captureMode == .video ? 60 : 0)
                                 .animation(.easeInOut, value: camera.captureMode)
+                                .transition(.slide)
                         }
                     }
                 }

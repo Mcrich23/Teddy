@@ -118,7 +118,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
                 dismissFlashMenuRectangle
             }
             .overlay(alignment: .bottom) {
-                SpeechTranscriptionView()
+                SpeechTranscriptionView<CameraModel>()
                     .offset(y: 7)
             }
         }
@@ -156,7 +156,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
             CameraUIBadgeOverlay(camera: camera)
         }
         .overlay(alignment: .bottom, content: {
-            SpeechTranscriptionView()
+            SpeechTranscriptionView<CameraModel>()
         })
         .overlay(alignment: .bottomLeading, content: {
             ActiveListeningButton(camera: camera)

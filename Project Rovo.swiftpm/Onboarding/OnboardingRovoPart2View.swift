@@ -8,7 +8,7 @@
 import SwiftUI
 import FoundationModels
 
-struct OnboardingRovoPart2View: View {
+struct OnboardingRovoPart2View<CameraModel: Camera>: View {
     @Environment(OnboardingStepManager.self) var stepManager
     @Environment(\.startTranscription) var startTranscription
     @EnvironmentObject var speechRecognizer: SpeechRecognizer
@@ -41,7 +41,7 @@ struct OnboardingRovoPart2View: View {
         .buttonBorderShape(.capsule)
         .frame(maxHeight: .infinity, alignment: .center)
         .overlay(alignment: .bottom) {
-            SpeechTranscriptionView()
+            SpeechTranscriptionView<CameraModel>()
         }
     }
     

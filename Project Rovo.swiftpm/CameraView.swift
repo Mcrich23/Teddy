@@ -87,7 +87,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
                 .overlay {
                     Group {
                         if toolUIManager.isOnboarding {
-                            MainOnboardingView()
+                            MainOnboardingView<CameraModel>()
                                 .transition(.blurReplace)
                                 .customDismiss {
                                     toolUIManager.setOnboarding(false)

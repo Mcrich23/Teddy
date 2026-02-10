@@ -37,7 +37,7 @@ enum OnboardingSteps: Int, ViewSteps {
     case intro, backstory, rovoPart1, rovoPart2
 }
 
-struct MainOnboardingView: View {
+struct MainOnboardingView<CameraModel: Camera>: View {
     @State var stepManager = OnboardingStepManager()
     @Environment(\.customEnabledDismissAction) var customEnabledDismissAction
     
@@ -60,7 +60,7 @@ struct MainOnboardingView: View {
                     .fillSpaceAvailable()
                     .backForward(isBack: stepManager.isBack)
             case .rovoPart2:
-                OnboardingRovoPart2View()
+                OnboardingRovoPart2View<CameraModel>()
                     .padding()
                     .fillSpaceAvailable()
                     .backForward(isBack: stepManager.isBack)

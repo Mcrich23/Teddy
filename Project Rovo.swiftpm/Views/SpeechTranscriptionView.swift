@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct SpeechTranscriptionView<Camera: CameraModel>: View {
+struct SpeechTranscriptionView<CameraModel: Camera>: View {
     @Environment(ToolEnabledUIManager.self) var toolUIManager
-    @Environment(VoiceActivatedFMController<Camera>.self) var fmController
+    @Environment(VoiceActivatedFMController<CameraModel>.self) var fmController
     @EnvironmentObject var speechRecognizer: SpeechRecognizer
     
     var body: some View {
