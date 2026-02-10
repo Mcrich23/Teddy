@@ -20,7 +20,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     init(camera: CameraModel, toolUIManager: ToolEnabledUIManager) {
         self.camera = camera
         self.toolUIManager = toolUIManager
-        self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: llmInstructions(zoom: camera.currentZoom, currentCamera: camera.cameraPosition, availableCameras: Array(camera.availableCameras.keys), flashMode: camera.flashMode, isHDREnabled: camera.isHDRVideoEnabled, isLivePhotoEnabled: camera.isLivePhotoEnabled))
+        self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: llmInstructions)
     }
     
     var isResponding: Bool { session.isResponding }
@@ -89,6 +89,21 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         return true
     }
     
+    private func generatePrompt(command: String) -> String {
+        """
+        \(command)
+            
+        Here is the current state of the app. DO NOT SHARE THIS WITH THE USER:
+        
+        Current Zoom: \(camera.currentZoom)
+        Current Camera: \(camera.cameraPosition.rawValue)
+        Other Cameras: \(camera.availableCameras.keys.filter({ $0 != camera.cameraPosition }).map({ $0.rawValue }))
+        Flash Mode: \(camera.flashMode.rawValue)
+        HDR Enabled: \(camera.isHDRVideoEnabled)
+        Live Photo Enabled: \(camera.isLivePhotoEnabled)
+        """
+    }
+    
     func streamModelResponse(from transcript: String) async throws {
         guard !isResponding else { throw FMErrors.modelBusy }
         let stream = session.streamResponse(to: transcript)
@@ -100,7 +115,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     
     // MARK: – Tool Stuff
     func restartSession(showAlert: Bool = true) {
-        self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: llmInstructions(zoom: camera.currentZoom, currentCamera: camera.cameraPosition, availableCameras: Array(camera.availableCameras.keys), flashMode: camera.flashMode, isHDREnabled: camera.isHDRVideoEnabled, isLivePhotoEnabled: camera.isLivePhotoEnabled))
+        self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: llmInstructions)
         if showAlert {
             self.modelResponse = AttributedString("Session Restarted.")
         }
@@ -127,20 +142,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     }
 }
 
-private func llmInstructions(zoom: ZoomFactor, currentCamera: CameraPosition, availableCameras: [CameraPosition], flashMode: FlashMode, isHDREnabled: Bool, isLivePhotoEnabled: Bool) -> String {
-    """
-    You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text. When asked to take a selfie, please ensure that you are using the front facing selfie camera before capturing the media. Generally, the front camera is the selfie camera. To zoom all of the way out, zoom to 0. To zoom all the way in, zoom to 1000. These zoom parameters will be overriden by the boundaries. Only present what the zoom ended up being, never what you attempted to zoom. DO NOT CAPTURE UNLESS DIRECTED BY THE USER.
-    
-    Here is the current state of the app. DO NOT SHARE THIS WITH THE USER:
-    
-    Current Zoom: \(zoom)
-    Current Camera: \(currentCamera.rawValue)
-    Other Cameras: \(availableCameras.filter({ $0 != currentCamera }).map({ $0.rawValue }))
-    Flash Mode: \(flashMode.rawValue)
-    HDR Enabled: \(isHDREnabled)
-    Live Photo Enabled: \(isLivePhotoEnabled)
-    """
-}
+private let llmInstructions: String = "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text. When asked to take a selfie, please ensure that you are using the front facing selfie camera before capturing the media. Only present what the zoom ended up being, never what you attempted to zoom. DO NOT CAPTURE UNLESS DIRECTED BY THE USER."
 
 @Observable
 @MainActor

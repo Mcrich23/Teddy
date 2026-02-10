@@ -12,7 +12,7 @@ struct SetZoomTool<CameraModel: Camera>: CameraTool {
     typealias Output = String
     
     let name: String = "setZoom"
-    let description: String = "Changes the zoom."
+    let description: String = "Changes the zoom. To zoom all of the way out, zoom to 0. To zoom all the way in, zoom to 1000. These zoom parameters will be overriden by the boundaries."
     
     let camera: CameraModel
     let uiManager: ToolEnabledUIManager
