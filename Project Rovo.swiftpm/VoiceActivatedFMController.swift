@@ -142,7 +142,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     }
 }
 
-private let llmInstructions: String = "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text. When asked to take a selfie, please ensure that you are using the front facing selfie camera before capturing the media. Only present what the zoom ended up being, never what you attempted to zoom. DO NOT CAPTURE UNLESS DIRECTED BY THE USER."
+private let llmInstructions: String = "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text. When asked to take a selfie, please ensure that you are using the front facing selfie camera before capturing the media. Only present what the zoom ended up being, never what you attempted to zoom. DO NOT CAPTURE UNLESS DIRECTED BY THE USER. If a user asks to take a selfie, capture a photo as your last action."
 
 @Observable
 @MainActor

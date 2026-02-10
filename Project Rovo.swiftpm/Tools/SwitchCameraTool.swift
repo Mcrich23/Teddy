@@ -14,7 +14,7 @@ struct SwitchCameraTool<CameraModel: Camera>: CameraTool {
     
     let name: String = "switchCamera"
     let description: String = "Switches to the specified camera. If no position is specified, it will switch to the next available camera. For selfies, the front camera is generally the selfie camera."
-    
+
     let camera: CameraModel
     let uiManager: ToolEnabledUIManager
     
