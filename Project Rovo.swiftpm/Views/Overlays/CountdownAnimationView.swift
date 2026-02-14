@@ -13,12 +13,13 @@ private struct CountdownAnimation: Animatable {
 }
 
 struct CountdownAnimationView: View {
+    @Binding var animationTrigger: Bool
     private let initialValue = CountdownAnimation()
     
     var body: some View {
         ZStack {
             NumberView(number: "3")
-                .keyframeAnimator(initialValue: initialValue) { content, value in
+                .keyframeAnimator(initialValue: initialValue, trigger: animationTrigger) { content, value in
                     content
                         .scaleEffect(value.scale)
                         .opacity(value.opacity)
@@ -35,7 +36,7 @@ struct CountdownAnimationView: View {
                     }
                 }
             NumberView(number: "2")
-                .keyframeAnimator(initialValue: initialValue) { content, value in
+                .keyframeAnimator(initialValue: initialValue, trigger: animationTrigger) { content, value in
                     content
                         .scaleEffect(value.scale)
                         .opacity(value.opacity)
@@ -54,7 +55,7 @@ struct CountdownAnimationView: View {
                     }
                 }
             NumberView(number: "1")
-                .keyframeAnimator(initialValue: initialValue) { content, value in
+                .keyframeAnimator(initialValue: initialValue, trigger: animationTrigger) { content, value in
                     content
                         .scaleEffect(value.scale)
                         .opacity(value.opacity)
@@ -87,5 +88,12 @@ private struct NumberView: View {
 }
 
 #Preview {
-    CountdownAnimationView()
+    @Previewable @State var isAnimating: Bool = true
+    VStack {
+        CountdownAnimationView(animationTrigger: $isAnimating)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        Button("Run") {
+            isAnimating.toggle()
+        }
+    }
 }
