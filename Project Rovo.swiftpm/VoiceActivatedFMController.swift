@@ -193,7 +193,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     private func takeSelfie() async throws {
         if camera.cameraPosition != .front {
             let switchCamera = SwitchCameraTool(camera: camera, uiManager: toolUIManager)
-            _ = try await switchCamera.use(arguments: .init(cameraPosition: .front))
+            _ = try await switchCamera.call(arguments: .init(cameraPosition: .front))
         }
         try await takePhoto()
     }
@@ -201,26 +201,26 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     private func takePhoto() async throws {
         if camera.captureMode != .photo {
             let setCameraMode = SetCaptureModeTool(camera: camera, uiManager: toolUIManager)
-            _ = try await setCameraMode.use(arguments: .init(mode: .photo))
+            _ = try await setCameraMode.call(arguments: .init(mode: .photo))
         }
         
         let takePhoto = TakePhotoTool(camera: camera, uiManager: toolUIManager)
-        _ = try await takePhoto.use(arguments: .init())
+        _ = try await takePhoto.call(arguments: .init())
     }
     
     private func startRecordingVideo() async throws {
         if camera.captureMode != .video {
             let setCameraMode = SetCaptureModeTool(camera: camera, uiManager: toolUIManager)
-            _ = try await setCameraMode.use(arguments: .init(mode: .video))
+            _ = try await setCameraMode.call(arguments: .init(mode: .video))
         }
         
         let startVideo = StartVideoTool(camera: camera, uiManager: toolUIManager)
-        _ = try await startVideo.use(arguments: .init())
+        _ = try await startVideo.call(arguments: .init())
     }
     
     private func stopRecordingVideo() async throws {
         let stopVideo = StopVideoTool(camera: camera, uiManager: toolUIManager)
-        _ = try await stopVideo.use(arguments: .init())
+        _ = try await stopVideo.call(arguments: .init())
     }
 }
 

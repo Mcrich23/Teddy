@@ -23,7 +23,7 @@ struct SetCaptureModeTool<CameraModel: Camera>: CameraTool {
     }
     
     func toolName(arguments: Arguments) async -> String {
-        return "Switching to \(arguments.mode) capture mode"
+        return "Switching to \(arguments.mode) mode"
     }
     
     func use(arguments: Arguments) async throws -> String {
