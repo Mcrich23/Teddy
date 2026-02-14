@@ -157,27 +157,36 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         // Remove wake words and whitespace from command.
         let command = command.lowercased().replacingOccurrences(of: rovoAlts.map({ $0.lowercased() }), with: "").trimmingCharacters(in: .whitespacesAndNewlines)
         
-        if command.hasSuffix("take a selfie") {
+        if command.hasSuffix("flip camera") || command.hasSuffix("switch camera") || command.hasSuffix("change camera") || command.hasSuffix("toggle camera") || command.hasSuffix("flip the camera") || command.hasSuffix("switch the camera") || command.hasSuffix("change the camera") || command.hasSuffix("toggle the camera") {
+            try await flipCamera()
+        }
+        
+        if command.hasSuffix("take a selfie") || command.hasSuffix("snap a selfie") {
             try await takeSelfie()
             return true
         }
         
-        if command.hasSuffix("take a photo") || command.hasSuffix("take a picture") {
+        if command.hasSuffix("take a photo") || command.hasSuffix("take a picture") || command.hasSuffix("snap a photo") || command.hasSuffix("snap a picture") {
             try await takePhoto()
             return true
         }
         
-        if command.hasSuffix("take a video") || command.hasSuffix("start recording") {
+        if command.hasSuffix("take a video") || command.hasSuffix("start recording") || command.hasSuffix("start a video") || command.hasSuffix("start the video") {
             try await startRecordingVideo()
             return true
         }
         
-        if command.hasSuffix("stop recording") || command.hasSuffix("stop video") || command.hasSuffix("stop the video") {
+        if command.hasSuffix("stop recording") || command.hasSuffix("stop video") || command.hasSuffix("stop the video") || command.hasSuffix("end recording") || command.hasSuffix("end the video") {
             try await stopRecordingVideo()
             return true
         }
         
         return false
+    }
+    
+    private func flipCamera() async throws {
+        let switchCamera = SwitchCameraTool(camera: camera, uiManager: toolUIManager)
+        _ = try await switchCamera.call(arguments: .init(cameraPosition: nil))
     }
     
     private func takeSelfie() async throws {
