@@ -30,19 +30,20 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     
     private var responseCount: Int = 0
     
+    // Allow different alts since Rovo isn't a word.
+    private let rovoAlts = [
+        "Rovo",
+        "Robo",
+        "Bravo",
+        "Rubber",
+        "Bro",
+        "Brother",
+    ]
+    
     func getCommand(from transcript: String?) -> String? {
         guard !toolUIManager.isActiveListening || camera.captureActivity.isRecording else { return transcript }
         
         var transcript = transcript
-        // Allow different alts since Rovo isn't a word.
-        let rovoAlts = [
-            "Rovo",
-            "Robo",
-            "Bravo",
-            "Rubber",
-            "Bro",
-            "Brother",
-        ]
         
         for alt in rovoAlts {
             transcript = transcript?.replacingOccurrences(of: alt, with: "(rovo)\(alt)").replacingOccurrences(of: alt.lowercased(), with: "(rovo)\(alt.lowercased())")
@@ -67,6 +68,12 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         // Restart session is requested instead of passing to LLM
         if command.lowercased().contains("restart llm session") || command.lowercased().contains("restart model") || command.lowercased().contains("clear context") {
             restartSession()
+            return true
+        }
+        
+        // Handle Hardcoded Commands
+        let didHandleWithHardcodedCommand = (try? await useHardCodedTasksIfPossible(command: command)) ?? false
+        if didHandleWithHardcodedCommand {
             return true
         }
         
@@ -139,6 +146,91 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
 //            GetZoomFactorsTool(camera: camera, uiManager: toolUIManager),
 //            GetZoomTool(camera: camera, uiManager: toolUIManager),
         ]
+    }
+    
+    // MARK: Hard Coded Tasks
+    /// Acts with a hardcoded function for faster response if the command matches
+    ///  - Parameter command: The full command for the device.
+    ///  - Returns:
+    ///  `true` if a hardcoded task was used. Otherwise, it returns `false`.
+    private func useHardCodedTasksIfPossible(command: String) async throws -> Bool {
+        // Remove wake words and whitespace from command.
+        let command = command.lowercased().replacingOccurrences(of: rovoAlts.map({ $0.lowercased() }), with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if command.hasSuffix("take a selfie") {
+            try? await takeSelfie()
+            return true
+        }
+        
+        if command.hasSuffix("take a picture") {
+            try? await takePhoto()
+            return true
+        }
+        
+        if command.hasSuffix("take a photo") {
+            try? await takePhoto()
+            return true
+        }
+        
+        if command.hasSuffix("take a video") {
+            try? await startRecordingVideo()
+            return true
+        }
+        
+        if command.hasSuffix("start recording") {
+            try? await startRecordingVideo()
+            return true
+        }
+        
+        if command.hasSuffix("stop recording") {
+            try? await stopRecordingVideo()
+            return true
+        }
+        
+        return false
+    }
+    
+    private func takeSelfie() async throws {
+        if camera.cameraPosition != .front {
+            let switchCamera = SwitchCameraTool(camera: camera, uiManager: toolUIManager)
+            _ = try await switchCamera.use(arguments: .init(cameraPosition: .front))
+        }
+        try await takePhoto()
+    }
+    
+    private func takePhoto() async throws {
+        if camera.captureMode != .photo {
+            let setCameraMode = SetCaptureModeTool(camera: camera, uiManager: toolUIManager)
+            _ = try await setCameraMode.use(arguments: .init(mode: .photo))
+        }
+        
+        let takePhoto = TakePhotoTool(camera: camera, uiManager: toolUIManager)
+        _ = try await takePhoto.use(arguments: .init())
+    }
+    
+    private func startRecordingVideo() async throws {
+        if camera.captureMode != .video {
+            let setCameraMode = SetCaptureModeTool(camera: camera, uiManager: toolUIManager)
+            _ = try await setCameraMode.use(arguments: .init(mode: .video))
+        }
+        
+        let startVideo = StartVideoTool(camera: camera, uiManager: toolUIManager)
+        _ = try await startVideo.use(arguments: .init())
+    }
+    
+    private func stopRecordingVideo() async throws {
+        let stopVideo = StopVideoTool(camera: camera, uiManager: toolUIManager)
+        _ = try await stopVideo.use(arguments: .init())
+    }
+}
+
+extension String {
+    func replacingOccurrences(of targets: [Self], with replacement: Self) -> Self {
+        var result = self
+        for target in targets {
+            result = result.replacingOccurrences(of: target, with: replacement)
+        }
+        return result
     }
 }
 
