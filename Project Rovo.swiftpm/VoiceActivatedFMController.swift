@@ -158,32 +158,22 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         let command = command.lowercased().replacingOccurrences(of: rovoAlts.map({ $0.lowercased() }), with: "").trimmingCharacters(in: .whitespacesAndNewlines)
         
         if command.hasSuffix("take a selfie") {
-            try? await takeSelfie()
+            try await takeSelfie()
             return true
         }
         
-        if command.hasSuffix("take a picture") {
-            try? await takePhoto()
+        if command.hasSuffix("take a photo") || command.hasSuffix("take a picture") {
+            try await takePhoto()
             return true
         }
         
-        if command.hasSuffix("take a photo") {
-            try? await takePhoto()
+        if command.hasSuffix("take a video") || command.hasSuffix("start recording") {
+            try await startRecordingVideo()
             return true
         }
         
-        if command.hasSuffix("take a video") {
-            try? await startRecordingVideo()
-            return true
-        }
-        
-        if command.hasSuffix("start recording") {
-            try? await startRecordingVideo()
-            return true
-        }
-        
-        if command.hasSuffix("stop recording") {
-            try? await stopRecordingVideo()
+        if command.hasSuffix("stop recording") || command.hasSuffix("stop video") || command.hasSuffix("stop the video") {
+            try await stopRecordingVideo()
             return true
         }
         
