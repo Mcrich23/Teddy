@@ -128,21 +128,21 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             StartVideoTool(camera: camera, uiManager: toolUIManager),
             StopVideoTool(camera: camera, uiManager: toolUIManager),
             SwitchCameraTool(camera: camera, uiManager: toolUIManager),
-            GetAvailableCamerasTool(camera: camera, uiManager: toolUIManager),
             SetCaptureModeTool(camera: camera, uiManager: toolUIManager),
             SetFlashModeTool(camera: camera, uiManager: toolUIManager),
             SetLiveTool(camera: camera, uiManager: toolUIManager),
             SetHDRTool(camera: camera, uiManager: toolUIManager),
-            GetZoomFactorsTool(camera: camera, uiManager: toolUIManager),
-            GetZoomTool(camera: camera, uiManager: toolUIManager),
             SetZoomTool(camera: camera, uiManager: toolUIManager),
             SetActiveListeningTool(camera: camera, uiManager: toolUIManager),
             DismissOnboardingTool(uiManager: toolUIManager)
+//            GetAvailableCamerasTool(camera: camera, uiManager: toolUIManager),
+//            GetZoomFactorsTool(camera: camera, uiManager: toolUIManager),
+//            GetZoomTool(camera: camera, uiManager: toolUIManager),
         ]
     }
 }
 
-private let llmInstructions: String = "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text. When asked to take a selfie, please ensure that you are using the front facing selfie camera before capturing the media. When zooming, only present what the zoom ended up being, never what you attempted to zoom. DO NOT CAPTURE UNLESS DIRECTED BY THE USER. If a user asks to take a selfie, capture a photo as your last action."
+private let llmInstructions: String = "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text."
 
 @Observable
 @MainActor
