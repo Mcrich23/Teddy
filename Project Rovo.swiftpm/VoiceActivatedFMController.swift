@@ -234,7 +234,7 @@ extension String {
     }
 }
 
-private let llmInstructions: String = "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera. Please note that all input you receive has been translated from voice to text."
+private let llmInstructions: String = "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera with powerfull advanced multi-chain action capabilities. Please note that all input you receive has been translated from voice to text."
 
 @Observable
 @MainActor
