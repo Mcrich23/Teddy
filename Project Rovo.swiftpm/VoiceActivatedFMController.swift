@@ -159,6 +159,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         
         if command.hasSuffix("flip camera") || command.hasSuffix("switch camera") || command.hasSuffix("change camera") || command.hasSuffix("toggle camera") || command.hasSuffix("flip the camera") || command.hasSuffix("switch the camera") || command.hasSuffix("change the camera") || command.hasSuffix("toggle the camera") {
             try await flipCamera()
+            return true
         }
         
         if command.hasSuffix("take a selfie") || command.hasSuffix("snap a selfie") {
