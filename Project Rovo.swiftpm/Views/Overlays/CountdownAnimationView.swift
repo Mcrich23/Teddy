@@ -13,7 +13,7 @@ private struct CountdownAnimation: Animatable {
 }
 
 struct CountdownAnimationView: View {
-    @Binding var animationTrigger: Bool
+    let animationTrigger: Bool
     private let initialValue = CountdownAnimation()
     
     var body: some View {
@@ -90,7 +90,7 @@ private struct NumberView: View {
 #Preview {
     @Previewable @State var isAnimating: Bool = true
     VStack {
-        CountdownAnimationView(animationTrigger: $isAnimating)
+        CountdownAnimationView(animationTrigger: isAnimating)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         Button("Run") {
             isAnimating.toggle()

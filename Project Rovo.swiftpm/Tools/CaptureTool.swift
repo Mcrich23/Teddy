@@ -26,7 +26,13 @@ struct TakePhotoTool<CameraModel: Camera>: CameraTool {
     
     func use(arguments: Arguments) async throws -> String {
         await camera.setCaptureMode(.photo)
-        await camera.capturePhoto()
+        await uiManager.triggerCountdown()
+        do {
+            try await Task.sleep(for: .milliseconds(3500))
+            await camera.capturePhoto()
+        } catch {
+            print("Take Photo Tool Error: \(error)")
+        }
         return "Photo Taken"
     }
 }
@@ -52,7 +58,13 @@ struct StartVideoTool<CameraModel: Camera>: CameraTool {
             return "Video is already recording"
         } else {
             await camera.setCaptureMode(.video)
-            await camera.toggleRecording()
+            await uiManager.triggerCountdown()
+            do {
+                try await Task.sleep(for: .milliseconds(3500))
+                await camera.toggleRecording()
+            } catch {
+                print("Start Video Tool Error: \(error)")
+            }
             return "Video Started"
         }
     }

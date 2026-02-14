@@ -63,6 +63,9 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
                 FoundationModelsAvailabilityView()
             }
         }
+        .overlay {
+            CountdownAnimationView(animationTrigger: toolUIManager.countdownTrigger)
+        }
     }
     
     /// This view arranges UI elements vertically.

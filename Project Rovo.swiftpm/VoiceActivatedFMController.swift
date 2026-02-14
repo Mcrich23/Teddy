@@ -175,6 +175,13 @@ final class ToolEnabledUIManager {
     func setOnboarding(_ isOnboarding: Bool) {
         self.isOnboarding = isOnboarding
     }
+    
+    /// Triggers the countdown animation. The animation is 5 seconds long.
+    private(set) var countdownTrigger: Bool = false
+    
+    func triggerCountdown() {
+        countdownTrigger.toggle()
+    }
 }
 
 enum FMErrors: Error {
