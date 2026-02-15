@@ -69,7 +69,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
         }
         .overlay {
             ConcentricRectangle()
-                .stroke(Color.red.gradient, lineWidth: 6)
+                .stroke(Color.accentColor.gradient, lineWidth: 6)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .ignoresSafeArea()
                 .opacity(modelController.isTemporarilyActiveListening ? 1 : 0)

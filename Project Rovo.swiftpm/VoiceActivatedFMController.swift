@@ -14,11 +14,16 @@ private class Sounds {
     private static let startListeningSoundURL = URL(filePath: "/System/Library/Audio/UISounds/LiveTranslationStart.caf")
     private static let cancelSoundURL = URL(filePath: "/System/Library/Audio/UISounds/jbl_cancel.caf")
     private static let finishActionSoundURL = URL(filePath: "/System/Library/Audio/UISounds/NFCCardComplete.caf")
-    private static let errorSoundURL = URL(filePath: "/System/Library/Audio/UISounds/Nano/MicUnmuteFail.caf")
+    private static let errorSoundURL = URL(filePath: "/System/Library/Audio/UISounds/nano/MicUnmuteFail.caf")
     
     private var audioPlayer: AVAudioPlayer?
     
     private func play(_ url: URL) throws {
+        try AVAudioSession.sharedInstance().setCategory(.ambient)
+        defer {
+            try? SpeechRecognizer.setAudioCateogry()
+        }
+        
         audioPlayer = try AVAudioPlayer(contentsOf: url)
         audioPlayer?.currentTime = 0
         audioPlayer?.volume = 1
