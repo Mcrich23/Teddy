@@ -86,6 +86,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         "Rubber",
         "Bro",
         "Brother",
+        "River"
     ]
     
     func getCommand(from transcript: String?) -> String? {
