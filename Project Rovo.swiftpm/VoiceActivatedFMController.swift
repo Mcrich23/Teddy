@@ -8,6 +8,7 @@
 import Foundation
 import FoundationModels
 import SwiftUI
+import AudioToolbox
 
 @Observable
 @MainActor
@@ -16,11 +17,26 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     private var session: LanguageModelSession
     private let camera: CameraModel
     private let toolUIManager: ToolEnabledUIManager
+    let startListeningAudioToolboxSoundID: SystemSoundID
+    
+    /// The next transcript input does not require a wake word if this is set to true
+    private(set) var isTemporarilyActiveListening: Bool = false
     
     init(camera: CameraModel, toolUIManager: ToolEnabledUIManager) {
         self.camera = camera
         self.toolUIManager = toolUIManager
         self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: llmInstructions)
+        
+        // Get startListeningAudioToolboxSoundID
+        var id: SystemSoundID = 0
+        AudioServicesCreateSystemSoundID(URL(filePath: "/System/Library/Audio/UISounds/LiveTranslationStart.caf") as CFURL, &id)
+
+        self.startListeningAudioToolboxSoundID = id
+    }
+    
+    deinit {
+        // Remove id on class deinit just in case
+        AudioServicesDisposeSystemSoundID(startListeningAudioToolboxSoundID)
     }
     
     var isResponding: Bool { session.isResponding }
@@ -41,7 +57,9 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     ]
     
     func getCommand(from transcript: String?) -> String? {
-        guard !toolUIManager.isActiveListening || camera.captureActivity.isRecording else { return transcript }
+        guard (!toolUIManager.isActiveListening && !isTemporarilyActiveListening) || camera.captureActivity.isRecording else {
+            return transcript
+        }
         
         var transcript = transcript
         
@@ -52,18 +70,35 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         return transcript?.components(separatedBy: "(rovo)").dropFirst().joined(separator: "(rovo)").replacingOccurrences(of: "(rovo)", with: "")
     }
 
+    /// - Returns:
+    /// `true` if the transcription should be reset.
     func pendModelResponse(from boundValue: Binding<String>) async -> Bool {
+        
         let transcript = boundValue.wrappedValue
         try? await Task.sleep(for: .milliseconds(1500))
-        guard transcript == boundValue.wrappedValue, !transcript.isEmpty, let command = getCommand(from: transcript), command != getCommand(from: respondingPrompt) else {
+        
+        guard transcript == boundValue.wrappedValue, !transcript.isEmpty else {
             return false
         }
         
-        if command.isEmpty {
+        if transcript.replacingOccurrences(of: rovoAlts, with: "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            AudioServicesPlaySystemSound(startListeningAudioToolboxSoundID)
+            isTemporarilyActiveListening = true
             return true
+        }
+                
+        guard let command = getCommand(from: transcript), command != getCommand(from: respondingPrompt) else {
+            let latterTranscript = boundValue.wrappedValue
+            try? await Task.sleep(for: .milliseconds(1500))
+            if latterTranscript == boundValue.wrappedValue, !latterTranscript.isEmpty {
+                return true
+            }
+            return false
         }
         
         respondTask?.cancel()
+        
+        isTemporarilyActiveListening = false
         
         // Restart session is requested instead of passing to LLM
         if command.lowercased().contains("restart llm session") || command.lowercased().contains("restart model") || command.lowercased().contains("clear context") {

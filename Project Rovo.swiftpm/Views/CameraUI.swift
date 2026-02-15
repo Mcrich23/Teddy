@@ -67,6 +67,14 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
             CountdownAnimationView(animationTrigger: toolUIManager.countdownTrigger)
                 .offset(y: isCompactSize ? -60 : 0)
         }
+        .overlay {
+            ConcentricRectangle()
+                .stroke(Color.red.gradient, lineWidth: 6)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea()
+                .opacity(modelController.isTemporarilyActiveListening ? 1 : 0)
+                .animation(.easeInOut, value: modelController.isTemporarilyActiveListening)
+        }
     }
     
     /// This view arranges UI elements vertically.
