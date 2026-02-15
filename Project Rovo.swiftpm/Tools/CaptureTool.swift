@@ -65,6 +65,7 @@ struct StartVideoTool<CameraModel: Camera>: CameraTool {
             } catch {
                 print("Start Video Tool Error: \(error)")
             }
+            try await Task.sleep(for: .seconds(1))
             return "Video Started"
         }
     }
@@ -79,6 +80,8 @@ struct StopVideoTool<CameraModel: Camera>: CameraTool {
     let camera: CameraModel
     let uiManager: ToolEnabledUIManager
     
+    let sounds = Sounds()
+    
     @Generable
     struct Arguments {}
     
@@ -90,7 +93,7 @@ struct StopVideoTool<CameraModel: Camera>: CameraTool {
         Task {
             await camera.toggleRecording()
         }
-        try? await Task.sleep(for: .seconds(1))
+        try? await sounds.playStopRecordingSound()
         return "Video Stopped"
     }
 }

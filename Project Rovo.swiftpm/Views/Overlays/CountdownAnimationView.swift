@@ -13,7 +13,9 @@ private struct CountdownAnimation: Animatable {
 }
 
 struct CountdownAnimationView: View {
+    let captureMode: CaptureMode
     let animationTrigger: Bool
+    @State private var sounds = Sounds()
     private let initialValue = CountdownAnimation()
     
     var body: some View {
@@ -74,6 +76,26 @@ struct CountdownAnimationView: View {
                     }
                 }
         }
+        .onChange(of: animationTrigger) {
+            Task {
+                try await Task.sleep(for: .milliseconds(400))
+                try await sounds.playCountdownNumberSound()
+                try await Task.sleep(for: .milliseconds(750))
+                try await sounds.playCountdownNumberSound()
+                try await Task.sleep(for: .milliseconds(750))
+                try await sounds.playCountdownNumberSound()
+                try await Task.sleep(for: .milliseconds(400))
+                
+                switch captureMode {
+                case .photo:
+                    try await sounds.playPhotoCaptureSound()
+                case .video:
+                    try await sounds.playStartRecordingSound()
+                }
+                
+                // Don't need to restart SpeechRecognizer session because the model request will do it for us.
+            }
+        }
     }
 }
 
@@ -90,7 +112,7 @@ private struct NumberView: View {
 #Preview {
     @Previewable @State var isAnimating: Bool = true
     VStack {
-        CountdownAnimationView(animationTrigger: isAnimating)
+        CountdownAnimationView(captureMode: .photo, animationTrigger: isAnimating)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         Button("Run") {
             isAnimating.toggle()

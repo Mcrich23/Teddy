@@ -64,7 +64,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
             }
         }
         .overlay {
-            CountdownAnimationView(animationTrigger: toolUIManager.countdownTrigger)
+            CountdownAnimationView(captureMode: camera.captureMode, animationTrigger: toolUIManager.countdownTrigger)
                 .offset(y: isCompactSize ? -60 : 0)
         }
         .overlay {

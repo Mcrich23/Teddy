@@ -13,6 +13,8 @@ struct CaptureButton<CameraModel: Camera>: View {
     
     @State var camera: CameraModel
     @State var isRecording = false
+    @State private var sounds = Sounds()
+    @Environment(\.startTranscription) var startTranscription
     
     private let mainButtonDimension: CGFloat = 68
     
@@ -36,11 +38,23 @@ struct CaptureButton<CameraModel: Camera>: View {
             PhotoCaptureButton {
                 Task {
                     await camera.capturePhoto()
+                    startTranscription?()
+                }
+                Task {
+                    try await sounds.playPhotoCaptureSound()
                 }
             }
             .accessibilityLabel(Text("Capture Photo"))
         case .video:
             MovieCaptureButton(isRecording: $isRecording) { _ in
+                Task {
+                    if isRecording {
+                        try await sounds.playStartRecordingSound()
+                    } else {
+                        try await sounds.playStopRecordingSound()
+                    }
+                    startTranscription?()
+                }
                 Task {
                     await camera.toggleRecording()
                 }
