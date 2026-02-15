@@ -72,6 +72,9 @@ struct CameraView<CameraModel: Camera>: PlatformView {
             CameraUI(camera: camera, swipeDirection: $swipeDirection)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .simultaneousGesture(TapGesture().onEnded({ _ in
+            modelController.stopTemporaryListening()
+        }))
         .onChange(of: toolUIManager.isOnboarding, { oldValue, newValue in
             hasOnboarded = !newValue
             Task {

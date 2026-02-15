@@ -8,7 +8,51 @@
 import Foundation
 import FoundationModels
 import SwiftUI
-import AudioToolbox
+import AVFoundation
+
+private class Sounds {
+    private static let startListeningSoundURL = URL(filePath: "/System/Library/Audio/UISounds/LiveTranslationStart.caf")
+    private static let cancelSoundURL = URL(filePath: "/System/Library/Audio/UISounds/jbl_cancel.caf")
+    private static let finishActionSoundURL = URL(filePath: "/System/Library/Audio/UISounds/NFCCardComplete.caf")
+    private static let errorSoundURL = URL(filePath: "/System/Library/Audio/UISounds/Nano/MicUnmuteFail.caf")
+    
+    private var startListeningPlayer: AVAudioPlayer? = try? AVAudioPlayer(contentsOf: startListeningSoundURL)
+    private var cancelPlayer: AVAudioPlayer? = try? AVAudioPlayer(contentsOf: cancelSoundURL)
+    private var finishActionPlayer: AVAudioPlayer? = try? AVAudioPlayer(contentsOf: finishActionSoundURL)
+    private var errorPlayer: AVAudioPlayer? = try? AVAudioPlayer(contentsOf: errorSoundURL)
+    
+    func playStartListeningSound() throws {
+        if startListeningPlayer == nil {
+            startListeningPlayer = try AVAudioPlayer(contentsOf: Self.startListeningSoundURL)
+        }
+        startListeningPlayer?.volume = 1
+        startListeningPlayer?.play()
+    }
+    
+    func playCancelSound() throws {
+        if cancelPlayer == nil {
+            cancelPlayer = try AVAudioPlayer(contentsOf: Self.cancelSoundURL)
+        }
+        cancelPlayer?.volume = 1
+        cancelPlayer?.play()
+    }
+    
+    func playFinishActionSound() throws {
+        if finishActionPlayer == nil {
+            finishActionPlayer = try AVAudioPlayer(contentsOf: Self.finishActionSoundURL)
+        }
+        finishActionPlayer?.volume = 1
+        finishActionPlayer?.play()
+    }
+    
+    func playErrorSound() throws {
+        if errorPlayer == nil {
+            errorPlayer = try AVAudioPlayer(contentsOf: Self.errorSoundURL)
+        }
+        errorPlayer?.volume = 1
+        errorPlayer?.play()
+    }
+}
 
 @Observable
 @MainActor
@@ -17,26 +61,20 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     private var session: LanguageModelSession
     private let camera: CameraModel
     private let toolUIManager: ToolEnabledUIManager
-    let startListeningAudioToolboxSoundID: SystemSoundID
+    private let sounds = Sounds()
     
     /// The next transcript input does not require a wake word if this is set to true
     private(set) var isTemporarilyActiveListening: Bool = false
+    
+    func stopTemporaryListening() {
+        isTemporarilyActiveListening = false
+        try? sounds.playFinishActionSound()
+    }
     
     init(camera: CameraModel, toolUIManager: ToolEnabledUIManager) {
         self.camera = camera
         self.toolUIManager = toolUIManager
         self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: llmInstructions)
-        
-        // Get startListeningAudioToolboxSoundID
-        var id: SystemSoundID = 0
-        AudioServicesCreateSystemSoundID(URL(filePath: "/System/Library/Audio/UISounds/LiveTranslationStart.caf") as CFURL, &id)
-
-        self.startListeningAudioToolboxSoundID = id
-    }
-    
-    deinit {
-        // Remove id on class deinit just in case
-        AudioServicesDisposeSystemSoundID(startListeningAudioToolboxSoundID)
     }
     
     var isResponding: Bool { session.isResponding }
@@ -73,7 +111,6 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     /// - Returns:
     /// `true` if the transcription should be reset.
     func pendModelResponse(from boundValue: Binding<String>) async -> Bool {
-        
         let transcript = boundValue.wrappedValue
         try? await Task.sleep(for: .milliseconds(1500))
         
@@ -82,7 +119,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         }
         
         if transcript.replacingOccurrences(of: rovoAlts, with: "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            AudioServicesPlaySystemSound(startListeningAudioToolboxSoundID)
+            try? sounds.playStartListeningSound()
             isTemporarilyActiveListening = true
             return true
         }
@@ -96,12 +133,17 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             return false
         }
         
+        guard !command.isEmpty else {
+            return true
+        }
+        
         respondTask?.cancel()
         
         isTemporarilyActiveListening = false
         
         // Restart session is requested instead of passing to LLM
         if command.lowercased().contains("restart llm session") || command.lowercased().contains("restart model") || command.lowercased().contains("clear context") {
+            try? sounds.playFinishActionSound()
             restartSession()
             return true
         }
@@ -109,6 +151,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         // Handle Hardcoded Commands
         let didHandleWithHardcodedCommand = (try? await useHardCodedTasksIfPossible(command: command)) ?? false
         if didHandleWithHardcodedCommand {
+            try? sounds.playFinishActionSound()
             return true
         }
         
@@ -124,8 +167,10 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             
             do {
                 try await streamModelResponse(from: command)
+                try? sounds.playFinishActionSound()
             } catch {
                 print(error)
+                try? sounds.playErrorSound()
             }
         }
         return true
@@ -268,6 +313,14 @@ extension String {
         return result
     }
 }
+
+//func AudioServicesPlaySystemSound(_ soundID: SystemSoundID) async {
+//    await withCheckedContinuation { continuation in
+//        AudioServicesPlaySystemSoundWithCompletion(soundID) {
+//            continuation.resume()
+//        }
+//    }
+//}
 
 private let llmInstructions: String = "You are Project Rovo, a helpful camera app designed to help people with fine motor issues use a camera with powerfull advanced multi-chain action capabilities. Please note that all input you receive has been translated from voice to text."
 
