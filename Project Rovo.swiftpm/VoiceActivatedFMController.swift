@@ -19,6 +19,7 @@ private class Sounds {
     private var audioPlayer: AVAudioPlayer?
     
     private func play(_ url: URL) throws {
+        // Respect silent mode by temporarily setting the category to ambient.
         try AVAudioSession.sharedInstance().setCategory(.ambient)
         defer {
             try? SpeechRecognizer.setAudioCateogry()
