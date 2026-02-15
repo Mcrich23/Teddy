@@ -10,7 +10,8 @@ import FoundationModels
 import SwiftUI
 import AVFoundation
 
-private class Sounds {
+/// - Warning: You MUST re-initialize the ``SpeechRecognizer`` audio session after each sound play. Failure to do so will break audio.
+private actor Sounds {
     private static let startListeningSoundURL = URL(filePath: "/System/Library/Audio/UISounds/LiveTranslationStart.caf")
     private static let cancelSoundURL = URL(filePath: "/System/Library/Audio/UISounds/jbl_cancel.caf")
     private static let finishActionSoundURL = URL(filePath: "/System/Library/Audio/UISounds/NFCCardComplete.caf")
@@ -18,33 +19,44 @@ private class Sounds {
     
     private var audioPlayer: AVAudioPlayer?
     
-    private func play(_ url: URL) throws {
-        // Respect silent mode by temporarily setting the category to ambient.
-        try AVAudioSession.sharedInstance().setCategory(.ambient)
-        defer {
-            try? SpeechRecognizer.setAudioCateogry()
+    private func play(_ url: URL) async throws {
+        var err: Error?
+        do {
+            // Respect silent mode by temporarily setting the category to ambient.
+            try AVAudioSession.sharedInstance().setActive(false)
+            try AVAudioSession.sharedInstance().setCategory(.ambient, options: .duckOthers)
+            try AVAudioSession.sharedInstance().setActive(true)
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.currentTime = 0
+            audioPlayer?.volume = 1
+            audioPlayer?.play()
+        } catch {
+            err = error
         }
         
-        audioPlayer = try AVAudioPlayer(contentsOf: url)
-        audioPlayer?.currentTime = 0
-        audioPlayer?.volume = 1
-        audioPlayer?.play()
+        while audioPlayer?.isPlaying == true {
+            try? await Task.sleep(for: .milliseconds(500))
+        }
+        
+        if let err {
+            throw err
+        }
     }
     
-    func playStartListeningSound() throws {
-        try play(Self.startListeningSoundURL)
+    func playStartListeningSound() async throws {
+        try await play(Self.startListeningSoundURL)
     }
     
-    func playCancelSound() throws {
-        try play(Self.cancelSoundURL)
+    func playCancelSound() async throws {
+        try await play(Self.cancelSoundURL)
     }
     
-    func playFinishActionSound() throws {
-        try play(Self.finishActionSoundURL)
+    func playFinishActionSound() async throws {
+        try await play(Self.finishActionSoundURL)
     }
     
-    func playErrorSound() throws {
-        try play(Self.errorSoundURL)
+    func playErrorSound() async throws {
+        try await play(Self.errorSoundURL)
     }
 }
 
@@ -61,8 +73,11 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     private(set) var isTemporarilyActiveListening: Bool = false
     
     func stopTemporaryListening() {
+        guard isTemporarilyActiveListening else { return }
         isTemporarilyActiveListening = false
-        try? sounds.playCancelSound()
+        Task {
+            try? await sounds.playCancelSound()
+        }
     }
     
     init(camera: CameraModel, toolUIManager: ToolEnabledUIManager) {
@@ -114,8 +129,8 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         }
         
         if transcript.replacingOccurrences(of: rovoAlts, with: "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            try? sounds.playStartListeningSound()
             isTemporarilyActiveListening = true
+            try? await sounds.playStartListeningSound()
             return true
         }
                 
@@ -138,15 +153,15 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         
         // Restart session is requested instead of passing to LLM
         if command.lowercased().contains("restart llm session") || command.lowercased().contains("restart model") || command.lowercased().contains("clear context") {
-            try? sounds.playFinishActionSound()
             restartSession()
+            try? await sounds.playFinishActionSound()
             return true
         }
         
         // Handle Hardcoded Commands
         let didHandleWithHardcodedCommand = (try? await useHardCodedTasksIfPossible(command: command)) ?? false
         if didHandleWithHardcodedCommand {
-            try? sounds.playFinishActionSound()
+            try? await sounds.playFinishActionSound()
             return true
         }
         
@@ -162,12 +177,16 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             
             do {
                 try await streamModelResponse(from: command)
-                try? sounds.playFinishActionSound()
+                try? await sounds.playFinishActionSound()
             } catch {
                 print(error)
-                try? sounds.playErrorSound()
+                try? await sounds.playErrorSound()
             }
         }
+        
+        // Wait to return function until task is complete
+        _ = await respondTask?.result
+        
         return true
     }
     

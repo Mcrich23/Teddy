@@ -126,18 +126,6 @@ actor SpeechRecognizer: ObservableObject {
         }
     }
     
-    static func setAudioCateogry() throws {
-        let audioSession = AVAudioSession.sharedInstance()
-        
-        #if targetEnvironment(macCatalyst)
-        try audioSession.setCategory(.playAndRecord, options: [.duckOthers, .allowBluetoothA2DP, .allowBluetoothHFP])
-        #else
-        try audioSession.setCategory(.playAndRecord, options: [.duckOthers, .allowBluetoothA2DP, .bluetoothHighQualityRecording, .allowBluetoothHFP])
-        #endif
-        
-        try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-    }
-    
     private func prepareEngine() throws -> (AVAudioEngine, SFSpeechAudioBufferRecognitionRequest) {
         let audioEngine = AVAudioEngine()
         
@@ -145,7 +133,16 @@ actor SpeechRecognizer: ObservableObject {
         request.shouldReportPartialResults = true
         request.contextualStrings = ["Rovo"]
         
-        try Self.setAudioCateogry()
+        let audioSession = AVAudioSession.sharedInstance()
+        try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
+        
+#if targetEnvironment(macCatalyst)
+        try audioSession.setCategory(.playAndRecord, options: [.duckOthers, .allowBluetoothA2DP, .allowBluetoothHFP])
+#else
+        try audioSession.setCategory(.playAndRecord, options: [.duckOthers, .allowBluetoothA2DP, .bluetoothHighQualityRecording, .allowBluetoothHFP])
+#endif
+        
+        try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
         let inputNode = audioEngine.inputNode
         
         let recordingFormat = inputNode.outputFormat(forBus: 0)
