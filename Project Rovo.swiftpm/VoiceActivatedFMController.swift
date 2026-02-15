@@ -16,41 +16,29 @@ private class Sounds {
     private static let finishActionSoundURL = URL(filePath: "/System/Library/Audio/UISounds/NFCCardComplete.caf")
     private static let errorSoundURL = URL(filePath: "/System/Library/Audio/UISounds/Nano/MicUnmuteFail.caf")
     
-    private var startListeningPlayer: AVAudioPlayer? = try? AVAudioPlayer(contentsOf: startListeningSoundURL)
-    private var cancelPlayer: AVAudioPlayer? = try? AVAudioPlayer(contentsOf: cancelSoundURL)
-    private var finishActionPlayer: AVAudioPlayer? = try? AVAudioPlayer(contentsOf: finishActionSoundURL)
-    private var errorPlayer: AVAudioPlayer? = try? AVAudioPlayer(contentsOf: errorSoundURL)
+    private var audioPlayer: AVAudioPlayer?
+    
+    private func play(_ url: URL) throws {
+        audioPlayer = try AVAudioPlayer(contentsOf: url)
+        audioPlayer?.currentTime = 0
+        audioPlayer?.volume = 1
+        audioPlayer?.play()
+    }
     
     func playStartListeningSound() throws {
-        if startListeningPlayer == nil {
-            startListeningPlayer = try AVAudioPlayer(contentsOf: Self.startListeningSoundURL)
-        }
-        startListeningPlayer?.volume = 1
-        startListeningPlayer?.play()
+        try play(Self.startListeningSoundURL)
     }
     
     func playCancelSound() throws {
-        if cancelPlayer == nil {
-            cancelPlayer = try AVAudioPlayer(contentsOf: Self.cancelSoundURL)
-        }
-        cancelPlayer?.volume = 1
-        cancelPlayer?.play()
+        try play(Self.cancelSoundURL)
     }
     
     func playFinishActionSound() throws {
-        if finishActionPlayer == nil {
-            finishActionPlayer = try AVAudioPlayer(contentsOf: Self.finishActionSoundURL)
-        }
-        finishActionPlayer?.volume = 1
-        finishActionPlayer?.play()
+        try play(Self.finishActionSoundURL)
     }
     
     func playErrorSound() throws {
-        if errorPlayer == nil {
-            errorPlayer = try AVAudioPlayer(contentsOf: Self.errorSoundURL)
-        }
-        errorPlayer?.volume = 1
-        errorPlayer?.play()
+        try play(Self.errorSoundURL)
     }
 }
 
@@ -68,7 +56,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     
     func stopTemporaryListening() {
         isTemporarilyActiveListening = false
-        try? sounds.playFinishActionSound()
+        try? sounds.playCancelSound()
     }
     
     init(camera: CameraModel, toolUIManager: ToolEnabledUIManager) {
