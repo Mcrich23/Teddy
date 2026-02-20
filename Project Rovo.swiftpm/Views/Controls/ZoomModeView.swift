@@ -64,7 +64,7 @@ private final class ZoomModeModel<CameraModel: Camera> {
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
         numberFormatter.minimumFractionDigits = 0
-        numberFormatter.maximumFractionDigits = 2
+        numberFormatter.maximumFractionDigits = 1
 
         return numberFormatter.string(from: value.value as NSNumber)
     }
