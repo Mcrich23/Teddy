@@ -1,0 +1,91 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Simple Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F9FAFB" />
+      <stop offset="100%" stop-color="#E5E7EB" />
+    </linearGradient>
+
+    <!-- Camera Body Gradient -->
+    <linearGradient id="camBodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#27272A" />
+      <stop offset="100%" stop-color="#18181B" />
+    </linearGradient>
+
+    <!-- Lens Outer Ring Gradient -->
+    <linearGradient id="lensOuterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3F3F46" />
+      <stop offset="100%" stop-color="#18181B" />
+    </linearGradient>
+
+    <!-- Lens Inner Gradient -->
+    <radialGradient id="lensInnerGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#18181B" />
+      <stop offset="100%" stop-color="#09090B" />
+    </radialGradient>
+
+    <!-- Waveform Gradients - Accent Color -->
+    <!-- From solid accent color to slightly lighter version -->
+    <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f6c200" /> 
+      <stop offset="100%" stop-color="#ffd433" /> 
+    </linearGradient>
+    
+    <!-- Shading & Shadows -->
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#000000" flood-opacity="0.15" />
+    </filter>
+    
+    <filter id="innerShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- App Icon Squircle Background -->
+  <rect x="0" y="0" width="1024" height="1024" rx="230" fill="url(#bgGrad)" />
+
+  <!-- Camera Shape -->
+  <g filter="url(#softShadow)">
+    <!-- Top Bump (Solid geometry) -->
+    <path d="M 400 240 L 624 240 C 650 240 660 260 670 300 L 700 400 L 324 400 L 354 300 C 364 260 374 240 400 240 Z" fill="url(#camBodyGrad)" />
+    
+    <!-- Camera Body (Clean rectangle with rounded corners) -->
+    <rect x="200" y="320" width="624" height="460" rx="64" fill="url(#camBodyGrad)" />
+    
+    <!-- Flash (Simple geometric approach) -->
+    <circle cx="720" cy="400" r="28" fill="#3F3F46" />
+    <!-- Updating flash color slightly, avoiding collision with the primary accent -->
+    <circle cx="720" cy="400" r="16" fill="#FCD34D" opacity="0.9" />
+
+    <!-- Lens System -->
+    <!-- Lens Base -->
+    <circle cx="512" cy="550" r="200" fill="url(#lensOuterGrad)" filter="url(#softShadow)" />
+    
+    <!-- Lens Inner Step -->
+    <circle cx="512" cy="550" r="176" fill="#09090B" />
+    
+    <!-- Lens Core -->
+    <circle cx="512" cy="550" r="160" fill="url(#lensInnerGrad)" filter="url(#innerShadow)" />
+    
+    <!-- Subtle Lens Reflection (Minimalist) -->
+    <path d="M 372 470 A 160 160 0 0 1 652 470 A 240 240 0 0 0 372 470 Z" fill="#FFFFFF" opacity="0.05" />
+
+    <!-- Modern Voice Waveform using accent color -->
+    <g fill="url(#waveGrad)">
+      <rect x="500" y="450" width="24" height="200" rx="12" /> <!-- Center -->
+      
+      <!-- Left side (Precise spacing of 40px) -->
+      <rect x="460" y="480" width="24" height="140" rx="12" />
+      <rect x="420" y="515" width="24" height="70" rx="12" />
+      <rect x="380" y="535" width="24" height="30" rx="12" />
+      
+      <!-- Right side -->
+      <rect x="540" y="470" width="24" height="160" rx="12" />
+      <rect x="580" y="500" width="24" height="100" rx="12" />
+      <rect x="620" y="530" width="24" height="40" rx="12" />
+    </g>
+    
+    <!-- Bottom Subtle Reflection -->
+    <path d="M 400 690 A 150 150 0 0 0 624 690 A 200 200 0 0 1 400 690 Z" fill="#FFFFFF" opacity="0.03" />
+  </g>
+</svg>
