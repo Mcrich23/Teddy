@@ -179,6 +179,7 @@ struct MirrorImage: View {
                         .blur(radius: 10)
                 }
             }
+            .brightness(-0.2)
         }
     }
 }
