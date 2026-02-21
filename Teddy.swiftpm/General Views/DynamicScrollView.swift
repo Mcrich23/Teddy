@@ -1,6 +1,6 @@
 //
 //  DynamicScrollView.swift
-//  Project Ravo
+//  Teddy
 //
 //  Created by Morris Richman on 12/21/25.
 //

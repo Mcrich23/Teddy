@@ -21,7 +21,7 @@ struct AboutView: View {
                             .frame(width: 100, height: 100)
                             .padding()
                         VStack(alignment: .leading) {
-                            Text("About Project\u{00a0}Teddy")
+                            Text("About\nTeddy")
                                 .font(.largeTitle)
                                 .bold()
                         }
