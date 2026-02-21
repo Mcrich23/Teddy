@@ -71,8 +71,10 @@ private struct LarrySmithBioView: View {
     
     var body: some View {
         ViewThatFits(in: .horizontal) {
-            bigImageBio
-                .frame(idealWidth: 400)
+            if UIDevice.current.userInterfaceIdiom != .phone {
+                bigImageBio
+                    .frame(idealWidth: 400)
+            }
             smallImageBio
         }
         .frame(maxWidth: .infinity)
