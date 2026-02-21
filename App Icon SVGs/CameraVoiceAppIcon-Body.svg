@@ -1,0 +1,24 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Camera Body Gradient -->
+    <linearGradient id="camBodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#27272A" />
+      <stop offset="100%" stop-color="#18181B" />
+    </linearGradient>
+
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#000000" flood-opacity="0.15" />
+    </filter>
+  </defs>
+
+  <g filter="url(#softShadow)">
+    <!-- Top Bump (Solid geometry) -->
+    <path d="M 400 240 L 624 240 C 650 240 660 260 670 300 L 700 400 L 324 400 L 354 300 C 364 260 374 240 400 240 Z" fill="url(#camBodyGrad)" />
+    
+    <!-- Camera Body (Clean rectangle with rounded corners) -->
+    <rect x="200" y="320" width="624" height="460" rx="64" fill="url(#camBodyGrad)" />
+    
+    <!-- Bottom Subtle Reflection -->
+    <path d="M 400 690 A 150 150 0 0 0 624 690 A 200 200 0 0 1 400 690 Z" fill="#FFFFFF" opacity="0.03" />
+  </g>
+</svg>

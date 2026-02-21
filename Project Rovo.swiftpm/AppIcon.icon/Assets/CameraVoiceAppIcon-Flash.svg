@@ -1,0 +1,14 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#000000" flood-opacity="0.15" />
+    </filter>
+  </defs>
+
+  <g filter="url(#softShadow)">
+    <!-- Flash (Simple geometric approach) -->
+    <circle cx="720" cy="400" r="28" fill="#3F3F46" />
+    <!-- Updating flash color slightly, avoiding collision with the primary accent -->
+    <circle cx="720" cy="400" r="16" fill="#FCD34D" opacity="0.9" />
+  </g>
+</svg>

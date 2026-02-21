@@ -1,40 +1,102 @@
 {
   "fill" : {
-    "automatic-gradient" : "extended-srgb:1.00000,0.80000,0.00000,1.00000",
-    "orientation" : {
-      "start" : {
-        "x" : 0.5,
-        "y" : 0
-      },
-      "stop" : {
-        "x" : 0.5,
-        "y" : 0.7
-      }
-    }
+    "automatic-gradient" : "extended-srgb:1.00000,0.80000,0.00000,1.00000"
   },
   "groups" : [
     {
+      "blur-material" : null,
       "layers" : [
         {
-          "blend-mode" : "normal",
-          "glass" : true,
-          "image-name" : "Icon.png",
-          "name" : "Icon",
-          "position" : {
-            "scale" : 0.85,
-            "translation-in-points" : [
-              0,
-              0
-            ]
-          }
+          "glass" : false,
+          "image-name" : "CameraVoiceAppIcon-Waveform.svg",
+          "name" : "CameraVoiceAppIcon-Waveform"
         }
       ],
+      "lighting" : "individual",
+      "name" : "Waveform",
+      "position" : {
+        "scale" : 1.1,
+        "translation-in-points" : [
+          0,
+          0
+        ]
+      },
       "shadow" : {
         "kind" : "neutral",
         "opacity" : 0.5
       },
+      "specular" : true,
       "translucency" : {
         "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "blend-mode" : "normal",
+      "blur-material" : null,
+      "layers" : [
+        {
+          "blend-mode-specializations" : [
+            {
+              "appearance" : "tinted",
+              "value" : "normal"
+            }
+          ],
+          "fill-specializations" : [
+            {
+              "appearance" : "tinted",
+              "value" : "automatic"
+            }
+          ],
+          "glass-specializations" : [
+            {
+              "appearance" : "tinted",
+              "value" : true
+            }
+          ],
+          "image-name" : "CameraVoiceAppIcon-Lens.svg",
+          "name" : "CameraVoiceAppIcon-Lens"
+        },
+        {
+          "image-name" : "CameraVoiceAppIcon-Flash.svg",
+          "name" : "CameraVoiceAppIcon-Flash"
+        },
+        {
+          "fill-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : {
+                "automatic-gradient" : "extended-gray:0.25000,1.00000"
+              }
+            },
+            {
+              "appearance" : "tinted",
+              "value" : {
+                "automatic-gradient" : "extended-srgb:1.00000,0.80000,0.00000,1.00000"
+              }
+            }
+          ],
+          "glass" : true,
+          "image-name" : "CameraVoiceAppIcon-Body.svg",
+          "name" : "CameraVoiceAppIcon-Body"
+        }
+      ],
+      "lighting" : "individual",
+      "name" : "Camera",
+      "position" : {
+        "scale" : 1.1,
+        "translation-in-points" : [
+          0,
+          0
+        ]
+      },
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : false,
         "value" : 0.5
       }
     }

@@ -1,0 +1,38 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Lens Outer Ring Gradient -->
+    <linearGradient id="lensOuterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3F3F46" />
+      <stop offset="100%" stop-color="#18181B" />
+    </linearGradient>
+
+    <!-- Lens Inner Gradient -->
+    <radialGradient id="lensInnerGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#18181B" />
+      <stop offset="100%" stop-color="#09090B" />
+    </radialGradient>
+
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#000000" flood-opacity="0.15" />
+    </filter>
+    
+    <filter id="innerShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <g filter="url(#softShadow)">
+    <!-- Lens System -->
+    <!-- Lens Base -->
+    <circle cx="512" cy="550" r="200" fill="url(#lensOuterGrad)" filter="url(#softShadow)" />
+    
+    <!-- Lens Inner Step -->
+    <circle cx="512" cy="550" r="176" fill="#09090B" />
+    
+    <!-- Lens Core -->
+    <circle cx="512" cy="550" r="160" fill="url(#lensInnerGrad)" filter="url(#innerShadow)" />
+    
+    <!-- Subtle Lens Reflection (Minimalist) -->
+    <path d="M 372 470 A 160 160 0 0 1 652 470 A 240 240 0 0 0 372 470 Z" fill="#FFFFFF" opacity="0.05" />
+  </g>
+</svg>
