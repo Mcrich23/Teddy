@@ -28,7 +28,7 @@ struct ActiveListeningButton<CameraModel: Camera>: PlatformView {
             toolUIManager.setActiveListening(!toolUIManager.isActiveListening)
         } label: {
             ZStack {
-                Text("\(Image(systemName: "microphone"))R")
+                Text("\(Image(systemName: "microphone"))T")
                     .font(.callout.weight(.semibold))
                 Image(systemName: isEnabled ? "circle" : "circle.slash")
                     .resizable()
@@ -39,6 +39,7 @@ struct ActiveListeningButton<CameraModel: Camera>: PlatformView {
                     .allowsHitTesting(false)
             }
                 .frame(width: 30, height: 30)
+                .dynamicTypeSize(.large)
         }
         .accessibilityLabel(Text(isEnabled ? "Disable Active Listening" : "Enable Active Listening"))
         .opacity(camera.prefersMinimizedUI ? 0 : 1)
