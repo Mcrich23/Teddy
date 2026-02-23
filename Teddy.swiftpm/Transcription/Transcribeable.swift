@@ -17,7 +17,7 @@ protocol Transcribeable {
 
 @Observable
 final class Transcriber: Transcribeable {
-    let speechRecognizer = SpeechRecognizer()
+    let speechRecognizer = SpeechTranscriber()
     
     var transcript: String {
         speechRecognizer.transcript
