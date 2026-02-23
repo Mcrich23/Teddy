@@ -76,6 +76,15 @@ struct CameraView<CameraModel: Camera>: PlatformView {
         }))
         .task {
             await speechRecognizer.configure()
+            if !hasOnboarded {
+                Task {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    toolUIManager.setOnboarding(true)
+                }
+            } else {
+                startTranscription()
+                ActiveListentingTip.isAvailable = true
+            }
         }
         .onChange(of: toolUIManager.isOnboarding, { oldValue, newValue in
             hasOnboarded = !newValue
@@ -103,17 +112,6 @@ struct CameraView<CameraModel: Camera>: PlatformView {
                     .animation(viewOnboardingAnimation, value: toolUIManager.isOnboarding)
                 }
         })
-        .onAppear {
-            if !hasOnboarded {
-                Task {
-                    try? await Task.sleep(for: .milliseconds(500))
-                    toolUIManager.setOnboarding(true)
-                }
-            } else {
-                startTranscription()
-                ActiveListentingTip.isAvailable = true
-            }
-        }
         .onChange(of: speechRecognizer.transcript) {
             Task {
                 let didRespond = await modelController.pendModelResponse(from: Binding(get: { speechRecognizer.transcript }, set: {_ in}))
