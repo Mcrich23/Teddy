@@ -10,6 +10,7 @@ import AVFoundation
 import CoreMedia
 import Speech
 
+@available(iOS 26.0, *)
 @MainActor
 @Observable
 final class SpeechTranscriber: Transcribeable {
@@ -25,6 +26,15 @@ final class SpeechTranscriber: Transcribeable {
     @ObservationIgnored private var converter: AVAudioConverter?
     @ObservationIgnored private var targetAudioFormat: AVAudioFormat?
     @ObservationIgnored private var isTranscribing = false
+
+    static func isCurrentLocaleDownloaded() async -> Bool {
+        guard let locale = await Speech.SpeechTranscriber.supportedLocale(equivalentTo: Locale.current) else {
+            return false
+        }
+
+        let installedLocales = await Speech.SpeechTranscriber.installedLocales
+        return installedLocales.contains { $0.identifier == locale.identifier }
+    }
 
     func startTranscribing() {
         guard !isTranscribing else { return }
