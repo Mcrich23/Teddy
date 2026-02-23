@@ -164,11 +164,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
     }
     
     private func endTranscription() {
-        do {
-            try speechRecognizer.stopTranscribing()
-        } catch {
-            print(error)
-        }
+        speechRecognizer.stopTranscribing()
     }
 }
 

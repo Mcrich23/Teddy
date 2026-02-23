@@ -14,18 +14,14 @@ import Speech
 @MainActor
 @Observable
 final class SpeechTranscriber: Transcribeable {
-    private let tapBufferSize: AVAudioFrameCount = 1024
-
     private(set) var transcript: String = ""
 
-    @ObservationIgnored private var audioEngine: AVAudioEngine?
     @ObservationIgnored private var inputContinuation: AsyncStream<AnalyzerInput>.Continuation?
     @ObservationIgnored private var analysisTask: Task<Void, Never>?
     @ObservationIgnored private var resultsTask: Task<Void, Never>?
     @ObservationIgnored private var analyzer: SpeechAnalyzer?
     @ObservationIgnored private var converter: AVAudioConverter?
     @ObservationIgnored private var targetAudioFormat: AVAudioFormat?
-    @ObservationIgnored private var isTranscribing = false
 
     static func isCurrentLocaleDownloaded() async -> Bool {
         guard let locale = await Speech.SpeechTranscriber.supportedLocale(equivalentTo: Locale.current) else {
@@ -36,80 +32,38 @@ final class SpeechTranscriber: Transcribeable {
         return installedLocales.contains { $0.identifier == locale.identifier }
     }
 
-    func startTranscribing() {
-        guard !isTranscribing else { return }
-        isTranscribing = true
-
-        Task {
-            await startStreamingTranscription()
-        }
-    }
-
-    func stopTranscribing() {
-        guard isTranscribing else { return }
-        isTranscribing = false
-
-        let currentAnalyzer = teardownTranscriptionResources()
-        Task {
-            await currentAnalyzer?.cancelAndFinishNow()
-        }
-    }
-
     func resetTranscript() {
         transcript = ""
     }
 
-    private func startStreamingTranscription() async {
-        do {
-            let transcriber = try await prepareTranscriber()
-            guard isTranscribing else { return }
+    // MARK: - Transcribeable Audio Input
 
-            try configureAudioSession()
+    func prepareForAudioInput(format: AVAudioFormat) async throws {
+        let transcriber = try await prepareTranscriber()
 
-            let engine = AVAudioEngine()
-            let inputNode = engine.inputNode
-            let inputFormat = inputNode.outputFormat(forBus: 0)
+        let analyzer = SpeechAnalyzer(modules: [transcriber])
+        self.analyzer = analyzer
 
-            let analyzer = SpeechAnalyzer(modules: [transcriber])
-            self.analyzer = analyzer
+        let selectedFormat = await bestAnalyzerFormat(for: transcriber, inputFormat: format)
+        configureConversion(from: format, to: selectedFormat)
 
-            let selectedFormat = await bestAnalyzerFormat(for: transcriber, inputFormat: inputFormat)
-            configureConversion(from: inputFormat, to: selectedFormat)
+        try await analyzer.prepareToAnalyze(in: selectedFormat)
 
-            try await analyzer.prepareToAnalyze(in: selectedFormat)
+        let (inputStream, inputBuilder) = AsyncStream.makeStream(of: AnalyzerInput.self)
+        inputContinuation = inputBuilder
 
-            let (inputStream, inputBuilder) = AsyncStream.makeStream(of: AnalyzerInput.self)
-            inputContinuation = inputBuilder
-            audioEngine = engine
-
-            startResultsTask(with: transcriber)
-            startAnalysisTask(analyzer: analyzer, inputStream: inputStream)
-            installInputTap(on: inputNode, format: inputFormat)
-
-            engine.prepare()
-            try engine.start()
-        } catch {
-            setErrorTranscript(error)
-            stopTranscribing()
-        }
+        startResultsTask(with: transcriber)
+        startAnalysisTask(analyzer: analyzer, inputStream: inputStream)
     }
 
-    private func configureAudioSession() throws {
-        let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
-#if targetEnvironment(macCatalyst)
-        try audioSession.setCategory(.playAndRecord, options: [.duckOthers, .allowBluetoothA2DP, .allowBluetoothHFP])
-#else
-        try audioSession.setCategory(.playAndRecord, options: [.duckOthers, .allowBluetoothA2DP, .bluetoothHighQualityRecording, .allowBluetoothHFP])
-#endif
-        try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+    func appendAudioBuffer(_ buffer: AVAudioPCMBuffer, at time: AVAudioTime) {
+        guard let analyzerBuffer = convertIfNeeded(buffer) else { return }
+
+        let startTime = CMTime(value: time.sampleTime, timescale: CMTimeScale(time.sampleRate))
+        inputContinuation?.yield(AnalyzerInput(buffer: analyzerBuffer, bufferStartTime: startTime))
     }
 
-    private func teardownTranscriptionResources() -> SpeechAnalyzer? {
-        audioEngine?.inputNode.removeTap(onBus: 0)
-        audioEngine?.stop()
-        audioEngine = nil
-
+    func finishAudioInput() {
         inputContinuation?.finish()
         inputContinuation = nil
 
@@ -125,8 +79,12 @@ final class SpeechTranscriber: Transcribeable {
         converter = nil
         targetAudioFormat = nil
 
-        return currentAnalyzer
+        Task {
+            await currentAnalyzer?.cancelAndFinishNow()
+        }
     }
+
+    // MARK: - Private Helpers
 
     private func prepareTranscriber() async throws -> Speech.SpeechTranscriber {
         guard await AVAudioSession.sharedInstance().hasPermissionToRecord() else {
@@ -188,19 +146,9 @@ final class SpeechTranscriber: Transcribeable {
                 guard !Task.isCancelled else { return }
                 await MainActor.run {
                     self?.setErrorTranscript(error)
-                    self?.stopTranscribing()
+                    self?.finishAudioInput()
                 }
             }
-        }
-    }
-
-    private func installInputTap(on inputNode: AVAudioInputNode, format inputFormat: AVAudioFormat) {
-        inputNode.installTap(onBus: 0, bufferSize: tapBufferSize, format: inputFormat) { [weak self] buffer, when in
-            guard let self, self.isTranscribing else { return }
-            guard let analyzerBuffer = self.convertIfNeeded(buffer) else { return }
-
-            let startTime = CMTime(value: when.sampleTime, timescale: CMTimeScale(when.sampleRate))
-            self.inputContinuation?.yield(AnalyzerInput(buffer: analyzerBuffer, bufferStartTime: startTime))
         }
     }
 

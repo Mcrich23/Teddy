@@ -239,7 +239,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
     
     _CameraUIPreview(toolUIManager: toolUIManager)
         .environment(toolUIManager)
-        .environment(SpeechRecognizer())
+        .environment(Transcriber())
 }
 
 /// A private struct only for previews designed to help manage one ``ToolEnabledUIManager`` in descendents

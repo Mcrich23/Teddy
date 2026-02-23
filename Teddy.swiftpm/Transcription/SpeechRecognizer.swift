@@ -31,10 +31,7 @@ final class SpeechRecognizer: Transcribeable {
     }
     
     private(set) var transcript: String = ""
-    var inputNoiseLevel: CGFloat = 0.0
     
-    @ObservationIgnored private var recorderTap: AVAudioEngine?
-    @ObservationIgnored private var audioEngine: AVAudioEngine?
     @ObservationIgnored private var request: SFSpeechAudioBufferRecognitionRequest?
     @ObservationIgnored private var task: SFSpeechRecognitionTask?
     @ObservationIgnored private let recognizer: SFSpeechRecognizer?
@@ -64,113 +61,50 @@ final class SpeechRecognizer: Transcribeable {
         }
     }
     
-    func startTranscribing() {
-        transcribe()
-    }
-    
     func resetTranscript() {
-        reset()
-    }
-    
-    func stopTranscribing() {
-        stop()
-    }
-    
-    /**
-     Begin transcribing audio.
-     
-     Creates a `SFSpeechRecognitionTask` that transcribes speech to text until you call `stopTranscribing()`.
-     The resulting transcription is continuously written to the published `transcript` property.
-     */
-    private func transcribe() {
-        guard let recognizer, recognizer.isAvailable else {
-            self.transcribe(RecognizerError.recognizerIsUnavailable)
-            return
-        }
-        
-        do {
-            let (audioEngine, request) = try self.prepareEngine()
-            self.audioEngine = audioEngine
-            self.request = request
-            self.task = recognizer.recognitionTask(with: request, resultHandler: { [weak self] result, error in
-                self?.recognitionHandler(audioEngine: audioEngine, result: result, error: error)
-            })
-        } catch {
-            self.reset()
-            self.transcribe(error)
-        }
-    }
-    
-    /// Reset the speech recognizer.
-    private func stop() {
-        task?.cancel()
-        audioEngine?.stop()
-        audioEngine = nil
-        request = nil
-        task = nil
-        
-        inputNoiseLevel = 0
-    }
-    
-    private func reset() {
-        stop()
-        
         transcript = ""
     }
     
-    private func prepareEngine() throws -> (AVAudioEngine, SFSpeechAudioBufferRecognitionRequest) {
-        let audioEngine = AVAudioEngine()
+    // MARK: - Transcribeable Audio Input
+    
+    func prepareForAudioInput(format: AVAudioFormat) throws {
+        guard let recognizer, recognizer.isAvailable else {
+            throw RecognizerError.recognizerIsUnavailable
+        }
         
         let request = SFSpeechAudioBufferRecognitionRequest()
         request.shouldReportPartialResults = true
         request.contextualStrings = ["Teddy"]
+        self.request = request
         
-        let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
-        
-#if targetEnvironment(macCatalyst)
-        try audioSession.setCategory(.playAndRecord, options: [.duckOthers, .allowBluetoothA2DP, .allowBluetoothHFP])
-#else
-        try audioSession.setCategory(.playAndRecord, options: [.duckOthers, .allowBluetoothA2DP, .bluetoothHighQualityRecording, .allowBluetoothHFP])
-#endif
-        
-        try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-        let inputNode = audioEngine.inputNode
-        
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] (buffer: AVAudioPCMBuffer, when: AVAudioTime) in
-            request.append(buffer)
-            self?.inputTapHandler(buffer, when: when)
-        }
-        audioEngine.prepare()
-        try audioEngine.start()
-        
-        return (audioEngine, request)
+        self.task = recognizer.recognitionTask(with: request, resultHandler: { [weak self] result, error in
+            self?.recognitionHandler(result: result, error: error)
+        })
     }
     
-    private func inputTapHandler(_ buffer: AVAudioPCMBuffer, when: AVAudioTime) {
-        let volume = self.getVolume(from: buffer, bufferSize: 1024)
-        inputNoiseLevel = CGFloat(volume)
+    func appendAudioBuffer(_ buffer: AVAudioPCMBuffer, at time: AVAudioTime) {
+        request?.append(buffer)
     }
     
-    private func recognitionHandler(audioEngine: AVAudioEngine, result: SFSpeechRecognitionResult?, error: Error?) {
-        let receivedFinalResult = result?.isFinal ?? false
-        let receivedError = error != nil
-        
-        if receivedFinalResult || receivedError {
-            audioEngine.stop()
-            audioEngine.inputNode.removeTap(onBus: 0)
-        }
-        
+    func finishAudioInput() {
+        request?.endAudio()
+        task?.cancel()
+        request = nil
+        task = nil
+    }
+    
+    // MARK: - Recognition Handling
+    
+    private func recognitionHandler(result: SFSpeechRecognitionResult?, error: Error?) {
         if let result {
             transcribe(result.bestTranscription.formattedString)
         }
     }
     
-    
     private func transcribe(_ message: String) {
         transcript = message
     }
+    
     private func transcribe(_ error: Error) {
         var errorMessage = ""
         if let error = error as? RecognizerError {
@@ -179,39 +113,6 @@ final class SpeechRecognizer: Transcribeable {
             errorMessage += error.localizedDescription
         }
         transcript = "<< \(errorMessage) >>"
-    }
-    
-    private func getVolume(from buffer: AVAudioPCMBuffer, bufferSize: Int) -> Float {
-        guard let channelData = buffer.floatChannelData?[0] else {
-            return 0
-        }
-
-        let channelDataArray = Array(UnsafeBufferPointer(start:channelData, count: bufferSize))
-
-        var outEnvelope = [Float]()
-        var envelopeState:Float = 0
-        let envConstantAtk:Float = 0.16
-        let envConstantDec:Float = 0.003
-
-        for sample in channelDataArray {
-            let rectified = abs(sample)
-
-            if envelopeState < rectified {
-                envelopeState += envConstantAtk * (rectified - envelopeState)
-            } else {
-                envelopeState += envConstantDec * (rectified - envelopeState)
-            }
-            outEnvelope.append(envelopeState)
-        }
-
-        // 0.007 is the low pass filter to prevent
-        // getting the noise entering from the microphone
-        if let maxVolume = outEnvelope.max(),
-            maxVolume > Float(0.015) {
-            return maxVolume
-        } else {
-            return 0.0
-        }
     }
 }
 
