@@ -23,7 +23,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
     
     @Environment(ToolEnabledUIManager.self) var toolUIManager
     @Environment(VoiceActivatedFMController<CameraModel>.self) var modelController
-    @EnvironmentObject var speechRecognizer: SpeechRecognizer
+    @Environment(SpeechRecognizer.self) var speechRecognizer
     
     /// The `CGRect` for the UI.
     ///
@@ -239,7 +239,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
     
     _CameraUIPreview(toolUIManager: toolUIManager)
         .environment(toolUIManager)
-        .environmentObject(SpeechRecognizer())
+        .environment(SpeechRecognizer())
 }
 
 /// A private struct only for previews designed to help manage one ``ToolEnabledUIManager`` in descendents

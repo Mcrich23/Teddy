@@ -11,7 +11,9 @@ import Speech
 import SwiftUI
 
 /// A helper for transcribing speech to text using SFSpeechRecognizer and AVAudioEngine.
-actor SpeechRecognizer: ObservableObject {
+@Observable
+@MainActor
+class SpeechRecognizer {
     enum RecognizerError: Error {
         case nilRecognizer
         case notAuthorizedToRecognize
@@ -28,14 +30,14 @@ actor SpeechRecognizer: ObservableObject {
         }
     }
     
-    @MainActor @Published private(set) var transcript: String = ""
-    @MainActor @Published var inputNoiseLevel: CGFloat = 0.0
+    private(set) var transcript: String = ""
+    var inputNoiseLevel: CGFloat = 0.0
     
-    private var recorderTap: AVAudioEngine?
-    private var audioEngine: AVAudioEngine?
-    private var request: SFSpeechAudioBufferRecognitionRequest?
-    private var task: SFSpeechRecognitionTask?
-    private let recognizer: SFSpeechRecognizer?
+    @ObservationIgnored private var recorderTap: AVAudioEngine?
+    @ObservationIgnored private var audioEngine: AVAudioEngine?
+    @ObservationIgnored private var request: SFSpeechAudioBufferRecognitionRequest?
+    @ObservationIgnored private var task: SFSpeechRecognitionTask?
+    @ObservationIgnored private let recognizer: SFSpeechRecognizer?
     
     /**
      Initializes a new speech recognizer. If this is the first time you've used the class, it
@@ -62,22 +64,16 @@ actor SpeechRecognizer: ObservableObject {
         }
     }
     
-    @MainActor func startTranscribing() {
-        Task {
-            await transcribe()
-        }
+    func startTranscribing() {
+        transcribe()
     }
     
-    @MainActor func resetTranscript() {
-        Task {
-            await reset()
-        }
+    func resetTranscript() {
+        reset()
     }
     
-    @MainActor func stopTranscribing() {
-        Task {
-            await stop()
-        }
+    func stopTranscribing() {
+        stop()
     }
     
     /**
@@ -113,17 +109,13 @@ actor SpeechRecognizer: ObservableObject {
         request = nil
         task = nil
         
-        Task { @MainActor in
-            inputNoiseLevel = 0
-        }
+        inputNoiseLevel = 0
     }
     
     private func reset() {
         stop()
         
-        Task { @MainActor in
-            transcript = ""
-        }
+        transcript = ""
     }
     
     private func prepareEngine() throws -> (AVAudioEngine, SFSpeechAudioBufferRecognitionRequest) {
@@ -156,14 +148,12 @@ actor SpeechRecognizer: ObservableObject {
         return (audioEngine, request)
     }
     
-    nonisolated private func inputTapHandler(_ buffer: AVAudioPCMBuffer, when: AVAudioTime) {
-        Task { @MainActor [buffer] in
-            let volume = await self.getVolume(from: buffer, bufferSize: 1024)
-            inputNoiseLevel = CGFloat(volume)
-        }
+    private func inputTapHandler(_ buffer: AVAudioPCMBuffer, when: AVAudioTime) {
+        let volume = self.getVolume(from: buffer, bufferSize: 1024)
+        inputNoiseLevel = CGFloat(volume)
     }
     
-    nonisolated private func recognitionHandler(audioEngine: AVAudioEngine, result: SFSpeechRecognitionResult?, error: Error?) {
+    private func recognitionHandler(audioEngine: AVAudioEngine, result: SFSpeechRecognitionResult?, error: Error?) {
         let receivedFinalResult = result?.isFinal ?? false
         let receivedError = error != nil
         
@@ -178,21 +168,17 @@ actor SpeechRecognizer: ObservableObject {
     }
     
     
-    nonisolated private func transcribe(_ message: String) {
-        Task { @MainActor in
-            transcript = message
-        }
+    private func transcribe(_ message: String) {
+        transcript = message
     }
-    nonisolated private func transcribe(_ error: Error) {
+    private func transcribe(_ error: Error) {
         var errorMessage = ""
         if let error = error as? RecognizerError {
             errorMessage += error.message
         } else {
             errorMessage += error.localizedDescription
         }
-        Task { @MainActor [errorMessage] in
-            transcript = "<< \(errorMessage) >>"
-        }
+        transcript = "<< \(errorMessage) >>"
     }
     
     private func getVolume(from buffer: AVAudioPCMBuffer, bufferSize: Int) -> Float {

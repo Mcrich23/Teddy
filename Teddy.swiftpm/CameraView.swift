@@ -11,8 +11,7 @@ import AVKit
 
 @MainActor
 struct CameraView<CameraModel: Camera>: PlatformView {
-    @StateObject var speechRecognizer = SpeechRecognizer()
-    @State private var isRecording = false
+    @State var speechRecognizer = SpeechRecognizer()
     @State var modelController: VoiceActivatedFMController<CameraModel>
     
     @Environment(\.verticalSizeClass) var verticalSizeClass
@@ -116,13 +115,14 @@ struct CameraView<CameraModel: Camera>: PlatformView {
             Task {
                 let didRespond = await modelController.pendModelResponse(from: Binding(get: { speechRecognizer.transcript }, set: {_ in}))
                 if didRespond {
+                    endTranscription()
                     startTranscription()
                 }
             }
         }
         .environment(modelController)
         .environment(toolUIManager)
-        .environmentObject(speechRecognizer)
+        .environment(speechRecognizer)
         .environment(\.startTranscription, startTranscription)
         .environment(\.endTranscription, endTranscription)
     }
@@ -156,12 +156,10 @@ struct CameraView<CameraModel: Camera>: PlatformView {
     private func startTranscription() {
         speechRecognizer.resetTranscript()
         speechRecognizer.startTranscribing()
-        isRecording = true
     }
     
     private func endTranscription() {
         speechRecognizer.stopTranscribing()
-        isRecording = false
     }
 }
 

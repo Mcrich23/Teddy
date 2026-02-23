@@ -11,7 +11,7 @@ import FoundationModels
 struct OnboardingTeddyPart2View<CameraModel: Camera>: View {
     @Environment(OnboardingStepManager.self) var stepManager
     @Environment(\.startTranscription) var startTranscription
-    @EnvironmentObject var speechRecognizer: SpeechRecognizer
+    @Environment(SpeechRecognizer.self) var speechRecognizer
     
     var body: some View {
         VStack(alignment: .leading) {
