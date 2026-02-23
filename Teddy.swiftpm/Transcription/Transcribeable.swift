@@ -1,5 +1,5 @@
 //
-//  Transcribable.swift
+//  Transcribeable.swift
 //  Teddy
 //
 //  Created by Morris Richman on 2/23/26.
@@ -8,7 +8,7 @@
 import Foundation
 
 @MainActor
-protocol Transcribable {
+protocol Transcribeable {
     var transcript: String { get }
     func startTranscribing()
     func stopTranscribing()
@@ -16,7 +16,7 @@ protocol Transcribable {
 }
 
 @Observable
-final class Transcriber: Transcribable {
+final class Transcriber: Transcribeable {
     let speechRecognizer = SpeechRecognizer()
     
     var transcript: String {
