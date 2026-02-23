@@ -11,7 +11,7 @@ import AVKit
 
 @MainActor
 struct CameraView<CameraModel: Camera>: PlatformView {
-    @State var speechRecognizer = SpeechRecognizer()
+    @State var speechRecognizer = Transcriber()
     @State var modelController: VoiceActivatedFMController<CameraModel>
     
     @Environment(\.verticalSizeClass) var verticalSizeClass

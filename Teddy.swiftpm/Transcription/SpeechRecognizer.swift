@@ -13,7 +13,7 @@ import SwiftUI
 /// A helper for transcribing speech to text using SFSpeechRecognizer and AVAudioEngine.
 @Observable
 @MainActor
-class SpeechRecognizer {
+final class SpeechRecognizer: Transcribable {
     enum RecognizerError: Error {
         case nilRecognizer
         case notAuthorizedToRecognize

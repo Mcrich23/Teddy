@@ -23,7 +23,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
     
     @Environment(ToolEnabledUIManager.self) var toolUIManager
     @Environment(VoiceActivatedFMController<CameraModel>.self) var modelController
-    @Environment(SpeechRecognizer.self) var speechRecognizer
+    @Environment(Transcriber.self) var speechRecognizer
     
     /// The `CGRect` for the UI.
     ///
