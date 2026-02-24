@@ -19,13 +19,13 @@ protocol Transcribeable {
     func appendAudioBuffer(_ buffer: AVAudioPCMBuffer, at time: AVAudioTime)
     
     /// Called when the audio stream ends so the conformer can finalize.
-    func finishAudioInput()
+    func finishAudioInput() async
     
     func resetTranscript() throws
 }
 
 @Observable
-final class Transcriber {
+final class Transcriber: @unchecked Sendable {
     var speechRecognizer: Transcribeable?
     var inputNoiseLevel: CGFloat = 0.0
     
@@ -58,22 +58,22 @@ final class Transcriber {
         do {
             try await startAudioEngine(for: speechRecognizer)
         } catch {
-            stopTranscribing()
+            await stopTranscribing()
         }
     }
     
-    func stopTranscribing() {
+    func stopTranscribing() async {
         stopAudioEngine()
-        speechRecognizer?.finishAudioInput()
+        await speechRecognizer?.finishAudioInput()
         inputNoiseLevel = 0
     }
     
-    func resetTranscript() throws {
+    func resetTranscript() async throws {
         guard let speechRecognizer else {
             throw TranscriberError.noSpeechRecognizer
         }
         
-        stopTranscribing()
+        await stopTranscribing()
         try speechRecognizer.resetTranscript()
     }
     

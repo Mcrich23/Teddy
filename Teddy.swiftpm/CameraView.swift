@@ -113,10 +113,9 @@ struct CameraView<CameraModel: Camera>: PlatformView {
                 }
         })
         .onChange(of: speechRecognizer.transcript) {
-            Task {
-                let didRespond = await modelController.pendModelResponse(from: Binding(get: { speechRecognizer.transcript }, set: {_ in}))
+            Task { [speechRecognizer] in
+                let didRespond = await modelController.pendModelResponse(from: Binding(get: { speechRecognizer.transcript }, set: {_ in}), endTranscription: speechRecognizer.stopTranscribing)
                 if didRespond {
-                    endTranscription()
                     startTranscription()
                 }
             }
@@ -157,7 +156,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
     private func startTranscription() {
         Task { [speechRecognizer] in
             do {
-                try speechRecognizer.resetTranscript()
+                try await speechRecognizer.resetTranscript()
                 try await speechRecognizer.startTranscribing()
             } catch {
                 print(error)
@@ -166,7 +165,9 @@ struct CameraView<CameraModel: Camera>: PlatformView {
     }
     
     private func endTranscription() {
-        speechRecognizer.stopTranscribing()
+        Task { [speechRecognizer] in
+            await speechRecognizer.stopTranscribing()
+        }
     }
 }
 

@@ -52,7 +52,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     
     func getCommand(from transcript: String?) -> String? {
         guard (!toolUIManager.isActiveListening && !isTemporarilyActiveListening) || camera.captureActivity.isRecording else {
-            return transcript
+            return transcript?.trimmingCharacters(in: .punctuationCharacters)
         }
         
         var transcript = transcript
@@ -61,12 +61,12 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             transcript = transcript?.replacingOccurrences(of: alt, with: "(teddy)\(alt)").replacingOccurrences(of: alt.lowercased(), with: "(teddy)\(alt.lowercased())")
         }
         
-        return transcript?.components(separatedBy: "(teddy)").dropFirst().joined(separator: "(teddy)").replacingOccurrences(of: "(teddy)", with: "")
+        return transcript?.components(separatedBy: "(teddy)").dropFirst().joined(separator: "(teddy)").replacingOccurrences(of: "(teddy)", with: "").trimmingCharacters(in: .punctuationCharacters)
     }
 
     /// - Returns:
     /// `true` if the transcription should be reset.
-    func pendModelResponse(from boundValue: Binding<String>) async -> Bool {
+    func pendModelResponse(from boundValue: Binding<String>, endTranscription: @escaping () async -> Void) async -> Bool {
         let transcript = boundValue.wrappedValue
         try? await Task.sleep(for: .milliseconds(1500))
         
@@ -74,7 +74,9 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             return false
         }
         
-        if transcript.replacingOccurrences(of: teddyAlts, with: "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        await endTranscription()
+        
+        if transcript.replacingOccurrences(of: teddyAlts, with: "").trimmingCharacters(in: .whitespacesAndNewlines).trimmingCharacters(in: .punctuationCharacters).isEmpty {
             isTemporarilyActiveListening = true
             try? await sounds.playStartListeningSound()
             return true

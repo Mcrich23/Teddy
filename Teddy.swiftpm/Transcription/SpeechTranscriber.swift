@@ -21,6 +21,7 @@ final class SpeechTranscriber: Transcribeable, @unchecked Sendable {
     @ObservationIgnored private var analyzer: SpeechAnalyzer?
     @ObservationIgnored private var converter: AVAudioConverter?
     @ObservationIgnored private var targetAudioFormat: AVAudioFormat?
+    @ObservationIgnored private var lastBufferTime: CMTime?
 
     static func isCurrentLocaleDownloaded() async -> Bool {
         guard let locale = await Speech.SpeechTranscriber.supportedLocale(equivalentTo: Locale.current) else {
@@ -59,28 +60,33 @@ final class SpeechTranscriber: Transcribeable, @unchecked Sendable {
         guard let analyzerBuffer = convertIfNeeded(buffer) else { return }
 
         let startTime = CMTime(value: time.sampleTime, timescale: CMTimeScale(time.sampleRate))
+        lastBufferTime = startTime
         inputContinuation?.yield(AnalyzerInput(buffer: analyzerBuffer, bufferStartTime: startTime))
     }
 
-    func finishAudioInput() {
+    func finishAudioInput() async {
         inputContinuation?.finish()
         inputContinuation = nil
 
-        analysisTask?.cancel()
-        analysisTask = nil
-
-        resultsTask?.cancel()
-        resultsTask = nil
-
         let currentAnalyzer = analyzer
         analyzer = nil
-
+        let time = lastBufferTime
+        lastBufferTime = nil
         converter = nil
         targetAudioFormat = nil
 
-        Task {
+        // Finalize to get the non-volatile result, or cancel if no audio was received
+        if let time {
+            try? await currentAnalyzer?.finalizeAndFinish(through: time)
+        } else {
             await currentAnalyzer?.cancelAndFinishNow()
         }
+
+        // Wait for tasks to complete naturally after analyzer finishes
+        await analysisTask?.value
+        analysisTask = nil
+        await resultsTask?.value
+        resultsTask = nil
     }
 
     // MARK: - Private Helpers
@@ -144,7 +150,7 @@ final class SpeechTranscriber: Transcribeable, @unchecked Sendable {
             } catch {
                 guard !Task.isCancelled else { return }
                 self?.setErrorTranscript(error)
-                self?.finishAudioInput()
+                await self?.finishAudioInput()
             }
         }
     }
