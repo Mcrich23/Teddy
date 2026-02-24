@@ -247,7 +247,7 @@ private struct _CameraUIPreview: View {
     @State var model: VoiceActivatedFMController<PreviewCameraModel>
     
     init(toolUIManager: ToolEnabledUIManager) {
-        self.model = VoiceActivatedFMController<PreviewCameraModel>(camera: PreviewCameraModel(), toolUIManager: toolUIManager)
+        self.model = VoiceActivatedFMController<PreviewCameraModel>(camera: PreviewCameraModel(), toolUIManager: toolUIManager, willOnboard: false)
     }
     
     var body: some View {

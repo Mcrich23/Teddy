@@ -28,7 +28,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
         self.camera = camera
         let toolUIManager = ToolEnabledUIManager()
         self.toolUIManager = toolUIManager
-        self.modelController = VoiceActivatedFMController(camera: camera, toolUIManager: toolUIManager)
+        self.modelController = VoiceActivatedFMController(camera: camera, toolUIManager: toolUIManager, willOnboard: !UserDefaults.standard.bool(forKey: "hasOnboarded"))
     }
     
     // The direction a person swipes on the camera preview or mode selector.
@@ -102,6 +102,12 @@ struct CameraView<CameraModel: Camera>: PlatformView {
         })
         .onChange(of: toolUIManager.isOnboarding, { oldValue, newValue in
             hasOnboarded = !newValue
+            if !newValue {
+                modelController.restartSession(showAlert: false)
+                Task {
+                    try? await speechRecognizer.resetTranscript()
+                }
+            }
             Task {
                 try? await Task.sleep(for: .seconds(1))
                 isShowingOnboarding = newValue

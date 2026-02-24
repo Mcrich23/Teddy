@@ -30,13 +30,21 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         }
     }
     
-    init(camera: CameraModel, toolUIManager: ToolEnabledUIManager) {
+    init(camera: CameraModel, toolUIManager: ToolEnabledUIManager, willOnboard: Bool) {
         self.camera = camera
         self.toolUIManager = toolUIManager
-        self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: llmInstructions)
+        
+        // Only provide onboarding tools when onboarding
+        if willOnboard {
+            self.session = LanguageModelSession(tools: [DismissOnboardingTool(uiManager: toolUIManager)], instructions: llmInstructions)
+        } else {
+            self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: llmInstructions)
+        }
+        self.lastStartDate = .now
     }
     
     var isResponding: Bool { session.isResponding }
+    private var lastStartDate: Date
     
     var respondTask: Task<Void, Never>?
     var respondingPrompt: String?
@@ -70,6 +78,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     /// `true` if the transcription should be reset.
     @discardableResult
     func pendModelResponse(with transcriber: Transcriber) async -> Bool {
+        let pendDate = Date()
         var transcript = transcriber.transcript
         
         // Wait for input level to be minimal suggesting input has stopped
@@ -115,6 +124,11 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         let transcriptAllowsCompletion = await transcriptTimer.value
         
         guard transcriptAllowsCompletion || audioAllowsCompletion else {
+            return false
+        }
+        
+        // Ensure that model was not restarted between pend time and now
+        guard lastStartDate < pendDate else {
             return false
         }
         
@@ -167,8 +181,11 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             
             do {
                 try await streamModelResponse(from: command)
+                guard !Task.isCancelled else { return }
+                
                 try? await sounds.playFinishActionSound()
             } catch {
+                guard !Task.isCancelled else { return }
                 print(error)
                 try? await sounds.playErrorSound()
             }
@@ -197,19 +214,25 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     
     func streamModelResponse(from transcript: String) async throws {
         guard !isResponding else { throw FMErrors.modelBusy }
+        guard !Task.isCancelled else { return }
         let stream = session.streamResponse(to: transcript)
         
         for try await chunk in stream where chunk.content != "null" {
+            guard !Task.isCancelled else { return }
+            
             modelResponse = try? AttributedString(styledMarkdown: chunk.content)
         }
     }
     
     // MARK: – Tool Stuff
     func restartSession(showAlert: Bool = true) {
+        respondTask?.cancel()
+        
         self.session = LanguageModelSession(tools: Self.getTools(camera: camera, toolUIManager: toolUIManager), instructions: llmInstructions)
         if showAlert {
             self.modelResponse = AttributedString("Session Restarted.")
         }
+        self.lastStartDate = .now
     }
     
     /// Generates an array of tools to use.
@@ -225,7 +248,6 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             SetHDRTool(camera: camera, uiManager: toolUIManager),
             SetZoomTool(camera: camera, uiManager: toolUIManager),
             SetActiveListeningTool(camera: camera, uiManager: toolUIManager),
-            DismissOnboardingTool(uiManager: toolUIManager),
             SetAssistantName(uiManager: toolUIManager)
 //            GetAvailableCamerasTool(camera: camera, uiManager: toolUIManager),
 //            GetZoomFactorsTool(camera: camera, uiManager: toolUIManager),
@@ -327,7 +349,7 @@ extension String {
 //    }
 //}
 
-private let llmInstructions: String = "You are Teddy, a helpful camera app designed to help people with fine motor issues use a camera with powerfull advanced multi-chain action capabilities. Please note that all input you receive has been translated from voice to text."
+private let llmInstructions: String = "You are Teddy, a helpful camera app designed to help people with fine motor issues use a camera with powerfull advanced multi-chain action capabilities. Please note that all input you receive has been translated from voice to text. Do not change the name unless you are specifically told your new name."
 
 @Observable
 @MainActor
@@ -357,6 +379,7 @@ final class ToolEnabledUIManager {
     /// Tracks if the user has onboarded
     private(set) var isOnboarding: Bool = false
     
+    @MainActor
     func setOnboarding(_ isOnboarding: Bool) {
         self.isOnboarding = isOnboarding
     }
