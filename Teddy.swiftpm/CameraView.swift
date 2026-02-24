@@ -113,8 +113,8 @@ struct CameraView<CameraModel: Camera>: PlatformView {
                 }
         })
         .onChange(of: speechRecognizer.transcript) {
-            Task { [speechRecognizer] in
-                let didRespond = await modelController.pendModelResponse(from: Binding(get: { speechRecognizer.transcript }, set: {_ in}), endTranscription: speechRecognizer.stopTranscribing)
+            Task {
+                let didRespond = await modelController.pendModelResponse(with: speechRecognizer)
                 if didRespond {
                     startTranscription()
                 }

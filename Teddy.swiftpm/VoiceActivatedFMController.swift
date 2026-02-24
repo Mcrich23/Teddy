@@ -66,26 +66,28 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
 
     /// - Returns:
     /// `true` if the transcription should be reset.
-    func pendModelResponse(from boundValue: Binding<String>, endTranscription: @escaping () async -> Void) async -> Bool {
-        let transcript = boundValue.wrappedValue
+    func pendModelResponse(with transcriber: Transcriber) async -> Bool {
+        let transcript = transcriber.transcript
         try? await Task.sleep(for: .milliseconds(1500))
         
-        guard transcript == boundValue.wrappedValue, !transcript.isEmpty else {
+        guard transcript == transcriber.transcript, !transcript.isEmpty else {
             return false
         }
         
-        await endTranscription()
+        await transcriber.stopTranscribing()
+        let finalTranscript = transcriber.transcript
+        try? await transcriber.resetTranscript()
         
-        if transcript.replacingOccurrences(of: teddyAlts, with: "").trimmingCharacters(in: .whitespacesAndNewlines).trimmingCharacters(in: .punctuationCharacters).isEmpty {
+        if finalTranscript.replacingOccurrences(of: teddyAlts, with: "").trimmingCharacters(in: .whitespacesAndNewlines).trimmingCharacters(in: .punctuationCharacters).isEmpty {
             isTemporarilyActiveListening = true
             try? await sounds.playStartListeningSound()
             return true
         }
                 
-        guard let command = getCommand(from: transcript), command != getCommand(from: respondingPrompt) else {
-            let latterTranscript = boundValue.wrappedValue
+        guard let command = getCommand(from: finalTranscript), command != getCommand(from: respondingPrompt) else {
+            let latterTranscript = finalTranscript
             try? await Task.sleep(for: .milliseconds(1500))
-            if latterTranscript == boundValue.wrappedValue, !latterTranscript.isEmpty {
+            if latterTranscript == finalTranscript, !latterTranscript.isEmpty {
                 return true
             }
             return false
