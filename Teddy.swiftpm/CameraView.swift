@@ -16,6 +16,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
     
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.scenePhase) var scenePhase
     
     @State var camera: CameraModel
     @State var toolUIManager: ToolEnabledUIManager
@@ -74,7 +75,12 @@ struct CameraView<CameraModel: Camera>: PlatformView {
         .simultaneousGesture(TapGesture().onEnded({ _ in
             modelController.stopTemporaryListening()
         }))
-        .task { [speechRecognizer] in
+        .onChange(of: scenePhase, { _, newValue in
+            if newValue == .active && hasOnboarded {
+                startTranscription()
+            }
+        })
+        .task {
             await speechRecognizer.configure()
             if !hasOnboarded {
                 Task {
