@@ -72,13 +72,9 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         let transcript = transcriber.transcript
         try? await Task.sleep(for: .milliseconds(1500))
         
-        guard transcript == transcriber.transcript, !transcript.isEmpty else {
+        guard transcript == transcriber.transcript, !transcript.isEmpty, let finalTranscript = try? await transcriber.resetTranscript() else {
             return false
         }
-        
-        await transcriber.stopTranscribing()
-        let finalTranscript = transcriber.transcript
-        try? await transcriber.resetTranscript()
         
         if finalTranscript.replacingOccurrences(of: teddyAlts, with: "").trimmingCharacters(in: .whitespacesAndNewlines).trimmingCharacters(in: .punctuationCharacters).isEmpty {
             isTemporarilyActiveListening = true

@@ -171,7 +171,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
     }
     
     private func endTranscription() {
-        Task { [speechRecognizer] in
+        Task {
             await speechRecognizer.stopTranscribing()
         }
     }

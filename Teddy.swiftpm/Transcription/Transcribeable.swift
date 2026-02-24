@@ -68,13 +68,19 @@ final class Transcriber: @unchecked Sendable {
         inputNoiseLevel = 0
     }
     
-    func resetTranscript() async throws {
+    /// Clears the transcript
+    /// - Returns:
+    /// The final version of the existing transcript
+    func resetTranscript() async throws -> String {
         guard let speechRecognizer else {
             throw TranscriberError.noSpeechRecognizer
         }
         
-        await stopTranscribing()
+        await speechRecognizer.finishAudioInput()
+        let transcript = speechRecognizer.transcript
         try speechRecognizer.resetTranscript()
+        
+        return transcript
     }
     
     // MARK: - Audio Engine
@@ -88,7 +94,7 @@ final class Transcriber: @unchecked Sendable {
 #if targetEnvironment(macCatalyst)
         try audioSession.setCategory(.playAndRecord, options: [.duckOthers, .allowBluetoothA2DP, .allowBluetoothHFP])
 #else
-        try audioSession.setCategory(.playAndRecord, options: [.duckOthers, .allowBluetoothA2DP, .bluetoothHighQualityRecording, .allowBluetoothHFP])
+        try audioSession.setCategory(.playAndRecord, mode: .voiceChat, options: [.duckOthers, .allowBluetoothA2DP, .bluetoothHighQualityRecording, .allowBluetoothHFP])
 #endif
         
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
@@ -111,6 +117,8 @@ final class Transcriber: @unchecked Sendable {
     }
     
     private func stopAudioEngine() {
+        guard audioEngine != nil else { return }
+        
         audioEngine?.inputNode.removeTap(onBus: 0)
         audioEngine?.stop()
         audioEngine = nil
