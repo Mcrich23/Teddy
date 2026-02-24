@@ -14,8 +14,8 @@
             filePath = "Transcription/Transcribeable.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "30"
-            endingLineNumber = "30"
+            startingLineNumber = "32"
+            endingLineNumber = "32"
             landmarkName = "Transcriber"
             landmarkType = "3">
          </BreakpointContent>
@@ -30,8 +30,8 @@
             filePath = "Transcription/Transcribeable.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "124"
-            endingLineNumber = "124"
+            startingLineNumber = "134"
+            endingLineNumber = "134"
             landmarkName = "startAudioEngine(for:)"
             landmarkType = "7">
             <Actions>
@@ -42,6 +42,36 @@
                   </ActionContent>
                </BreakpointActionProxy>
             </Actions>
+            <Locations>
+               <Location
+                  uuid = "AFE95735-950F-41FC-BD42-19BDA184003E - 615bcbefb5ae4e7a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for Teddy.Transcriber.startAudioEngine(for: Teddy.Transcribeable) async throws -&gt; ()"
+                  moduleName = "Teddy.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/mcrich/Xcode/Swift%20Student%20Challenges/Project-Rovo/Teddy.swiftpm/Transcription/Transcribeable.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "124"
+                  endingLineNumber = "124">
+               </Location>
+               <Location
+                  uuid = "AFE95735-950F-41FC-BD42-19BDA184003E - 615bcbefb5ae4f30"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for Teddy.Transcriber.startAudioEngine(for: Teddy.Transcribeable) async throws -&gt; ()"
+                  moduleName = "Teddy.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/mcrich/Xcode/Swift%20Student%20Challenges/Project-Rovo/Teddy.swiftpm/Transcription/Transcribeable.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "134"
+                  endingLineNumber = "134">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -102,8 +132,8 @@
             filePath = "CameraView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "93"
-            endingLineNumber = "93"
+            startingLineNumber = "94"
+            endingLineNumber = "94"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -118,8 +148,8 @@
             filePath = "Transcription/Transcribeable.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "68"
-            endingLineNumber = "68"
+            startingLineNumber = "70"
+            endingLineNumber = "70"
             landmarkName = "stopTranscribing()"
             landmarkType = "7">
          </BreakpointContent>
@@ -134,8 +164,8 @@
             filePath = "Transcription/Transcribeable.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "130"
-            endingLineNumber = "130"
+            startingLineNumber = "140"
+            endingLineNumber = "140"
             landmarkName = "stopAudioEngine()"
             landmarkType = "7">
          </BreakpointContent>
@@ -150,8 +180,8 @@
             filePath = "Transcription/Transcribeable.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "91"
-            endingLineNumber = "91"
+            startingLineNumber = "101"
+            endingLineNumber = "101"
             landmarkName = "resetTranscript()"
             landmarkType = "7">
          </BreakpointContent>

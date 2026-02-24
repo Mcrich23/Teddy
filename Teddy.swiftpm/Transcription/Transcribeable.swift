@@ -22,6 +22,8 @@ protocol Transcribeable {
     func finishAudioInput() async
     
     func resetTranscript() throws
+    
+    func setAssistantName(_ name: String) async throws
 }
 
 @Observable
@@ -69,6 +71,14 @@ final class Transcriber: @unchecked Sendable {
         await speechRecognizer?.finishAudioInput()
         inputNoiseLevel = 0
         self.isTranscribing = false
+    }
+    
+    func setAssistantName(_ name: String) async throws {
+        guard let speechRecognizer else {
+            throw TranscriberError.noSpeechRecognizer
+        }
+        
+        try await speechRecognizer.setAssistantName(name)
     }
     
     /// Clears the transcript

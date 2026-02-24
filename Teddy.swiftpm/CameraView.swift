@@ -84,6 +84,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
         })
         .task {
             await speechRecognizer.configure()
+            try? await speechRecognizer.setAssistantName(toolUIManager.assistantName)
             if !hasOnboarded {
                 Task {
                     try? await Task.sleep(for: .milliseconds(500))
@@ -94,6 +95,11 @@ struct CameraView<CameraModel: Camera>: PlatformView {
                 ActiveListentingTip.isAvailable = true
             }
         }
+        .onChange(of: toolUIManager.assistantName, { _, newValue in
+            Task {
+                try? await speechRecognizer.setAssistantName(newValue)
+            }
+        })
         .onChange(of: toolUIManager.isOnboarding, { oldValue, newValue in
             hasOnboarded = !newValue
             Task {

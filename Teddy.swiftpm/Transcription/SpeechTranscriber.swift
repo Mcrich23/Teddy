@@ -35,6 +35,13 @@ final class SpeechTranscriber: Transcribeable, @unchecked Sendable {
     func resetTranscript() {
         transcript = ""
     }
+    
+    func setAssistantName(_ name: String) async throws {
+        let context = AnalysisContext()
+        context.contextualStrings = [.general: [name]]
+        
+        try await analyzer?.setContext(context)
+    }
 
     // MARK: - Transcribeable Audio Input
 

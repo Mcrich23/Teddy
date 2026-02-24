@@ -64,6 +64,10 @@ final class SpeechRecognizer: Transcribeable {
         transcript = ""
     }
     
+    func setAssistantName(_ name: String) async {
+        request?.contextualStrings = [name]
+    }
+    
     // MARK: - Transcribeable Audio Input
     
     func prepareForAudioInput(format: AVAudioFormat) throws {
@@ -73,7 +77,6 @@ final class SpeechRecognizer: Transcribeable {
         
         let request = SFSpeechAudioBufferRecognitionRequest()
         request.shouldReportPartialResults = true
-        request.contextualStrings = ["Teddy"]
         self.request = request
         
         self.task = recognizer.recognitionTask(with: request, resultHandler: { [weak self] result, error in
