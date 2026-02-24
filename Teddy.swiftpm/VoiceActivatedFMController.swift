@@ -71,7 +71,6 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     @discardableResult
     func pendModelResponse(with transcriber: Transcriber) async -> Bool {
         var transcript = transcriber.transcript
-        var canContinue = true
         
         // Wait for input level to be minimal suggesting input has stopped
         let audioTimer = Task {
@@ -80,31 +79,42 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
                 inputNoiseLevel = transcriber.inputNoiseLevel
                 try? await Task.sleep(for: .milliseconds(100))
                 
-                if inputNoiseLevel > 10 {
-                    canContinue = false
-                    return
+                if inputNoiseLevel > 0.35 {
+                    return false
                 }
             }
+            
+            return true
         }
         
         // Race on transcript finishing suggesting the person has stopped talking
         let transcriptTimer = Task {
             try? await Task.sleep(for: .milliseconds(1500))
+            guard !Task.isCancelled else {
+                return true
+            }
             
             guard transcript == transcriber.transcript, !transcript.isEmpty, let finalTranscript = try? await transcriber.resetTranscript() else {
-                canContinue = false
-                return
+                return false
             }
+            
+            guard !Task.isCancelled else {
+                return true
+            }
+            
             transcript = finalTranscript
-        }
-        
-        _ = await audioTimer.result
-        guard canContinue else {
-            transcriptTimer.cancel()
             return false
         }
-        _ = await transcriptTimer.result
-        guard canContinue else {
+        
+        let audioAllowsCompletion = await audioTimer.value
+        
+        if audioAllowsCompletion {
+            transcriptTimer.cancel()
+        }
+        
+        let transcriptAllowsCompletion = await transcriptTimer.value
+        
+        guard transcriptAllowsCompletion || audioAllowsCompletion else {
             return false
         }
         
