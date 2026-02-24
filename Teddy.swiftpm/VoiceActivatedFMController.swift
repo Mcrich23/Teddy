@@ -68,24 +68,56 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
 
     /// - Returns:
     /// `true` if the transcription should be reset.
+    @discardableResult
     func pendModelResponse(with transcriber: Transcriber) async -> Bool {
-        let transcript = transcriber.transcript
-        try? await Task.sleep(for: .milliseconds(1500))
+        var transcript = transcriber.transcript
+        var canContinue = true
         
-        guard transcript == transcriber.transcript, !transcript.isEmpty, let finalTranscript = try? await transcriber.resetTranscript() else {
+        // Wait for input level to be minimal suggesting input has stopped
+        let audioTimer = Task {
+            var inputNoiseLevel = transcriber.inputNoiseLevel
+            for _ in 0..<8 {
+                inputNoiseLevel = transcriber.inputNoiseLevel
+                try? await Task.sleep(for: .milliseconds(100))
+                
+                if inputNoiseLevel > 10 {
+                    canContinue = false
+                    return
+                }
+            }
+        }
+        
+        // Race on transcript finishing suggesting the person has stopped talking
+        let transcriptTimer = Task {
+            try? await Task.sleep(for: .milliseconds(1500))
+            
+            guard transcript == transcriber.transcript, !transcript.isEmpty, let finalTranscript = try? await transcriber.resetTranscript() else {
+                canContinue = false
+                return
+            }
+            transcript = finalTranscript
+        }
+        
+        _ = await audioTimer.result
+        guard canContinue else {
+            transcriptTimer.cancel()
+            return false
+        }
+        _ = await transcriptTimer.result
+        guard canContinue else {
             return false
         }
         
-        if finalTranscript.replacingOccurrences(of: teddyAlts, with: "").trimmingCharacters(in: .whitespacesAndNewlines).trimmingCharacters(in: .punctuationCharacters).isEmpty {
+        if transcript.replacingOccurrences(of: teddyAlts, with: "").trimmingCharacters(in: .whitespacesAndNewlines).trimmingCharacters(in: .punctuationCharacters).isEmpty {
             isTemporarilyActiveListening = true
             try? await sounds.playStartListeningSound()
             return true
         }
                 
-        guard let command = getCommand(from: finalTranscript), command != getCommand(from: respondingPrompt) else {
-            let latterTranscript = finalTranscript
+        guard let command = getCommand(from: transcript), command != getCommand(from: respondingPrompt) else {
+            let latterTranscript = transcript
             try? await Task.sleep(for: .milliseconds(1500))
-            if latterTranscript == finalTranscript, !latterTranscript.isEmpty {
+            if latterTranscript == transcript, !latterTranscript.isEmpty {
                 return true
             }
             return false

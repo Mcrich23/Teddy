@@ -24,9 +24,9 @@ actor Sounds {
         var err: Error?
         do {
             // Respect silent mode by temporarily setting the category to ambient.
-            try AVAudioSession.sharedInstance().setActive(false)
-            try AVAudioSession.sharedInstance().setCategory(.ambient)
-            try AVAudioSession.sharedInstance().setActive(true)
+//            try AVAudioSession.sharedInstance().setActive(false)
+//            try AVAudioSession.sharedInstance().setCategory(.ambient)
+//            try AVAudioSession.sharedInstance().setActive(true)
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer?.currentTime = 0
             audioPlayer?.volume = 1

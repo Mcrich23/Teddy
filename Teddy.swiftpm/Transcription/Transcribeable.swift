@@ -28,6 +28,7 @@ protocol Transcribeable {
 final class Transcriber: @unchecked Sendable {
     var speechRecognizer: Transcribeable?
     var inputNoiseLevel: CGFloat = 0.0
+    private(set) var isTranscribing: Bool = false
     
     @ObservationIgnored private var audioEngine: AVAudioEngine?
     
@@ -60,12 +61,14 @@ final class Transcriber: @unchecked Sendable {
         } catch {
             await stopTranscribing()
         }
+        self.isTranscribing = true
     }
     
     func stopTranscribing() async {
         stopAudioEngine()
         await speechRecognizer?.finishAudioInput()
         inputNoiseLevel = 0
+        self.isTranscribing = false
     }
     
     /// Clears the transcript
@@ -79,6 +82,11 @@ final class Transcriber: @unchecked Sendable {
         await speechRecognizer.finishAudioInput()
         let transcript = speechRecognizer.transcript
         try speechRecognizer.resetTranscript()
+        
+        if let audioEngine {
+            let recordingFormat = audioEngine.inputNode.outputFormat(forBus: 0)
+            try await speechRecognizer.prepareForAudioInput(format: recordingFormat)
+        }
         
         return transcript
     }
@@ -94,7 +102,7 @@ final class Transcriber: @unchecked Sendable {
 #if targetEnvironment(macCatalyst)
         try audioSession.setCategory(.playAndRecord, options: [.duckOthers, .allowBluetoothA2DP, .allowBluetoothHFP])
 #else
-        try audioSession.setCategory(.playAndRecord, mode: .voiceChat, options: [.duckOthers, .allowBluetoothA2DP, .bluetoothHighQualityRecording, .allowBluetoothHFP])
+        try audioSession.setCategory(.playAndRecord, options: [.duckOthers, .allowBluetoothA2DP, .bluetoothHighQualityRecording, .allowBluetoothHFP])
 #endif
         
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
@@ -117,8 +125,6 @@ final class Transcriber: @unchecked Sendable {
     }
     
     private func stopAudioEngine() {
-        guard audioEngine != nil else { return }
-        
         audioEngine?.inputNode.removeTap(onBus: 0)
         audioEngine?.stop()
         audioEngine = nil

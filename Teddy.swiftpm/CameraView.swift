@@ -76,7 +76,9 @@ struct CameraView<CameraModel: Camera>: PlatformView {
             modelController.stopTemporaryListening()
         }))
         .onChange(of: scenePhase, { _, newValue in
-            if newValue == .active && hasOnboarded {
+            guard hasOnboarded else { return }
+            
+            if newValue == .active && speechRecognizer.isTranscribing {
                 startTranscription()
             }
         })
@@ -120,10 +122,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
         })
         .onChange(of: speechRecognizer.transcript) {
             Task {
-                let didRespond = await modelController.pendModelResponse(with: speechRecognizer)
-                if didRespond {
-                    startTranscription()
-                }
+                await modelController.pendModelResponse(with: speechRecognizer)
             }
         }
         .environment(modelController)
@@ -162,7 +161,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
     private func startTranscription() {
         Task { [speechRecognizer] in
             do {
-                try await speechRecognizer.resetTranscript()
+                await speechRecognizer.stopTranscribing()
                 try await speechRecognizer.startTranscribing()
             } catch {
                 print(error)
