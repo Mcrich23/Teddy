@@ -23,8 +23,14 @@ struct CameraPreview<CameraType: Camera>: View {
         _CameraPreview(camera: camera, imageTracker: imageTracker)
             .preferredSheetGlassColorScheme(preferredSheetGlassColorScheme)
             .onReceive(timer) { _ in
-                guard let image = imageTracker.image, image.glassColorScheme != preferredSheetGlassColorScheme else { return }
-                preferredSheetGlassColorScheme = image.glassColorScheme
+                let image = imageTracker.image
+                Task.detached { [image, preferredSheetGlassColorScheme] in
+                    guard let image, image.glassColorScheme != preferredSheetGlassColorScheme else { return }
+                    let colorScheme = image.glassColorScheme
+                    await MainActor.run {
+                        self.preferredSheetGlassColorScheme = colorScheme
+                    }
+                }
             }
     }
 }
@@ -384,7 +390,7 @@ extension UIImage {
     }
     
     var isDark: Bool {
-        brightness < 75
+        brightness < 100
     }
     
     var glassColorScheme: ColorScheme {
