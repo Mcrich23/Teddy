@@ -195,7 +195,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     ///  `true` if a hardcoded task was used. Otherwise, it returns `false`.
     private func useHardCodedTasksIfPossible(command: String) async throws -> Bool {
         // Remove wake words and whitespace from command.
-        let command = command.lowercased().replacingOccurrences(of: teddyAlts.map({ $0.lowercased() }), with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let command = command.lowercased().replacingOccurrences(of: teddyAlts.map({ $0.lowercased() }), with: "").trimmingCharacters(in: .whitespacesAndNewlines).trimmingCharacters(in: .punctuationCharacters)
         
         if command.hasSuffix("flip camera") || command.hasSuffix("switch camera") || command.hasSuffix("change camera") || command.hasSuffix("toggle camera") || command.hasSuffix("flip the camera") || command.hasSuffix("switch the camera") || command.hasSuffix("change the camera") || command.hasSuffix("toggle the camera") {
             try await flipCamera()

@@ -8,7 +8,6 @@
 import Foundation
 import AVFoundation
 
-@MainActor
 protocol Transcribeable {
     var transcript: String { get }
     
@@ -26,7 +25,6 @@ protocol Transcribeable {
 }
 
 @Observable
-@MainActor
 final class Transcriber {
     var speechRecognizer: Transcribeable?
     var inputNoiseLevel: CGFloat = 0.0
@@ -42,24 +40,25 @@ final class Transcriber {
             }
         }
         
-        speechRecognizer = SpeechRecognizer()
+        let speechRecognizer = SpeechRecognizer()
+        await speechRecognizer.configure()
+        
+        self.speechRecognizer = speechRecognizer
     }
     
     var transcript: String {
         speechRecognizer?.transcript ?? ""
     }
     
-    func startTranscribing() throws {
+    func startTranscribing() async throws {
         guard let speechRecognizer else {
             throw TranscriberError.noSpeechRecognizer
         }
         
-        Task {
-            do {
-                try await startAudioEngine(for: speechRecognizer)
-            } catch {
-                stopTranscribing()
-            }
+        do {
+            try await startAudioEngine(for: speechRecognizer)
+        } catch {
+            stopTranscribing()
         }
     }
     

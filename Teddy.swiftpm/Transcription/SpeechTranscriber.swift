@@ -11,9 +11,8 @@ import CoreMedia
 import Speech
 
 @available(iOS 26.0, *)
-@MainActor
 @Observable
-final class SpeechTranscriber: Transcribeable {
+final class SpeechTranscriber: Transcribeable, @unchecked Sendable {
     private(set) var transcript: String = ""
 
     @ObservationIgnored private var inputContinuation: AsyncStream<AnalyzerInput>.Continuation?
@@ -122,15 +121,15 @@ final class SpeechTranscriber: Transcribeable {
     }
 
     private func startResultsTask(with transcriber: Speech.SpeechTranscriber) {
-        resultsTask = Task {
+        resultsTask = Task { [weak self] in
             do {
                 for try await result in transcriber.results {
                     guard !Task.isCancelled else { break }
-                    transcript = String(result.text.characters)
+                    self?.transcript = String(result.text.characters)
                 }
             } catch {
                 guard !Task.isCancelled else { return }
-                setErrorTranscript(error)
+                self?.setErrorTranscript(error)
             }
         }
     }
@@ -144,10 +143,8 @@ final class SpeechTranscriber: Transcribeable {
                 try await analyzer.start(inputSequence: inputStream)
             } catch {
                 guard !Task.isCancelled else { return }
-                await MainActor.run {
-                    self?.setErrorTranscript(error)
-                    self?.finishAudioInput()
-                }
+                self?.setErrorTranscript(error)
+                self?.finishAudioInput()
             }
         }
     }

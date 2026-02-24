@@ -74,7 +74,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
         .simultaneousGesture(TapGesture().onEnded({ _ in
             modelController.stopTemporaryListening()
         }))
-        .task {
+        .task { [speechRecognizer] in
             await speechRecognizer.configure()
             if !hasOnboarded {
                 Task {
@@ -155,11 +155,13 @@ struct CameraView<CameraModel: Camera>: PlatformView {
     }
     
     private func startTranscription() {
-        do {
-            try speechRecognizer.resetTranscript()
-            try speechRecognizer.startTranscribing()
-        } catch {
-            print(error)
+        Task { [speechRecognizer] in
+            do {
+                try speechRecognizer.resetTranscript()
+                try await speechRecognizer.startTranscribing()
+            } catch {
+                print(error)
+            }
         }
     }
     

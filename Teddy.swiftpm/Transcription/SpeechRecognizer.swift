@@ -12,7 +12,6 @@ import SwiftUI
 
 /// A helper for transcribing speech to text using SFSpeechRecognizer and AVAudioEngine.
 @Observable
-@MainActor
 final class SpeechRecognizer: Transcribeable {
     enum RecognizerError: Error {
         case nilRecognizer
@@ -46,18 +45,18 @@ final class SpeechRecognizer: Transcribeable {
             transcribe(RecognizerError.nilRecognizer)
             return
         }
-        
-        Task {
-            do {
-                guard await SFSpeechRecognizer.hasAuthorizationToRecognize() else {
-                    throw RecognizerError.notAuthorizedToRecognize
-                }
-                guard await AVAudioSession.sharedInstance().hasPermissionToRecord() else {
-                    throw RecognizerError.notPermittedToRecord
-                }
-            } catch {
-                transcribe(error)
+    }
+    
+    func configure() async {
+        do {
+            guard await SFSpeechRecognizer.hasAuthorizationToRecognize() else {
+                throw RecognizerError.notAuthorizedToRecognize
             }
+            guard await AVAudioSession.sharedInstance().hasPermissionToRecord() else {
+                throw RecognizerError.notPermittedToRecord
+            }
+        } catch {
+            transcribe(error)
         }
     }
     
