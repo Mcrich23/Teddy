@@ -9,8 +9,28 @@ import Foundation
 import SwiftUI
 
 extension View {
-    public func glassSheet(variant: Int = 4) -> some View {
-        background{ VCWrapper(variant: variant) }
+    public func glassSheet(variant: Int? = nil) -> some View {
+        modifier(GlassSheetModifier(variant: variant))
+    }
+}
+
+private struct GlassSheetModifier: ViewModifier {
+    let variant: Int?
+    @Environment(\.preferredSheetGlassColorScheme) var preferredSheetGlassColorScheme
+    
+    var computerVariant: Int {
+        if let variant { return variant }
+        
+        switch preferredSheetGlassColorScheme {
+        case .light: return 2
+        case .dark: return 4
+        default: return 4
+        }
+    }
+    
+    func body(content: Content) -> some View {
+        content
+            .background(VCWrapper(variant: computerVariant))
     }
 }
 
@@ -18,7 +38,7 @@ fileprivate struct VCWrapper: UIViewControllerRepresentable {
     let variant: Int
     
     @MainActor final class DummyVC: UIViewController {
-        let variant: Int
+        var variant: Int
         
         init(variant: Int) {
             self.variant = variant
@@ -51,6 +71,8 @@ fileprivate struct VCWrapper: UIViewControllerRepresentable {
         .init(variant: variant)
     }
     func updateUIViewController(_ uiViewController: DummyVC, context: Context) {
+        uiViewController.variant = variant
+        uiViewController.didMove(toParent: uiViewController.parent)
     }
 }
 

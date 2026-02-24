@@ -9,12 +9,34 @@ import SwiftUI
 @preconcurrency import AVFoundation
 import CoreImage
 
-struct CameraPreview<CameraType: Camera>: UIViewControllerRepresentable {
-    
+struct CameraPreview<CameraType: Camera>: View {
     private let camera: CameraType
+    @State private var preferredSheetGlassColorScheme = PreferredSheetGlassColorSchemeKey.defaultValue
+    @State private var imageTracker = ImageTracker()
+    let timer = Timer.publish(every: 2.5, on: .main, in: .common).autoconnect()
     
     init(camera: CameraType) {
         self.camera = camera
+    }
+    
+    var body: some View {
+        _CameraPreview(camera: camera, imageTracker: imageTracker)
+            .preferredSheetGlassColorScheme(preferredSheetGlassColorScheme)
+            .onReceive(timer) { _ in
+                guard let image = imageTracker.image, image.glassColorScheme != preferredSheetGlassColorScheme else { return }
+                preferredSheetGlassColorScheme = image.glassColorScheme
+            }
+    }
+}
+
+private struct _CameraPreview<CameraType: Camera>: UIViewControllerRepresentable {
+    
+    private let camera: CameraType
+    private let imageTracker: ImageTracker
+    
+    init(camera: CameraType, imageTracker: ImageTracker) {
+        self.camera = camera
+        self.imageTracker = imageTracker
     }
     
     func makeUIViewController(context: Context) -> UIViewController {
@@ -26,6 +48,7 @@ struct CameraPreview<CameraType: Camera>: UIViewControllerRepresentable {
         
         let preview = DualCameraPreviewViewController()
         preview.camera = camera
+        preview.imageTracker = imageTracker
         return preview
     }
     
@@ -152,12 +175,12 @@ final class SingleCameraPreviewViewController<CameraModel: Camera>: UIViewContro
 // MARK: - DualCameraPreviewViewController
 /// Tracks the current background image
 @Observable
-final class ImageTracker {
+private final class ImageTracker {
     var image: UIImage?
 }
 
 /// Plays back the blurred image
-struct MirrorImage: View {
+private struct MirrorImage: View {
     @State var imageTracker: ImageTracker
     
     var body: some View {
@@ -190,7 +213,7 @@ final class DualCameraPreviewViewController: UIViewController {
     let cameraPreview = PreviewView()
     
     // MIRROR preview (frame-based)
-    private let imageTracker = ImageTracker()
+    fileprivate var imageTracker = ImageTracker()
     private var mirrorView: _UIHostingView<MirrorImage>? = nil
     
     private let outputQueue = DispatchQueue.main//(label: "camera.frame.queue")
@@ -329,5 +352,42 @@ extension DualCameraPreviewViewController: @MainActor AVCaptureVideoDataOutputSa
         let isFrontCamera = camera?.cameraPosition == .front // adjust if your CameraModel differs
 
         return isFrontCamera ? .leftMirrored : .right
+    }
+}
+
+extension CGImage {
+    var brightness: Double {
+        get {
+            let imageData = self.dataProvider?.data
+            let ptr = CFDataGetBytePtr(imageData)
+            var x = 0
+            var result: Double = 0
+            for _ in 0..<self.height {
+                for _ in 0..<self.width {
+                    let r = ptr![0]
+                    let g = ptr![1]
+                    let b = ptr![2]
+                    result += (0.299 * Double(r) + 0.587 * Double(g) + 0.114 * Double(b))
+                    x += 1
+                }
+            }
+            let bright = result / Double (x)
+            return bright
+        }
+    }
+}
+extension UIImage {
+    var brightness: Double {
+        get {
+            return (self.cgImage?.brightness)!
+        }
+    }
+    
+    var isDark: Bool {
+        brightness < 75
+    }
+    
+    var glassColorScheme: ColorScheme {
+        isDark ? .light : .dark
     }
 }

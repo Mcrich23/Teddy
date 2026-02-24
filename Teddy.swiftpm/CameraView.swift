@@ -24,6 +24,8 @@ struct CameraView<CameraModel: Camera>: PlatformView {
     @State var isShowingOnboarding = false
     @AppStorage("hasOnboarded") var hasOnboarded = false
     
+    @State private var preferredSheetGlassColorScheme: ColorScheme = PreferredSheetGlassColorSchemeKey.defaultValue
+    
     init(camera: CameraModel) {
         self.camera = camera
         let toolUIManager = ToolEnabledUIManager()
@@ -68,10 +70,14 @@ struct CameraView<CameraModel: Camera>: PlatformView {
                     .opacity(camera.shouldFlashScreen ? 0 : 1)
             }
             .ignoresSafeArea()
+            .onPreferenceChange(PreferredSheetGlassColorSchemeKey.self) { colorScheme in
+                preferredSheetGlassColorScheme = colorScheme
+            }
             // The main camera user interface.
             CameraUI(camera: camera, swipeDirection: $swipeDirection)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .environment(\.preferredSheetGlassColorScheme, preferredSheetGlassColorScheme)
         .simultaneousGesture(TapGesture().onEnded({ _ in
             modelController.stopTemporaryListening()
         }))
