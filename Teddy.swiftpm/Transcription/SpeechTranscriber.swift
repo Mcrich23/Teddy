@@ -100,7 +100,7 @@ final class SpeechTranscriber: Transcribeable, @unchecked Sendable {
             throw SpeechTranscriberError.unsupportedLocale
         }
 
-        let transcriber = Speech.SpeechTranscriber(locale: locale, preset: .progressiveTranscription)
+        let transcriber = Speech.SpeechTranscriber(locale: locale, transcriptionOptions: [], reportingOptions: [.volatileResults, .fastResults], attributeOptions: [])
 
         if let installationRequest = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
             try await installationRequest.downloadAndInstall()
