@@ -361,6 +361,8 @@ extension DualCameraPreviewViewController: @MainActor AVCaptureVideoDataOutputSa
     }
 }
 
+// Based on https://gist.github.com/adamcichy/2d00c7a54009b4a9751ba513749c485e
+
 extension CGImage {
     var brightness: Double {
         get {
