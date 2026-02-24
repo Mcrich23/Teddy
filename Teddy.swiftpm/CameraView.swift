@@ -120,7 +120,7 @@ struct CameraView<CameraModel: Camera>: PlatformView {
             }
         })
         .overlay(content: {
-            GlassView(variant: toolUIManager.isOnboarding ? 2 : nil, animation: glassOnboardingAnimation)
+            GlassView(variant: toolUIManager.isOnboarding ? onboardingGlassVariant : nil, animation: glassOnboardingAnimation)
                 .ignoresSafeArea()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .allowsHitTesting(toolUIManager.isOnboarding) // Allow tap underneath glass layer
@@ -148,6 +148,16 @@ struct CameraView<CameraModel: Camera>: PlatformView {
         .environment(speechRecognizer)
         .environment(\.startTranscription, startTranscription)
         .environment(\.endTranscription, endTranscription)
+    }
+    
+    var onboardingGlassVariant: Int {
+        switch preferredSheetGlassColorScheme {
+        case .light:
+            4
+        case .dark:
+            2
+        default: 4
+        }
     }
     
     var glassOnboardingAnimation: Animation {
