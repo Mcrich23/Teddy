@@ -33,12 +33,12 @@ let package = Package(
                 .portraitUpsideDown(.when(deviceFamilies: [.pad]))
             ],
             capabilities: [
-                .microphone(purposeString: "Project Rovo would like to use your microphone."),
-                .speechRecognition(purposeString: "Project Rovo would like to use speech recognition software."),
-                .camera(purposeString: "Project Rovo would like to use your camera."),
-                .photoLibrary(purposeString: "Project Rovo would like to use your photo library."),
+                .microphone(purposeString: "Teddy would like to use your microphone for speech recognition."),
+                .speechRecognition(purposeString: "Teddy would like to use speech recognition software."),
+                .camera(purposeString: "Teddy would like to use your camera to take photos and videos."),
+                .photoLibrary(purposeString: "Teddy would like to use your photo library so it can save photos."),
                 .fileAccess(.pictureFolder, mode: .readWrite),
-                .locationWhenInUse(purposeString: "Project Rovo would like to use your location when the app is active.")
+                .locationWhenInUse(purposeString: "Teddy would like to use your location when the app is active.")
             ],
             appCategory: .photography,
             additionalInfoPlistContentFilePath: "Info.plist"
@@ -50,5 +50,5 @@ let package = Package(
             path: "."
         )
     ],
-    swiftLanguageModes: [.version("6")]
+    swiftLanguageVersions: [.version("6")]
 )
