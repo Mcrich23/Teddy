@@ -118,7 +118,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             return false
         }
         
-        if transcript.replacingOccurrences(of: teddyAlts, with: "").trimmingCharacters(in: .whitespacesAndNewlines).trimmingCharacters(in: .punctuationCharacters).isEmpty {
+        if transcript.replacingOccurrences(of: teddyAlts, with: "").trimmingCharacters(in: .whitespacesAndNewlines).trimmingCharacters(in: .punctuationCharacters).isEmpty && !transcript.trimmingCharacters(in: .punctuationCharacters).isEmpty {
             isTemporarilyActiveListening = true
             try? await sounds.playStartListeningSound()
             return true
