@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AboutView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(ToolEnabledUIManager.self) var toolEnabledUIManager
     
     var body: some View {
         NavigationStack {
@@ -52,6 +53,16 @@ struct AboutView: View {
                             .bold()
                         Text("Thank you to Apple's [AVCam](https://developer.apple.com/documentation/avfoundation/avcam-building-a-camera-app) sample app for providing some of the internal camera logic.")
                             .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    
+                    Divider()
+                    
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text("What's my name?")
+                            .bold()
+                        
+                        TextField("Teddy", text: toolEnabledUIManager.assistantNameBinding)
+                            .textFieldStyle(.roundedBorder)
                     }
                 }
                 .padding(.top, -40)

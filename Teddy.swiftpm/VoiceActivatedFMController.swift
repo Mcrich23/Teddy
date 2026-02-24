@@ -44,11 +44,13 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
     private var responseCount: Int = 0
     
     // Allow different alts since Teddy isn't a word.
-    private let teddyAlts = [
-        "Teddy",
-        "Ted",
-        "Betty",
-    ]
+    private var teddyAlts: [String] {
+        guard toolUIManager.assistantName.lowercased() == "teddy" else {
+            return [toolUIManager.assistantName]
+        }
+        
+        return ["Teddy", "Ted", "Betty"]
+    }
     
     func getCommand(from transcript: String?) -> String? {
         guard (!toolUIManager.isActiveListening && !isTemporarilyActiveListening) || camera.captureActivity.isRecording else {
@@ -185,7 +187,8 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             SetHDRTool(camera: camera, uiManager: toolUIManager),
             SetZoomTool(camera: camera, uiManager: toolUIManager),
             SetActiveListeningTool(camera: camera, uiManager: toolUIManager),
-            DismissOnboardingTool(uiManager: toolUIManager)
+            DismissOnboardingTool(uiManager: toolUIManager),
+            SetAssistantName(uiManager: toolUIManager)
 //            GetAvailableCamerasTool(camera: camera, uiManager: toolUIManager),
 //            GetZoomFactorsTool(camera: camera, uiManager: toolUIManager),
 //            GetZoomTool(camera: camera, uiManager: toolUIManager),
@@ -325,6 +328,23 @@ final class ToolEnabledUIManager {
     
     func triggerCountdown() {
         countdownTrigger.toggle()
+    }
+    
+    private(set) var assistantName: String = UserDefaults.standard.string(forKey: "assistantName") ?? "Teddy" {
+        didSet {
+            UserDefaults.standard.set(assistantName, forKey: "assistantName")
+        }
+    }
+    
+    var assistantNameBinding: Binding<String> {
+        .init(
+            get: { self.assistantName },
+            set: { self.setAssistantName($0) }
+        )
+    }
+    
+    func setAssistantName(_ name: String) {
+        self.assistantName = name
     }
 }
 
