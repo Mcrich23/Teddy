@@ -58,11 +58,17 @@ struct AboutView: View {
                     Divider()
                     
                     VStack(alignment: .leading, spacing: 15) {
-                        Text("What's my name?")
+                        Text("Customize the Name of Your Assistant")
                             .bold()
                         
                         TextField("Teddy", text: toolEnabledUIManager.assistantNameBinding)
                             .textFieldStyle(.roundedBorder)
+                            .onSubmit {
+                                ensureAssistantNameIsNotEmpty()
+                            }
+                            .onDisappear {
+                                ensureAssistantNameIsNotEmpty()
+                            }
                     }
                 }
                 .padding(.top, -40)
@@ -73,6 +79,12 @@ struct AboutView: View {
                 Button(role: .close, action: dismiss.callAsFunction)
             }
             .toolbarTitleDisplayMode(.inline)
+        }
+    }
+    
+    func ensureAssistantNameIsNotEmpty() {
+        if toolEnabledUIManager.assistantName.isEmpty {
+            toolEnabledUIManager.setAssistantName("Teddy")
         }
     }
 }
