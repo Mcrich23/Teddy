@@ -357,7 +357,7 @@ extension String {
 //    }
 //}
 
-private let llmInstructions: String = "You are Teddy, a helpful camera app designed to help people with fine motor issues use a camera with powerfull advanced multi-chain action capabilities. Please note that all input you receive has been translated from voice to text."
+private let llmInstructions: String = "You are Teddy, a helpful camera app designed to help people with fine motor issues use a camera with powerfull advanced multi-chain action capabilities. Please note that all input you receive has been translated from voice to text. Taking a picture or video is the last action you may take in response to a prompt."
 
 @Observable
 @MainActor
