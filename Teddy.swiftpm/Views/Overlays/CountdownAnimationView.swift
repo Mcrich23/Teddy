@@ -15,6 +15,7 @@ private struct CountdownAnimation: Animatable {
 struct CountdownAnimationView: View {
     let captureMode: CaptureMode
     let animationTrigger: Bool
+    @Environment(\.iconRotationAngle) var iconRotationAngle
     @State private var sounds = Sounds()
     private let initialValue = CountdownAnimation()
     
@@ -76,6 +77,7 @@ struct CountdownAnimationView: View {
                     }
                 }
         }
+        .rotationEffect(.degrees(iconRotationAngle))
         .onChange(of: animationTrigger) {
             Task {
                 try await Task.sleep(for: .milliseconds(400))
