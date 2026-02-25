@@ -1,3 +1,8 @@
+<p>
+    <img src="https://github.com/user-attachments/assets/84ad8cf5-b6dd-4203-a512-f80d462a6dad" width=150px height=150px  hspace="10" alt="App Icon">
+    <img src="https://github.com/user-attachments/assets/bd196fa7-6650-40b0-bca2-a07bb5cbafe9" width=150px height=150px  hspace="10" alt="Dark Mode Icon">
+</p>
+
 # Teddy: Camera via Voice
 Teddy is an app to help those with touch accessibility issues still be able to capture those meaningful moments with their iPhone or iPad.
 
@@ -13,6 +18,34 @@ On a larger scale, there is a strong overlap between those who have touch issues
 
 Get the TestFlight [here](https://testflight.apple.com/join/chBAxBHK)
 
----
+## Technologies
+Oh my gosh, there were so many fun things used! Here's a brief list of frameworks:
 
-More Coming Soon...
+- UIKit
+- SwiftUI
+- AVKit
+- AVFoundation
+- CoreImage
+- FoundationModels
+- Speech
+- TipKit
+
+## Private APIs
+Yes, Teddy uses private APIs to achieve certain aspects of the app, namely the glass backgrounds. To learn more about `_UIViewGlass`, click [here](https://www.notprivateapis.com/documentation/notprivateapis/_uiviewglass).
+
+## AI Usage
+I used AI in this project, but very minimally.
+
+AVFoundation can be very difficult to work with and understand since many of the errors it communicates are simply bad memory access crashes. To achieve the blured bounds for the current camera where the aspect ratio of the normal preview does not cover, I had ChatGPT generate some of the structures to convert AVCaptureVideoPreviewLayer into a UIImage on frame update. Then I did all of the manual work of representing and displaying it.
+
+Also, shout out to [Ethan Lipnik](https://x.com/EthanLipnik) for alerting me to the existance of the new SpeechAnalyzer API. To transition from a solo model of simply SFSpeechRecognizer, I used AI to do some of the heavy lifting of implementing SpeechAnalyzer and refactoring the audio input code to make everything consistent.
+
+While AI assisted me in understanding and using these APIs, I did all of the architecture work as well as many components of integrating technological know-how to make these features come together. AI just helped to create the first draft.
+
+## Screenshots
+
+<p>
+<img width="168.75" height="345" alt="Teddy 1" src="https://github.com/user-attachments/assets/d717728c-493a-4d36-be7d-f1e3f135bdef" hspace="10"/>
+<img width="168.75" height="345" alt="Teddy 2" src="https://github.com/user-attachments/assets/b5ab0ac9-7965-4ef7-bc0d-b1aba39f2328" hspace="10"/>
+<img width="168.75" height="345" alt="Teddy 3" src="https://github.com/user-attachments/assets/60a57ce9-cb74-44ca-8541-313094b7ae55" hspace="10"/>
+</p>
