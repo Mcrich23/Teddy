@@ -84,16 +84,13 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
         // Wait for input level to be minimal suggesting input has stopped
         let audioTimer = Task {
             var inputNoiseLevel = transcriber.inputNoiseLevel
-            for _ in 0..<10 {
+            for _ in 0..<20 {
                 inputNoiseLevel = transcriber.inputNoiseLevel
                 try? await Task.sleep(for: .milliseconds(100))
                 
                 if inputNoiseLevel > 0.35 {
                     return false
                 }
-            }
-            guard transcript == transcriber.transcript else {
-                return false
             }
             
             transcript = (try? await transcriber.resetTranscript()) ?? transcript
