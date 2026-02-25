@@ -250,7 +250,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             StartVideoTool(camera: camera, uiManager: toolUIManager),
             StopVideoTool(camera: camera, uiManager: toolUIManager),
             SwitchCameraTool(camera: camera, uiManager: toolUIManager),
-            SetCaptureModeTool(camera: camera, uiManager: toolUIManager),
+//            SetCaptureModeTool(camera: camera, uiManager: toolUIManager),
             SetFlashModeTool(camera: camera, uiManager: toolUIManager),
             SetLiveTool(camera: camera, uiManager: toolUIManager),
             SetHDRTool(camera: camera, uiManager: toolUIManager),
