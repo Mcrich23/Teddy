@@ -38,7 +38,7 @@ I used AI in this project, but very minimally.
 
 AVFoundation can be very difficult to work with and understand since many of the errors it communicates are simply bad memory access crashes. To achieve the blured bounds for the current camera where the aspect ratio of the normal preview does not cover, I had ChatGPT generate some of the structures to convert AVCaptureVideoPreviewLayer into a UIImage on frame update. Then I did all of the manual work of representing and displaying it.
 
-Also, shout out to [Ethan Lipnik](https://x.com/EthanLipnik) for alerting me to the existance of the new SpeechAnalyzer API. To transition from a solo model of simply SFSpeechRecognizer, I used AI to do some of the heavy lifting of implementing SpeechAnalyzer and refactoring the audio input code to make everything consistent.
+Also, shout out to [Ethan Lipnik](https://x.com/EthanLipnik) for alerting me to the existance of the new SpeechAnalyzer API. To transition from a solo model of simply using the old SFSpeechRecognizer, I used AI to do some of the heavy lifting of implementing SpeechAnalyzer and refactoring the audio input code to make everything consistent.
 
 While AI assisted me in understanding and using these APIs, I did all of the architecture work as well as many components of integrating technological know-how to make these features come together. AI just helped to create the first draft.
 
