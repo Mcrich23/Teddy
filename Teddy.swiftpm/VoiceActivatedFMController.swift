@@ -92,6 +92,9 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
                     return false
                 }
             }
+            guard transcript == transcriber.transcript else {
+                return false
+            }
             
             transcript = (try? await transcriber.resetTranscript()) ?? transcript
             return true
