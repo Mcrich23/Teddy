@@ -45,7 +45,7 @@ While AI assisted me in understanding and using these APIs, I did all of the arc
 ## Screenshots
 
 <p>
-<img width="168.75" height="345" alt="Teddy 1" src="https://github.com/user-attachments/assets/d717728c-493a-4d36-be7d-f1e3f135bdef" hspace="10"/>
-<img width="168.75" height="345" alt="Teddy 2" src="https://github.com/user-attachments/assets/b5ab0ac9-7965-4ef7-bc0d-b1aba39f2328" hspace="10"/>
-<img width="168.75" height="345" alt="Teddy 3" src="https://github.com/user-attachments/assets/60a57ce9-cb74-44ca-8541-313094b7ae55" hspace="10"/>
+<img width="168.75" height="345" alt="Teddy 1" src="https://github.com/user-attachments/assets/385e2f47-e39d-4dfb-b62a-0f9e7bcc8b6b" hspace="10"/>
+<img width="168.75" height="345" alt="Teddy 2" src="https://github.com/user-attachments/assets/bb90bc56-3fbd-4b95-8001-3a4bbc686b76" hspace="10"/>
+<img width="168.75" height="345" alt="Teddy 3" src="https://github.com/user-attachments/assets/e19f59e0-f005-4cea-8120-67117c115a0f" hspace="10"/>
 </p>
