@@ -2,6 +2,10 @@
 See the LICENSE.txt file for this sample’s licensing information.
 */
 
+#if targetEnvironment(simulator) || targetEnvironment(macCatalyst)
+#error("Please run Teddy on a real iPad/iPhone with support for Foundation Models")
+#endif
+
 import os
 import SwiftUI
 import TipKit
