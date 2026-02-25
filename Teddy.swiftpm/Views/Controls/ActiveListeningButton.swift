@@ -29,7 +29,8 @@ struct ActiveListeningButton<CameraModel: Camera>: PlatformView {
         } label: {
             ZStack {
                 Text("\(Image(systemName: "microphone"))A")
-                    .font(.callout.weight(.semibold))
+                    .font(UIAccessibility.isBoldTextEnabled ? .footnote : .callout)
+                    .fontWeight(.semibold)
                 Image(systemName: isEnabled ? "circle" : "circle.slash")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
