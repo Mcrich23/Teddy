@@ -88,9 +88,16 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
                 inputNoiseLevel = transcriber.inputNoiseLevel
                 try? await Task.sleep(for: .milliseconds(100))
                 
+                guard !Task.isCancelled else {
+                    return true
+                }
+                
                 if inputNoiseLevel > 0.35 {
                     return false
                 }
+            }
+            guard !Task.isCancelled else {
+                return true
             }
             
             transcript = (try? await transcriber.resetTranscript()) ?? transcript
@@ -116,13 +123,13 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             return false
         }
         
-        let audioAllowsCompletion = await audioTimer.value
+        let transcriptAllowsCompletion = await transcriptTimer.value
         
-        if audioAllowsCompletion {
-            transcriptTimer.cancel()
+        if transcriptAllowsCompletion {
+            audioTimer.cancel()
         }
         
-        let transcriptAllowsCompletion = await transcriptTimer.value
+        let audioAllowsCompletion = await audioTimer.value
         
         guard transcriptAllowsCompletion || audioAllowsCompletion else {
             return false
