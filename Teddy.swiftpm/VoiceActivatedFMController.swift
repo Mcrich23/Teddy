@@ -256,7 +256,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             SetHDRTool(camera: camera, uiManager: toolUIManager),
             SetZoomTool(camera: camera, uiManager: toolUIManager),
             SetActiveListeningTool(camera: camera, uiManager: toolUIManager),
-            SetAssistantName(uiManager: toolUIManager)
+//            SetAssistantName(uiManager: toolUIManager)
 //            GetAvailableCamerasTool(camera: camera, uiManager: toolUIManager),
 //            GetZoomFactorsTool(camera: camera, uiManager: toolUIManager),
 //            GetZoomTool(camera: camera, uiManager: toolUIManager),
@@ -357,7 +357,7 @@ extension String {
 //    }
 //}
 
-private let llmInstructions: String = "You are Teddy, a helpful camera app designed to help people with fine motor issues use a camera with powerfull advanced multi-chain action capabilities. Please note that all input you receive has been translated from voice to text. Do not change the name unless you are specifically told your new name."
+private let llmInstructions: String = "You are Teddy, a helpful camera app designed to help people with fine motor issues use a camera with powerfull advanced multi-chain action capabilities. Please note that all input you receive has been translated from voice to text."
 
 @Observable
 @MainActor
