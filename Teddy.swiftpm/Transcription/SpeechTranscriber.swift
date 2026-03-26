@@ -11,43 +11,25 @@ import CoreMedia
 import Speech
 
 @available(iOS 26.0, *)
-@Observable
-final class SpeechTranscriber: Transcribeable, @unchecked Sendable {
-    private(set) var transcript: String = ""
+private actor SpeechTranscriberBackend {
+    var inputContinuation: AsyncStream<AnalyzerInput>.Continuation?
+    var analysisTask: Task<Void, Never>?
+    var resultsTask: Task<Void, Never>?
+    var analyzer: SpeechAnalyzer?
+    var converter: AVAudioConverter?
+    var targetAudioFormat: AVAudioFormat?
+    var lastBufferTime: CMTime?
 
-    @ObservationIgnored private var inputContinuation: AsyncStream<AnalyzerInput>.Continuation?
-    @ObservationIgnored private var analysisTask: Task<Void, Never>?
-    @ObservationIgnored private var resultsTask: Task<Void, Never>?
-    @ObservationIgnored private var analyzer: SpeechAnalyzer?
-    @ObservationIgnored private var converter: AVAudioConverter?
-    @ObservationIgnored private var targetAudioFormat: AVAudioFormat?
-    @ObservationIgnored private var lastBufferTime: CMTime?
-
-    static func isCurrentLocaleDownloaded() async -> Bool {
-        guard let locale = await Speech.SpeechTranscriber.supportedLocale(equivalentTo: Locale.current) else {
-            return false
-        }
-
-        let installedLocales = await Speech.SpeechTranscriber.installedLocales
-        return installedLocales.contains { $0.identifier == locale.identifier }
-    }
-
-    func resetTranscript() {
-        transcript = ""
-    }
-    
-    func setAssistantName(_ name: String) async throws {
-        let context = AnalysisContext()
-        context.contextualStrings = [.general: [name]]
-        
+    func setContext(_ context: AnalysisContext) async throws {
         try await analyzer?.setContext(context)
     }
 
-    // MARK: - Transcribeable Audio Input
-
-    func prepareForAudioInput(format: AVAudioFormat) async throws {
-        let transcriber = try await prepareTranscriber()
-
+    func prepare(
+        format: AVAudioFormat,
+        transcriber: Speech.SpeechTranscriber,
+        onResults: @escaping @Sendable (String) -> Void,
+        onError: @escaping @Sendable (Error) -> Void
+    ) async throws {
         let analyzer = SpeechAnalyzer(modules: [transcriber])
         self.analyzer = analyzer
 
@@ -59,8 +41,8 @@ final class SpeechTranscriber: Transcribeable, @unchecked Sendable {
         let (inputStream, inputBuilder) = AsyncStream.makeStream(of: AnalyzerInput.self)
         inputContinuation = inputBuilder
 
-        startResultsTask(with: transcriber)
-        startAnalysisTask(analyzer: analyzer, inputStream: inputStream)
+        startResultsTask(with: transcriber, onResults: onResults, onError: onError)
+        startAnalysisTask(analyzer: analyzer, inputStream: inputStream, onError: onError)
     }
 
     func appendAudioBuffer(_ buffer: AVAudioPCMBuffer, at time: AVAudioTime) {
@@ -96,26 +78,6 @@ final class SpeechTranscriber: Transcribeable, @unchecked Sendable {
         resultsTask = nil
     }
 
-    // MARK: - Private Helpers
-
-    private func prepareTranscriber() async throws -> Speech.SpeechTranscriber {
-        guard await AVAudioSession.sharedInstance().hasPermissionToRecord() else {
-            throw SpeechTranscriberError.microphonePermissionDenied
-        }
-
-        guard let locale = await Speech.SpeechTranscriber.supportedLocale(equivalentTo: Locale.current) else {
-            throw SpeechTranscriberError.unsupportedLocale
-        }
-
-        let transcriber = Speech.SpeechTranscriber(locale: locale, transcriptionOptions: [], reportingOptions: [.volatileResults, .fastResults], attributeOptions: [])
-
-        if let installationRequest = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
-            try await installationRequest.downloadAndInstall()
-        }
-
-        return transcriber
-    }
-
     private func bestAnalyzerFormat(
         for transcriber: Speech.SpeechTranscriber,
         inputFormat: AVAudioFormat
@@ -133,31 +95,36 @@ final class SpeechTranscriber: Transcribeable, @unchecked Sendable {
             : nil
     }
 
-    private func startResultsTask(with transcriber: Speech.SpeechTranscriber) {
-        resultsTask = Task { [weak self] in
+    private func startResultsTask(
+        with transcriber: Speech.SpeechTranscriber,
+        onResults: @escaping @Sendable (String) -> Void,
+        onError: @escaping @Sendable (Error) -> Void
+    ) {
+        resultsTask = Task {
             do {
                 for try await result in transcriber.results {
                     guard !Task.isCancelled else { break }
-                    self?.transcript = String(result.text.characters)
+                    onResults(String(result.text.characters))
                 }
             } catch {
                 guard !Task.isCancelled else { return }
-                self?.setErrorTranscript(error)
+                onError(error)
             }
         }
     }
 
     private func startAnalysisTask(
         analyzer: SpeechAnalyzer,
-        inputStream: AsyncStream<AnalyzerInput>
+        inputStream: AsyncStream<AnalyzerInput>,
+        onError: @escaping @Sendable (Error) -> Void
     ) {
-        analysisTask = Task { [weak self] in
+        analysisTask = Task {
             do {
                 try await analyzer.start(inputSequence: inputStream)
             } catch {
                 guard !Task.isCancelled else { return }
-                self?.setErrorTranscript(error)
-                await self?.finishAudioInput()
+                onError(error)
+                await self.finishAudioInput()
             }
         }
     }
@@ -205,6 +172,81 @@ final class SpeechTranscriber: Transcribeable, @unchecked Sendable {
         @unknown default:
             return nil
         }
+    }
+}
+
+@available(iOS 26.0, *)
+@Observable
+final class SpeechTranscriber: Transcribeable, @unchecked Sendable {
+    private(set) var transcript: String = ""
+
+    @ObservationIgnored private let backend = SpeechTranscriberBackend()
+
+    static func isCurrentLocaleDownloaded() async -> Bool {
+        guard let locale = await Speech.SpeechTranscriber.supportedLocale(equivalentTo: Locale.current) else {
+            return false
+        }
+
+        let installedLocales = await Speech.SpeechTranscriber.installedLocales
+        return installedLocales.contains { $0.identifier == locale.identifier }
+    }
+
+    func resetTranscript() {
+        transcript = ""
+    }
+    
+    func setAssistantName(_ name: String) async throws {
+        let context = AnalysisContext()
+        context.contextualStrings = [.general: [name]]
+        
+        try await backend.setContext(context)
+    }
+
+    // MARK: - Transcribeable Audio Input
+
+    func prepareForAudioInput(format: AVAudioFormat) async throws {
+        let transcriber = try await prepareTranscriber()
+
+        try await backend.prepare(
+            format: format,
+            transcriber: transcriber,
+            onResults: { [weak self] result in
+                self?.transcript = result
+            },
+            onError: { [weak self] error in
+                self?.setErrorTranscript(error)
+            }
+        )
+    }
+
+    func appendAudioBuffer(_ buffer: AVAudioPCMBuffer, at time: AVAudioTime) {
+        Task {
+            await backend.appendAudioBuffer(buffer, at: time)
+        }
+    }
+
+    func finishAudioInput() async {
+        await backend.finishAudioInput()
+    }
+
+    // MARK: - Private Helpers
+
+    private func prepareTranscriber() async throws -> Speech.SpeechTranscriber {
+        guard await AVAudioSession.sharedInstance().hasPermissionToRecord() else {
+            throw SpeechTranscriberError.microphonePermissionDenied
+        }
+
+        guard let locale = await Speech.SpeechTranscriber.supportedLocale(equivalentTo: Locale.current) else {
+            throw SpeechTranscriberError.unsupportedLocale
+        }
+
+        let transcriber = Speech.SpeechTranscriber(locale: locale, transcriptionOptions: [], reportingOptions: [.volatileResults, .fastResults], attributeOptions: [])
+
+        if let installationRequest = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
+            try await installationRequest.downloadAndInstall()
+        }
+
+        return transcriber
     }
 
     private func setErrorTranscript(_ error: Error) {
