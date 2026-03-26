@@ -33,15 +33,26 @@ final class MovieCapture: OutputService {
     /// A Boolean value that indicates whether the device has flash and it is currently available.
     private var isFlashAvailable = false
     
+    enum Errors: Error, LocalizedError {
+        case noVideoConnection
+        
+        var localizedError: String {
+            switch self {
+            case .noVideoConnection:
+                return "Configuration error. No video connection found."
+            }
+        }
+    }
+    
     // MARK: - Capturing a movie
     
     /// Starts movie recording.
-    func startRecording() {
+    func startRecording() throws {
         // Return early if already recording.
         guard !movieOutput.isRecording else { return }
         
         guard let connection = movieOutput.connection(with: .video) else {
-            fatalError("Configuration error. No video connection found.")
+            throw Errors.noVideoConnection
         }
 
         // Configure connection for HEVC capture.

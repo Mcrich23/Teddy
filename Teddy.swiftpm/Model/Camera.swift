@@ -108,5 +108,5 @@ protocol Camera: AnyObject, Sendable {
     var thumbnail: CGImage? { get }
     
     /// An error if the camera encountered a problem.
-    var error: Error? { get }
+    var error: Error? { get set }
 }

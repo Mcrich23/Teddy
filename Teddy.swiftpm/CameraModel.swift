@@ -45,7 +45,7 @@ final class CameraModel: Camera {
     private(set) var thumbnail: CGImage?
     
     /// An error that indicates the details of an error during photo or movie capture.
-    private(set) var error: Error?
+    var error: Error?
     
     /// An object that provides the connection between the capture session and the video preview layer.
     var previewSource: PreviewSource { captureService.previewSource }

@@ -55,6 +55,7 @@ struct CameraUI<CameraModel: Camera>: PlatformView {
                 compactUI
             }
         }
+        .alert(for: $camera.error)
         .overlay {
             StatusOverlayView(status: camera.status)
         }

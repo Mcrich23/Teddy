@@ -606,7 +606,7 @@ final class CaptureService: ObservableObject {
         
         currentDevice.unlockForConfiguration()
         
-        movieCapture.startRecording()
+        try movieCapture.startRecording()
     }
     
     /// Stops the recording and returns the captured movie.
