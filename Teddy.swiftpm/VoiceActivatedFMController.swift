@@ -120,7 +120,7 @@ final class VoiceActivatedFMController<CameraModel: Camera> {
             }
             
             transcript = finalTranscript
-            return false
+            return true
         }
         
         let transcriptAllowsCompletion = await transcriptTimer.value
